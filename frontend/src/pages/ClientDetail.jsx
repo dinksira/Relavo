@@ -171,7 +171,7 @@ const ClientDetail = () => {
                     </tbody>
                  </table>
                  <div className="p-8 bg-slate-50 border-t border-relavo-border flex justify-between items-center">
-                    <span className="text-xs font-bold text-relavo-text-secondary font-medium">Customer Lifetime Value</span>
+                    <span className="text-xs font-bold text-relavo-text-secondary">Customer Lifetime Value</span>
                     <span className="text-lg font-black text-relavo-navy">$42,500</span>
                  </div>
               </div>

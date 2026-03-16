@@ -1,6 +1,7 @@
 {
   "name": "relavo-frontend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Relavo Dashboard - React + Vite",
   "scripts": {
     "dev": "vite",

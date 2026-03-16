@@ -78,3 +78,33 @@
 .animate-float {
   animation: float 6s infinite ease-in-out;
 }
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s infinite ease-in-out 2s;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.005); opacity: 0.98; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 4s infinite ease-in-out;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.rotate-x-1 {
+  transform: rotateX(1deg);
+}
+
+.-rotate-y-2 {
+  transform: rotateY(-2deg);
+}

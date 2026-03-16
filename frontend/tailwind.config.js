@@ -9,8 +9,9 @@ export default {
       colors: {
         relavo: {
           navy: '#1b2a3b',
+          navyDark: '#0f172a',
           blue: '#3b82f6',
-          blueDark: '#2563eb',
+          blueDark: '#1d4ed8',
           blueLight: '#eff6ff',
           surface: '#f8fafc',
           border: '#e2e8f0',

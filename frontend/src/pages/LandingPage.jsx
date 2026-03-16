@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ArrowRight, 
@@ -16,20 +16,45 @@ import useRevealOnScroll from '../hooks/useRevealOnScroll';
 import heroImg from '../assets/images/hero.png';
 import teamImg from '../assets/images/team.png';
 import aiGlowImg from '../assets/images/ai-glow.png';
+import heroVideo from '../assets/Blue_Abstract.mp4';
 
 const LandingPage = () => {
   useRevealOnScroll();
+  const [rotation, setRotation] = useState({ x: 1, y: -2 });
+  const containerRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Calculate distance from center in percentage (-1 to 1)
+    const moveX = (e.clientX - centerX) / (rect.width / 2);
+    const moveY = (e.clientY - centerY) / (rect.height / 2);
+    
+    // Tilt intensity (max 15 degrees)
+    const tiltX = -moveY * 15;
+    const tiltY = moveX * 15;
+    
+    setRotation({ x: tiltX, y: tiltY });
+  };
+
+  const handleMouseLeave = () => {
+    setRotation({ x: 1, y: -2 }); // Reset to slight default tilt
+  };
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden selection:bg-relavo-blue/20">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 px-6 py-4">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between glass px-8 py-3 rounded-full border-white/40">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between bg-white/50 backdrop-blur-xl px-8 py-3 rounded-full border border-white/20 shadow-xl">
           <Logo className="h-7" />
-          <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-relavo-navy">
-            <a href="#features" className="hover:text-relavo-blue transition-colors">Features</a>
-            <a href="#ai-logic" className="hover:text-relavo-blue transition-colors">AI Engine</a>
-            <a href="#pricing" className="hover:text-relavo-blue transition-colors">Pricing</a>
+          <div className="hidden lg:flex items-center gap-10 text-sm font-extrabold text-relavo-navy uppercase tracking-widest">
+            <a href="#solutions" className="hover:text-relavo-blue transition-colors">Solutions</a>
+            <a href="#ai-intelligence" className="hover:text-relavo-blue transition-colors">AI Intelligence</a>
+            <a href="#resources" className="hover:text-relavo-blue transition-colors">Resources</a>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/login" className="text-sm font-bold text-relavo-navy hover:text-relavo-blue pr-2 cursor-pointer transition-colors">Log in</Link>
@@ -42,84 +67,40 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <header className="relative pt-32 pb-20 md:pt-48 md:pb-40 px-6 min-h-[90vh] flex items-center">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImg} 
-            alt="Abstract AI pulse" 
-            className="w-full h-full object-cover opacity-100 mix-blend-multiply"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent" />
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover scale-105"
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+          {/* Enhanced Premium Overlays for readability */}
+          {/* Minimal dark overlay to make white text pop without hiding the video */}
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-
         <div className="max-w-[1400px] mx-auto w-full relative z-10 grid lg:grid-cols-2 gap-20 items-center">
           <div className="reveal">
-            <div className="inline-flex items-center gap-2 bg-relavo-blueLight/50 text-relavo-blue px-4 py-1.5 rounded-full border border-relavo-blue/10 text-xs font-bold uppercase tracking-wider mb-6">
-              <Zap size={14} className="animate-pulse" /> AI-Powered Relationship Health
-            </div>
-            <h1 className="text-6xl md:text-8xl font-black text-relavo-navy mb-8 tracking-tighter leading-[0.95]">
+            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.95]">
               Don't lose clients <br />
-              <span className="text-relavo-blue gradient-text">silently.</span>
+              <span className="text-relavo-blue">silently.</span>
             </h1>
-            <p className="text-xl md:text-2xl text-relavo-text-secondary leading-relaxed max-w-[600px] mb-10 font-medium">
-              Relavo monitors 12+ health signals to detect at-risk clients <span className="text-relavo-navy font-bold italic">before they churn.</span> It's the early warning system your agency needs.
+            <p className="text-xl md:text-2xl text-white/80 leading-relaxed max-w-[600px] mb-10 font-medium">
+              Relavo monitors 12+ health signals to detect at-risk clients <span className="text-white font-bold italic">before they churn.</span> It's the early warning system your agency needs.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <Link to="/login" className="btn-premium w-full sm:w-auto text-lg scale-110">
                 Get Early Access <ArrowRight size={20} />
               </Link>
-              <div className="flex -space-x-3 items-center">
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200" />
-                ))}
-                <span className="text-sm text-relavo-text-muted font-bold ml-6">Trusted by 200+ Agencies</span>
-              </div>
             </div>
-          </div>
-          
-          <div className="hidden lg:block relative reveal" style={{ transitionDelay: '200ms' }}>
-             <div className="relative glass p-4 rounded-[32px] border-white/50 shadow-2xl animate-float">
-                <div className="bg-relavo-navy rounded-[24px] overflow-hidden aspect-video relative">
-                   <div className="absolute inset-0 bg-gradient-to-br from-relavo-blue/20 to-transparent p-12">
-                      <div className="flex justify-between items-start mb-12">
-                        <div className="space-y-2">
-                           <div className="h-2 w-32 bg-white/20 rounded-full" />
-                           <div className="h-6 w-48 bg-white/40 rounded-full" />
-                        </div>
-                        <div className="w-16 h-16 rounded-full border-4 border-relavo-danger flex items-center justify-center text-white font-black text-xl">
-                           32%
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="h-4 w-full bg-white/10 rounded-full overflow-hidden">
-                           <div className="h-full bg-relavo-danger w-[32%] rounded-full shadow-[0_0_20px_rgba(220,38,38,0.5)]" />
-                        </div>
-                        <div className="flex justify-between text-white/40 text-[10px] uppercase font-bold tracking-widest">
-                           <span>At Risk</span>
-                           <span>Last Contact: 9 Days Ago</span>
-                        </div>
-                      </div>
-                      <div className="mt-12 bg-white/5 border border-white/10 p-6 rounded-[20px] backdrop-blur-lg">
-                        <div className="flex gap-4 items-center mb-4">
-                           <Sparkles size={20} className="text-relavo-blue" />
-                           <div className="h-2 w-24 bg-white/20 rounded-full" />
-                        </div>
-                        <div className="space-y-2 opacity-50">
-                           <div className="h-2 w-full bg-white/10 rounded-full" />
-                           <div className="h-2 w-[80%] bg-white/10 rounded-full" />
-                        </div>
-                      </div>
-                   </div>
-                </div>
-             </div>
-             {/* Decorative Elements */}
-             <div className="absolute -top-10 -right-10 w-32 h-32 bg-relavo-blue/20 blur-[80px] rounded-full" />
-             <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-relavo-danger/10 blur-[100px] rounded-full" />
           </div>
         </div>
       </header>
 
       {/* Feature Grid */}
-      <section id="features" className="py-24 md:py-40 px-6">
+      <section id="solutions" className="py-24 md:py-40 px-6">
         <div className="max-w-[1400px] mx-auto text-center reveal mb-20">
           <h2 className="text-5xl md:text-7xl font-bold text-relavo-navy mb-6 tracking-tight">Powerful enough for Enterprise. <br /> Built for <span className="text-relavo-blue italic">Small Teams.</span></h2>
           <p className="text-xl text-relavo-text-secondary max-w-[800px] mx-auto font-medium">From real-time sentiment analysis to automated health scoring, Relavo gives you the tools usually reserved for unicorn companies.</p>
@@ -166,7 +147,7 @@ const LandingPage = () => {
       </section>
 
       {/* Showcase Section */}
-      <section id="ai-logic" className="py-24 md:py-40 bg-relavo-navy relative overflow-hidden">
+      <section id="ai-intelligence" className="py-24 md:py-40 bg-relavo-navy relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={aiGlowImg} alt="AI analysis" className="w-full h-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-b from-relavo-navy via-transparent to-relavo-navy" />
@@ -217,6 +198,59 @@ const LandingPage = () => {
                  </div>
               </div>
            </div>
+        </div>
+      </section>
+
+
+      {/* Resources Section */}
+      <section id="resources" className="py-24 md:py-40 px-6">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div className="reveal">
+              <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-500 px-4 py-1.5 rounded-full border border-slate-200 text-xs font-bold uppercase tracking-wider mb-6">
+                Knowledge Hub
+              </div>
+              <h2 className="text-5xl md:text-7xl font-bold text-relavo-navy mb-8 tracking-tight">Intelligence at your <span className="text-relavo-blue italic">fingertips.</span></h2>
+              <p className="text-xl text-relavo-text-secondary leading-relaxed font-medium mb-12">Whether you need to integrate your existing stack or learn about AI-driven relationship management, our resources are designed to help you grow.</p>
+              
+              <div className="grid sm:grid-cols-2 gap-6">
+                <a href="#" className="p-8 rounded-[32px] border border-relavo-border hover:border-relavo-blue hover:shadow-xl transition-all group active:scale-95">
+                  <div className="w-12 h-12 bg-relavo-blueLight rounded-2xl flex items-center justify-center text-relavo-blue mb-6 group-hover:bg-relavo-blue group-hover:text-white transition-colors">
+                    <Globe size={24} />
+                  </div>
+                  <h4 className="text-xl font-bold text-relavo-navy mb-2">Integration Library</h4>
+                  <p className="text-sm text-relavo-text-secondary font-medium">Connect Gmail, Slack, Stripe and 50+ other tools in minutes.</p>
+                </a>
+                <a href="#" className="p-8 rounded-[32px] border border-relavo-border hover:border-relavo-blue hover:shadow-xl transition-all group active:scale-95">
+                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-500 mb-6 group-hover:bg-relavo-navy group-hover:text-white transition-colors">
+                    <Zap size={24} />
+                  </div>
+                  <h4 className="text-xl font-bold text-relavo-navy mb-2">API Documentation</h4>
+                  <p className="text-sm text-relavo-text-secondary font-medium">Build custom automation using our robust REST API endpoints.</p>
+                </a>
+              </div>
+            </div>
+            
+            <div className="reveal space-y-6" style={{ transitionDelay: '200ms' }}>
+              <div className="bg-relavo-navy p-1 flex flex-col rounded-[40px] overflow-hidden shadow-2xl">
+                <div className="p-10 space-y-8">
+                  <div className="flex justify-between items-center">
+                    <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Featured Resource</h5>
+                    <span className="text-relavo-blue font-black text-[10px] uppercase tracking-widest">New Guide</span>
+                  </div>
+                  <h3 className="text-3xl font-bold text-white leading-tight underline decoration-relavo-blue decoration-4 underline-offset-8">The Modern Agency Guide to Client Retention (2026)</h3>
+                  <p className="text-white/60 font-medium leading-relaxed">Download our 42-page handbook on how AI is changing the way we monitor relationship vitality and financial pulses.</p>
+                  <button className="w-full btn-premium py-4">Download Playbook &rarr;</button>
+                </div>
+                <div className="bg-gradient-to-t from-relavo-blueDark to-relavo-blue p-8 flex justify-between items-center">
+                  <div className="flex -space-x-2">
+                    {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full bg-white/20 border-2 border-relavo-navy" />)}
+                  </div>
+                  <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Downloaded 1.2k times this month</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
