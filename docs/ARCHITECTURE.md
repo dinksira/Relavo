@@ -1,4 +1,4 @@
-![Relavo Logo](./assets/logo.png)
+![Relavo Logo](./assets/relavo-logo.svg)
 
 # Relavo — System Architecture
 

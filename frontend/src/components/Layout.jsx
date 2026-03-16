@@ -30,7 +30,7 @@ const Layout = ({ children }) => {
         <nav className="flex-1 mt-2">
           {navItems.map((item) => (
             <NavLink
-              key={item.path}
+              key={item.label}
               to={item.path}
               className={({ isActive }) => `
                 flex items-center gap-3 px-6 py-3 transition-all duration-150
