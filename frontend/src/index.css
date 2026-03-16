@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-relavo-surface text-relavo-text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-relavo-blue text-white font-medium px-4 py-2 rounded-button transition-colors duration-150 hover:bg-relavo-blueDark active:scale-[0.98];
+  }
+
+  .btn-outline {
+    @apply border border-relavo-border text-relavo-text-secondary font-medium px-4 py-2 rounded-button transition-colors duration-150 hover:bg-relavo-surface active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-white border border-relavo-border rounded-card shadow-relavo;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border border-relavo-border rounded-input focus:outline-none focus:ring-2 focus:ring-relavo-blue/20 focus:border-relavo-blue transition-all duration-150;
+  }
+
+  .nav-item-active {
+    @apply bg-relavo-blueLight text-relavo-blue border-l-[3px] border-relavo-blue rounded-r-lg;
+  }
+}
