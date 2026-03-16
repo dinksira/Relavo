@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,34 +6,75 @@
 
 @layer base {
   body {
-    @apply font-sans bg-relavo-surface text-relavo-text-primary;
+    @apply font-sans bg-relavo-surface text-relavo-text-primary scroll-smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
+    @apply font-sans font-bold leading-tight;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-relavo-blue text-white font-medium px-4 py-2 rounded-button transition-colors duration-150 hover:bg-relavo-blueDark active:scale-[0.98];
+  /* Premium Glassmorphism */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
   }
 
-  .btn-outline {
-    @apply border border-relavo-border text-relavo-text-secondary font-medium px-4 py-2 rounded-button transition-colors duration-150 hover:bg-relavo-surface active:scale-[0.98];
+  .glass-dark {
+    @apply bg-relavo-navy/80 backdrop-blur-lg border border-white/5 shadow-2xl;
   }
 
-  .card {
-    @apply bg-white border border-relavo-border rounded-card shadow-relavo;
+  /* Buttons */
+  .btn-premium {
+    @apply relative overflow-hidden bg-relavo-blue text-white font-semibold px-8 py-3.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-relavo-blue/40 active:scale-95 flex items-center justify-center gap-2;
   }
 
-  .input-field {
-    @apply w-full px-3 py-2 border border-relavo-border rounded-input focus:outline-none focus:ring-2 focus:ring-relavo-blue/20 focus:border-relavo-blue transition-all duration-150;
+  .btn-premium-outline {
+    @apply border-2 border-relavo-blue text-relavo-blue font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:bg-relavo-blue hover:text-white active:scale-95;
   }
 
-  .nav-item-active {
-    @apply bg-relavo-blueLight text-relavo-blue border-l-[3px] border-relavo-blue rounded-r-lg;
+  /* Card Effects */
+  .card-premium {
+    @apply bg-white border border-relavo-border rounded-[24px] shadow-sm transition-all duration-300 hover:shadow-2xl hover:shadow-relavo-navy/5 translate-y-0 hover:-translate-y-2;
   }
+
+  /* Typography */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-relavo-navy via-relavo-blue to-relavo-blueDark;
+  }
+
+  /* Inputs */
+  .input-premium {
+    @apply w-full px-6 py-4 bg-white/50 border border-relavo-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-relavo-blue/10 focus:border-relavo-blue transition-all duration-300;
+  }
+
+  /* Animations Utility */
+  .reveal {
+    @apply opacity-0 translate-y-8 transition-all duration-700 ease-out;
+  }
+  
+  .reveal-active {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+/* Animations */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s infinite ease-in-out;
 }

@@ -2,361 +2,267 @@ import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { 
   ArrowLeft, 
-  MessageSquare, 
-  Mail, 
-  Phone, 
-  Video, 
+  Calendar, 
+  FileText, 
+  Activity, 
+  MessageCircle, 
   Sparkles,
-  Calendar,
-  DollarSign,
-  MoreVertical,
-  Plus
+  ChevronRight,
+  TrendingUp,
+  Mail,
+  X,
+  Copy,
+  Check
 } from 'lucide-react';
 
 const ClientDetail = () => {
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const client = {
-    name: 'Acme Corp',
-    company: 'Design Agency',
-    status: 'active',
-    riskLevel: 'At Risk',
-    score: 32,
-    lastContact: '9 days ago',
-    openInvoices: { count: 1, amount: '$2,450' },
-    aiInsight: "Acme Corp hasn't replied in 9 days, has an overdue invoice since Jan 3rd, and their email tone has been noticeably short since last week. Their health score has dropped significantly in the last 14 days."
-  };
-
-  const touchpoints = [
-    { type: 'email', title: 'Follow-up regarding Q1 project', date: 'Jan 15, 2024', notes: 'Sent follow-up on outstanding invoice. No response yet.', outcome: 'neutral' },
-    { type: 'call', title: 'Check-in call', date: 'Jan 08, 2024', notes: 'Brief call with Sarah. She mentioned they are reorganization internal teams.', outcome: 'neutral' },
-    { type: 'message', title: 'Slack update', date: 'Jan 03, 2024', notes: 'Quick ping about asset delivery.', outcome: 'positive' },
+  const stats = [
+    { label: 'Health Score', value: '32', target: '100', color: 'text-relavo-danger', ring: 'text-red-500' },
+    { label: 'Last Contact', value: '9 days ago', sub: 'Critical lag detect', icon: Calendar, color: 'text-relavo-warning' },
+    { label: 'Open Invoices', value: '$4,200', count: '1 overdue', icon: FileText, color: 'text-relavo-danger' },
   ];
-
-  const invoices = [
-    { id: '#102', status: 'overdue', amount: '$2,450', dueDate: 'Jan 03, 2024' },
-    { id: '#101', status: 'paid', amount: '$4,100', dueDate: 'Dec 03, 2023' },
-  ];
-
-  const getRiskStyles = (status) => {
-    switch (status) {
-      case 'Healthy': return 'bg-green-100 text-relavo-success';
-      case 'Needs Attention': return 'bg-yellow-100 text-relavo-warning';
-      case 'At Risk': return 'bg-red-100 text-relavo-danger';
-      default: return 'bg-gray-100 text-gray-600';
-    }
-  };
-
-  const getScoreColor = (score) => {
-    if (score >= 70) return '#16a34a';
-    if (score >= 40) return '#d97706';
-    return '#dc2626';
-  };
-
-  const IconType = ({ type }) => {
-    switch (type) {
-      case 'email': return <Mail size={16} />;
-      case 'call': return <Phone size={16} />;
-      case 'meeting': return <Video size={16} />;
-      case 'message': return <MessageSquare size={16} />;
-      default: return <MessageSquare size={16} />;
-    }
-  };
 
   return (
     <Layout>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
         {/* Header */}
-        <div className="flex flex-col gap-6">
-          <button className="flex items-center gap-2 text-relavo-text-muted hover:text-relavo-blue transition-colors text-sm font-medium w-fit">
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </button>
-          
-          <div className="flex items-end justify-between">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold text-relavo-text-primary">{client.name}</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-blue-50 text-relavo-blue font-bold uppercase tracking-wider">
-                  {client.status}
-                </span>
-              </div>
-              <p className="text-relavo-text-secondary font-medium">{client.company}</p>
-            </div>
-            
-            <div className="flex gap-3">
-              <button className="btn-outline flex items-center gap-2">
-                <Plus size={18} />
-                Log Touchpoint
-              </button>
-              <button 
-                onClick={() => setShowEmailModal(true)}
-                className="btn-primary flex items-center gap-2"
-              >
-                <Sparkles size={18} />
-                Draft Email
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Stat Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Health Score Gauge */}
-          <div className="card p-6 flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium text-relavo-text-secondary">Health Score</p>
-              <div className="flex items-baseline gap-1">
-                <h3 className="text-2xl font-bold text-relavo-text-primary">{client.score}%</h3>
-                <span className={`text-[11px] font-bold ${getRiskStyles(client.riskLevel).split(' ')[1]}`}>
-                  {client.riskLevel}
-                </span>
-              </div>
-            </div>
-            <div className="relative w-20 h-20">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="34"
-                  stroke="#e2e8f0"
-                  strokeWidth="8"
-                  fill="transparent"
-                />
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="34"
-                  stroke={getScoreColor(client.score)}
-                  strokeWidth="8"
-                  fill="transparent"
-                  strokeDasharray={`${213.6 * (client.score / 100)} 213.6`}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-relavo-text-primary">
-                {client.score}
-              </span>
-            </div>
-          </div>
-
-          <div className="card p-6 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-relavo-text-secondary">
-              <Calendar size={18} />
-              <p className="text-sm font-medium">Last Contact</p>
-            </div>
-            <h3 className="text-2xl font-bold text-relavo-text-primary mt-1">{client.lastContact}</h3>
-            <p className="text-xs text-relavo-text-muted">Target: once every 7 days</p>
-          </div>
-
-          <div className="card p-6 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-relavo-text-secondary">
-              <DollarSign size={18} />
-              <p className="text-sm font-medium">Open Invoices</p>
-            </div>
-            <h3 className="text-2xl font-bold text-relavo-text-primary mt-1">{client.openInvoices.count} invoice</h3>
-            <p className="text-xs text-relavo-danger font-semibold">{client.openInvoices.amount} overdue</p>
-          </div>
-        </div>
-
-        {/* AI Insight Box */}
-        <div className="bg-relavo-blueLight border border-relavo-blue/20 border-l-4 border-l-relavo-blue p-8 rounded-card flex flex-col gap-4">
-          <div className="flex items-center gap-2 text-relavo-blue">
-            <Sparkles size={20} />
-            <h3 className="font-bold">AI Insight</h3>
-          </div>
-          <p className="text-[15px] leading-relaxed text-relavo-navy font-medium opacity-90">
-            "{client.aiInsight}"
-          </p>
-          <button 
-            onClick={() => setShowEmailModal(true)}
-            className="flex items-center gap-2 text-relavo-blue font-bold text-sm hover:underline w-fit mt-2"
-          >
-            Draft Re-engagement Email
-            <ChevronRight size={16} />
-          </button>
-        </div>
-
-        {/* Secondary Info Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Touchpoint Timeline */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-relavo-text-primary px-1">Touchpoint history</h2>
-            <div className="card divide-y divide-relavo-border">
-              {touchpoints.map((t, i) => (
-                <div key={i} className="p-6 flex gap-4 hover:bg-relavo-surface transition-colors cursor-pointer group">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-relavo-border shadow-sm flex items-center justify-center text-relavo-text-secondary shrink-0 group-hover:bg-relavo-blueLight group-hover:text-relavo-blue transition-colors">
-                    <IconType type={t.type} />
+             <button className="flex items-center gap-2 text-xs font-black text-relavo-text-muted hover:text-relavo-navy uppercase tracking-widest transition-colors mb-4">
+                <ArrowLeft size={16} /> Back to dashboard
+             </button>
+             <div className="flex items-center gap-4">
+               <h1 className="text-5xl font-black text-relavo-navy tracking-tight">Acme Corp</h1>
+               <span className="px-4 py-1.5 bg-relavo-danger/10 text-relavo-danger rounded-full text-[10px] font-black uppercase tracking-widest">AT RISK</span>
+             </div>
+             <p className="text-relavo-text-secondary font-medium">Monitoring since March 2024 • Project: <span className="text-relavo-navy font-bold">Brand Transformation</span></p>
+          </div>
+          <div className="flex gap-4">
+             <button className="btn-premium py-2.5 bg-slate-100 text-relavo-navy hover:bg-slate-200 hover:shadow-none hover:scale-100 border border-slate-200">
+               <MessageCircle size={18} /> Log Touchpoint
+             </button>
+             <button 
+               onClick={() => setShowEmailModal(true)}
+               className="btn-premium py-2.5"
+             >
+               <Sparkles size={18} /> Draft Email
+             </button>
+          </div>
+        </header>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           {stats.map((s, i) => (
+             <div key={i} className="card-premium p-10 flex flex-col items-center text-center gap-6 relative group">
+                {s.label === 'Health Score' ? (
+                  <div className="relative w-32 h-32 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" />
+                      <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray="364" strokeDashoffset={364 - (364 * parseInt(s.value)) / 100} className={`${s.ring} shadow-[0_0_10px_rgba(239,68,68,0.5)] transition-all duration-1000`} />
+                    </svg>
+                    <span className={`absolute text-4xl font-black ${s.color}`}>{s.value}</span>
                   </div>
-                  <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-                    <div className="flex justify-between items-start">
-                      <h4 className="text-sm font-bold text-relavo-text-primary truncate">{t.title}</h4>
-                      <span className="text-[11px] font-bold text-relavo-text-muted shrink-0 ml-4 uppercase tracking-wider">{t.date}</span>
-                    </div>
-                    <p className="text-sm text-relavo-text-secondary leading-relaxed line-clamp-2">
-                      {t.notes}
-                    </p>
+                ) : (
+                  <div className={`w-16 h-16 ${s.label === 'Last Contact' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'} rounded-[24px] flex items-center justify-center shadow-sm group-hover:scale-110 transition-all`}>
+                    <s.icon size={28} />
                   </div>
+                )}
+                <div>
+                   <p className="text-xs font-black text-relavo-text-muted uppercase tracking-widest mb-1">{s.label}</p>
+                   <h3 className="text-2xl font-black text-relavo-navy">{s.value}</h3>
+                   {s.sub && <p className={`mt-1 text-[10px] font-bold uppercase tracking-widest ${s.color}`}>{s.sub}</p>}
+                   {s.count && <p className={`mt-1 text-[10px] font-bold uppercase tracking-widest ${s.color}`}>{s.count}</p>}
                 </div>
-              ))}
-            </div>
-          </div>
+             </div>
+           ))}
+        </div>
 
-          {/* Invoice List */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-relavo-text-primary px-1">Recent invoices</h2>
-            <div className="card overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-relavo-surface text-relavo-text-muted text-[11px] font-bold uppercase tracking-wider border-b border-relavo-border">
-                  <tr>
-                    <th className="px-6 py-4">ID</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Amount</th>
-                    <th className="px-6 py-4 text-right">Due Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-relavo-border">
-                  {invoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-relavo-surface transition-colors cursor-pointer">
-                      <td className="px-6 py-5 text-sm font-bold text-relavo-text-primary">{inv.id}</td>
-                      <td className="px-6 py-5">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${inv.status === 'overdue' ? 'bg-red-50 text-relavo-danger' : 'bg-green-50 text-relavo-success'}`}>
-                          {inv.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-sm font-semibold text-relavo-text-secondary">{inv.amount}</td>
-                      <td className="px-6 py-5 text-sm font-medium text-relavo-text-muted text-right">{inv.dueDate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {/* AI Insight Section */}
+        <div className="reveal-active bg-relavo-blueDark p-12 rounded-[40px] shadow-2xl relative overflow-hidden group">
+           <div className="absolute top-0 right-0 w-80 h-80 bg-relavo-blue/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2" />
+           <div className="relative z-10 grid md:grid-cols-4 gap-12 items-center">
+              <div className="md:col-span-3 space-y-6">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
+                       <Sparkles size={24} />
+                    </div>
+                    <h3 className="text-2xl font-black text-white tracking-tight">Intelligence Informed Insight</h3>
+                 </div>
+                 <p className="text-xl text-white/70 italic leading-relaxed font-medium">
+                   "Acme Corp relationship health has dropped <span className="text-white font-black underline decoration-relavo-danger decoration-4">22 points</span> this week. Primary triggers include a 9-day communication gap and 1 overdue invoice (#102). Recommend immediate re-engagement via warm phone call or personalized email."
+                 </p>
+              </div>
+              <div className="flex justify-end">
+                 <button 
+                  onClick={() => setShowEmailModal(true)}
+                  className="bg-white text-relavo-navy font-black py-5 px-8 rounded-3xl hover:bg-relavo-blue hover:text-white transition-all transform hover:-rotate-3 active:scale-95 shadow-xl"
+                >
+                   Draft Response
+                 </button>
+              </div>
+           </div>
+        </div>
+
+        {/* Details Bottom Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+           {/* Timeline */}
+           <div className="space-y-6">
+              <h2 className="text-xl font-bold text-relavo-navy px-1">Touchpoint History</h2>
+              <div className="card-premium p-10 space-y-10 relative">
+                 <div className="absolute left-[59px] top-14 bottom-14 w-[2px] bg-slate-100" />
+                 {[
+                   { type: 'Call', date: 'March 07', note: 'Project timeline review. Client expressed concern about Q2 deadlines.', icon: Mail },
+                   { type: 'Email', date: 'Feb 28', note: 'Invoiced for month of February.', icon: MessageCircle },
+                   { type: 'Meeting', date: 'Feb 15', note: 'Discovery session for Phase 2.', icon: Activity }
+                 ].map((t, i) => (
+                   <div key={i} className="flex gap-8 relative items-start group">
+                      <div className="w-10 h-10 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center text-relavo-text-muted group-hover:border-relavo-blue group-hover:text-relavo-blue transition-all z-10 shrink-0 shadow-sm leading-none">
+                         <t.icon size={16} />
+                      </div>
+                      <div className="pt-1.5 space-y-2">
+                        <div className="flex items-baseline gap-4">
+                          <h4 className="text-sm font-black text-relavo-navy uppercase tracking-widest">{t.type}</h4>
+                          <span className="text-xs font-bold text-relavo-text-muted">{t.date}</span>
+                        </div>
+                        <p className="text-sm text-relavo-text-secondary font-medium leading-relaxed group-hover:text-relavo-text-primary transition-colors italic">"{t.note}"</p>
+                      </div>
+                   </div>
+                 ))}
+                 <button className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-[10px] font-black text-relavo-text-muted uppercase tracking-widest hover:border-relavo-blue hover:text-relavo-blue transition-all">
+                    Load More History
+                 </button>
+              </div>
+           </div>
+
+           {/* Invoices */}
+           <div className="space-y-6">
+              <h2 className="text-xl font-bold text-relavo-navy px-1">Financial Pulse</h2>
+              <div className="card-premium overflow-hidden">
+                 <table className="w-full">
+                    <thead className="bg-slate-50 border-b border-relavo-border">
+                       <tr>
+                          <th className="px-8 py-5 text-left text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">ID</th>
+                          <th className="px-8 py-5 text-left text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">Status</th>
+                          <th className="px-8 py-5 text-right text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">Amount</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-relavo-border">
+                       {[
+                         { id: '#102', status: 'Overdue', amount: '$4,200', date: 'Due Mar 05' },
+                         { id: '#101', status: 'Paid', amount: '$4,200', date: 'Paid Feb 15' },
+                         { id: '#099', status: 'Paid', amount: '$3,800', date: 'Paid Jan 10' }
+                       ].map((inv, i) => (
+                         <tr key={i} className="hover:bg-relavo-surface transition-colors group">
+                            <td className="px-8 py-6">
+                               <div className="text-sm font-bold text-relavo-navy group-hover:text-relavo-blue transition-colors">{inv.id}</div>
+                               <div className="text-[10px] text-relavo-text-muted font-bold uppercase">{inv.date}</div>
+                            </td>
+                            <td className="px-8 py-6">
+                               <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${inv.status === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                  {inv.status}
+                               </span>
+                            </td>
+                            <td className="px-8 py-6 text-right font-black text-relavo-navy">{inv.amount}</td>
+                         </tr>
+                       ))}
+                    </tbody>
+                 </table>
+                 <div className="p-8 bg-slate-50 border-t border-relavo-border flex justify-between items-center">
+                    <span className="text-xs font-bold text-relavo-text-secondary font-medium">Customer Lifetime Value</span>
+                    <span className="text-lg font-black text-relavo-navy">$42,500</span>
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
 
-      {/* Draft Email Modal */}
+      {/* Email Modal Implementation */}
       {showEmailModal && (
-        <EmailDraftModal 
-          client={client} 
-          onClose={() => setShowEmailModal(false)} 
-        />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+           <div className="absolute inset-0 bg-relavo-navy/95 backdrop-blur-xl" onClick={() => setShowEmailModal(false)} />
+           <div className="relative w-full max-w-[1000px] h-[80vh] bg-white rounded-[40px] shadow-3xl flex flex-col overflow-hidden animate-float">
+              {/* Modal Header */}
+              <div className="px-12 py-8 border-b border-relavo-border flex justify-between items-center bg-white shrink-0">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-relavo-blue/10 rounded-2xl flex items-center justify-center text-relavo-blue">
+                       <Sparkles size={24} />
+                    </div>
+                    <div>
+                       <h3 className="text-2xl font-black text-relavo-navy tracking-tight">AI Generated Re-engagement</h3>
+                       <p className="text-xs font-bold text-relavo-text-secondary uppercase tracking-widest">PERSONALIZED FOR ACME CORP</p>
+                    </div>
+                 </div>
+                 <button onClick={() => setShowEmailModal(false)} className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-relavo-danger hover:bg-red-50 transition-all">
+                    <X size={24} />
+                 </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="flex-1 overflow-auto p-12 grid lg:grid-cols-2 gap-12">
+                 <div className="space-y-10">
+                    <div className="space-y-4">
+                       <h4 className="text-lg font-bold text-relavo-navy">Context being used</h4>
+                       <div className="space-y-3">
+                          {[
+                            'Relationship health has dropped 22 points this week.',
+                            'Last contact was a review call on March 07 (9 days ago).',
+                            'Invoice #102 is currently 1 week overdue.'
+                          ].map((c, i) => (
+                            <div key={i} className="flex gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                               <Check size={16} className="text-relavo-blue" />
+                               <span className="text-sm font-medium text-relavo-text-secondary italic">"{c}"</span>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                       <h4 className="text-lg font-bold text-relavo-navy">Refine tone</h4>
+                       <div className="flex flex-wrap gap-4">
+                          {['Warm', 'Professional', 'Direct', 'Concise'].map(t => (
+                            <button key={t} className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${t === 'Warm' ? 'bg-relavo-blue border-relavo-blue text-white shadow-lg' : 'border-slate-100 text-relavo-text-muted hover:border-relavo-blue/30'}`}>
+                               {t}
+                            </button>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Editor Panel */}
+                 <div className="bg-slate-50 rounded-[32px] border border-slate-200 p-10 flex flex-col gap-8">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">Subject Line</label>
+                       <input 
+                         type="text" 
+                         defaultValue="Checking in — Brand Transformation project" 
+                         className="w-full bg-white border border-slate-200 px-6 py-4 rounded-2xl font-bold text-relavo-navy focus:outline-none focus:ring-4 focus:ring-relavo-blue/10" 
+                       />
+                    </div>
+                    <div className="space-y-2 flex-1">
+                       <label className="text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">Drafted Message</label>
+                       <textarea 
+                         className="w-full h-full bg-white border border-slate-200 px-6 py-6 rounded-2xl font-medium text-relavo-text-secondary focus:outline-none focus:ring-4 focus:ring-relavo-blue/10 leading-relaxed italic"
+                         defaultValue={`Hi Acme Team,\n\nI was just reviewing our project health and realized we haven't synced since our March 7th call. I want to make sure your Brand Transformation is still moving at the pace we discussed!\n\nI also noticed Invoice #102 is slightly overdue — if there are any issues on our end with the billing portal, please let me know. \n\nAre you free for a quick 5-minute catchup tomorrow afternoon?\n\nBest,\nJohn`}
+                       />
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="btn-premium w-full py-5 text-xl relative overflow-hidden"
+                    >
+                      {copied ? <><Check size={20} /> Copied to Clipboard</> : <><Copy size={20} /> Copy for Gmail</>}
+                      {copied && <div className="absolute inset-0 bg-relavo-success animate-reveal" />}
+                    </button>
+                 </div>
+              </div>
+           </div>
+        </div>
       )}
     </Layout>
-  );
-};
-
-// ChevronRight for the AI Insight button
-const ChevronRight = ({ className, size = 20 }) => (
-  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-);
-
-const EmailDraftModal = ({ client, onClose }) => {
-  const [tone, setTone] = useState('Professional');
-  
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-relavo-navy/40 backdrop-blur-sm p-6 overflow-auto">
-      <div className="bg-white w-full max-w-[1000px] h-full max-h-[700px] rounded-card shadow-2xl flex overflow-hidden">
-        {/* Left Context Panel */}
-        <div className="w-[40%] bg-relavo-surface border-r border-relavo-border p-8 flex flex-col gap-8 overflow-y-auto">
-          <div className="flex flex-col gap-2">
-            <h3 className="text-xl font-bold text-relavo-text-primary">{client.name}</h3>
-            <div className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider w-fit ${client.riskLevel === 'At Risk' ? 'bg-red-100 text-relavo-danger' : 'bg-blue-100 text-relavo-blue'}`}>
-              {client.riskLevel}
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-3 pb-6 border-b border-relavo-border">
-              <h4 className="text-[11px] font-bold text-relavo-text-muted uppercase tracking-widest">Reason for risk</h4>
-              <p className="text-sm font-medium text-relavo-text-primary leading-relaxed italic">
-                "9 days since last contact. Overdue invoice for 2 weeks."
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-[11px] font-bold text-relavo-text-muted uppercase tracking-widest">Client Context</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-relavo-text-muted uppercase">Health Score</span>
-                  <span className="text-xl font-bold text-relavo-danger">{client.score}%</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-relavo-text-muted uppercase">Last Contact</span>
-                  <span className="text-sm font-bold text-relavo-text-primary">{client.lastContact}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-[11px] font-bold text-relavo-text-muted uppercase tracking-widest">AI Insight Summary</h4>
-              <p className="text-xs text-relavo-text-secondary leading-relaxed bg-white border border-relavo-border p-4 rounded-lg shadow-sm">
-                The client relationship has seen a significant drift in responsiveness coinciding with reorganization news.
-              </p>
-            </div>
-          </div>
-          
-          <div className="mt-auto">
-             <button onClick={onClose} className="text-sm font-bold text-relavo-text-muted hover:text-relavo-navy transition-colors">
-              Close Preview
-            </button>
-          </div>
-        </div>
-
-        {/* Right Editing Panel */}
-        <div className="w-[60%] flex flex-col pt-8">
-          <div className="px-8 flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2 text-relavo-blue">
-              <Sparkles size={20} />
-              <h3 className="font-bold">AI-generated email</h3>
-            </div>
-            
-            <div className="flex bg-relavo-surface p-1 rounded-lg border border-relavo-border">
-              {['Warm', 'Professional', 'Direct'].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTone(t)}
-                  className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${tone === t ? 'bg-white text-relavo-blue shadow-sm' : 'text-relavo-text-muted hover:text-relavo-text-primary'}`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1 px-8 space-y-4 overflow-y-auto pb-4">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-relavo-text-muted uppercase tracking-widest ml-1">Subject Line</label>
-              <input 
-                type="text" 
-                defaultValue={`Checking in — ${client.name} & Relavo team`}
-                className="input-field font-semibold text-relavo-navy"
-              />
-            </div>
-            
-            <div className="flex-1 flex flex-col space-y-1.5 min-h-[300px]">
-              <label className="text-[10px] font-bold text-relavo-text-muted uppercase tracking-widest ml-1">Message Body</label>
-              <textarea 
-                className="input-field flex-1 resize-none font-medium leading-relaxed text-sm p-4 text-relavo-navy"
-                defaultValue={`Hi Sarah,\n\nI hope your week is off to a good start.\n\nI'm reaching out as I haven't heard from you in a bit and wanted to ensure everything is on track with your Q1 project. I also noticed that Invoice #102 is now slightly overdue — would you mind taking a look at that when you have a moment?\n\nIf the internal reorganization is keeping your team extra busy, please let me know how I can best support you during this transition. I'd love to hop on a quick 10-minute sync if that helps simplify things.\n\nBest regards,\n\nJohn Doe`}
-              />
-            </div>
-          </div>
-
-          <div className="p-8 border-t border-relavo-border bg-relavo-surface flex items-center justify-between">
-            <button className="btn-outline text-sm">Regenerate</button>
-            <div className="flex gap-3">
-              <button 
-                onClick={onClose}
-                className="btn-primary"
-              >
-                Copy Email
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 };
 

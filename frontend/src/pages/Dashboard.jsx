@@ -5,38 +5,38 @@ import {
   Smile, 
   AlertCircle, 
   Zap,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 const Dashboard = () => {
   const metrics = [
-    { label: 'Total Clients', value: '24', icon: Users, color: 'text-relavo-navy' },
-    { label: 'Healthy', value: '18', icon: Smile, color: 'text-relavo-success' },
-    { label: 'Needs Attention', value: '4', icon: AlertCircle, color: 'text-relavo-warning' },
-    { label: 'At Risk', value: '2', icon: Zap, color: 'text-relavo-danger' },
+    { label: 'Total Clients', value: '24', icon: Users, color: 'text-relavo-navy', bg: 'bg-slate-50' },
+    { label: 'Healthy', value: '18', icon: Smile, color: 'text-relavo-success', bg: 'bg-green-50' },
+    { label: 'Needs Attention', value: '4', icon: AlertCircle, color: 'text-relavo-warning', bg: 'bg-amber-50' },
+    { label: 'At Risk', value: '2', icon: Zap, color: 'text-relavo-danger', bg: 'bg-red-50' },
   ];
 
   const clients = [
-    { name: 'Acme Corp', company: 'Design Agency', score: 32, status: 'At Risk' },
-    { name: 'Globex Inc', company: 'SaaS Startup', score: 65, status: 'Needs Attention' },
-    { name: 'Soylent Corp', company: 'Tech Consulting', score: 88, status: 'Healthy' },
-    { name: 'Initech', company: 'Software Dev', score: 92, status: 'Healthy' },
-    { name: 'Umbrella Corp', company: 'Pharma', score: 45, status: 'Needs Attention' },
+    { name: 'Acme Corp', company: 'Design Agency', score: 32, status: 'At Risk', initials: 'AC' },
+    { name: 'Globex Inc', company: 'SaaS Startup', score: 65, status: 'Needs Attention', initials: 'GI' },
+    { name: 'Soylent Corp', company: 'Tech Consulting', score: 88, status: 'Healthy', initials: 'SC' },
+    { name: 'Initech', company: 'Software Dev', score: 92, status: 'Healthy', initials: 'IN' },
+    { name: 'Umbrella Corp', company: 'Pharma', score: 45, status: 'Needs Attention', initials: 'UC' },
   ];
 
   const alerts = [
     { client: 'Acme Corp', message: 'Invoice #102 is 5 days overdue', time: '2h ago', severity: 'high' },
     { client: 'Globex Inc', message: 'No contact in more than 7 days', time: '5h ago', severity: 'medium' },
     { client: 'Umbrella Corp', message: 'Score dropped 18 points in 24h', time: '1d ago', severity: 'medium' },
-    { client: 'Initech', message: 'Positive sentiment detected in recent email', time: '2d ago', severity: 'low' },
   ];
 
-  const getRiskStyles = (status) => {
+  const getRiskBadge = (status) => {
     switch (status) {
-      case 'Healthy': return 'bg-green-100 text-relavo-success';
-      case 'Needs Attention': return 'bg-yellow-100 text-relavo-warning';
-      case 'At Risk': return 'bg-red-100 text-relavo-danger';
-      default: return 'bg-gray-100 text-gray-600';
+      case 'Healthy': return 'bg-relavo-success/10 text-relavo-success';
+      case 'Needs Attention': return 'bg-relavo-warning/10 text-relavo-warning';
+      case 'At Risk': return 'bg-relavo-danger/10 text-relavo-danger';
+      default: return 'bg-slate-100 text-slate-600';
     }
   };
 
@@ -46,96 +46,107 @@ const Dashboard = () => {
     return 'bg-relavo-danger';
   };
 
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'high': return 'border-relavo-danger';
-      case 'medium': return 'border-relavo-warning';
-      case 'low': return 'border-relavo-blue';
-      default: return 'border-gray-200';
-    }
-  };
-
   return (
     <Layout>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
         {/* Header */}
-        <header>
-          <h1 className="text-2xl font-bold text-relavo-text-primary">Dashboard</h1>
-          <p className="text-relavo-text-secondary mt-1">Welcome back, John. Here's what needs your attention today.</p>
+        <header className="flex justify-between items-end">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black text-relavo-navy tracking-tight">Dashboard</h1>
+            <p className="text-relavo-text-secondary font-medium">Monitoring relationship pulses across <span className="text-relavo-navy font-bold">24 active accounts.</span></p>
+          </div>
+          <button className="btn-premium py-2.5 px-6 text-sm">
+            <Sparkles size={16} /> Generate Weekly Digest
+          </button>
         </header>
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {metrics.map((m) => (
-            <div key={m.label} className="card p-6 relative">
-              <span className={`absolute top-4 right-4 ${m.color}`}>
-                <m.icon size={20} />
-              </span>
-              <p className="text-sm font-medium text-relavo-text-secondary">{m.label}</p>
-              <h3 className="text-3xl font-bold text-relavo-text-primary mt-2">{m.value}</h3>
+            <div key={m.label} className="card-premium p-8 relative overflow-hidden group">
+               <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity ${m.color}`}>
+                  <m.icon size={120} />
+               </div>
+               <div className={`w-12 h-12 ${m.bg} ${m.color} rounded-2xl flex items-center justify-center mb-6`}>
+                  <m.icon size={24} />
+               </div>
+               <p className="text-xs font-bold text-relavo-text-muted uppercase tracking-widest">{m.label}</p>
+               <h3 className="text-4xl font-black text-relavo-text-primary mt-2">{m.value}</h3>
             </div>
           ))}
         </div>
 
         {/* Main Content Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Client Health List */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-lg font-bold text-relavo-text-primary px-1">Client health overview</h2>
-            <div className="card divide-y divide-relavo-border">
+          <div className="lg:col-span-2 space-y-6">
+            <h2 className="text-xl font-bold text-relavo-navy px-1">Relationship pulse overview</h2>
+            <div className="card-premium overflow-hidden divide-y divide-relavo-border">
               {clients.map((c) => (
-                <div key={c.name} className="flex items-center gap-4 p-5 hover:bg-relavo-surface transition-colors cursor-pointer group">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 text-relavo-blue flex items-center justify-center font-bold text-sm shrink-0">
-                    {c.name.charAt(0)}{c.name.split(' ')[1]?.charAt(0) || ''}
+                <div key={c.name} className="flex items-center gap-6 p-6 hover:bg-relavo-surface transition-all cursor-pointer group">
+                  <div className="w-12 h-12 rounded-2xl bg-relavo-blueLight text-relavo-blue flex items-center justify-center font-bold text-sm shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                    {c.initials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-[15px] font-semibold text-relavo-text-primary truncate">{c.name}</h4>
-                    <p className="text-xs text-relavo-text-secondary truncate">{c.company}</p>
+                    <h4 className="text-[17px] font-bold text-relavo-text-primary group-hover:text-relavo-blue transition-colors truncate">{c.name}</h4>
+                    <p className="text-sm text-relavo-text-secondary font-medium truncate">{c.company}</p>
                   </div>
-                  <div className="flex flex-col gap-1.5 w-32 shrink-0">
-                    <div className="flex justify-between items-center text-[10px] font-bold text-relavo-text-muted uppercase">
-                      <span>Health</span>
-                      <span>{c.score}%</span>
+                  
+                  <div className="flex flex-col gap-2 w-40 shrink-0">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-relavo-text-muted uppercase tracking-tighter">
+                      <span>Vitality Score</span>
+                      <span className={c.score < 40 ? 'text-relavo-danger' : 'text-relavo-navy'}>{c.score}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-relavo-border rounded-full overflow-hidden">
+                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-[1px]">
                       <div 
-                        className={`h-full ${getScoreColor(c.score)} rounded-full`} 
+                        className={`h-full ${getScoreColor(c.score)} rounded-full shadow-sm`} 
                         style={{ width: `${c.score}%` }} 
                       />
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase shrink-0 ${getRiskStyles(c.status)}`}>
+
+                  <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shrink-0 ${getRiskBadge(c.status)}`}>
                     {c.status}
                   </div>
-                  <button className="text-relavo-text-muted group-hover:text-relavo-blue transition-colors ml-2">
+                  
+                  <div className="p-2 rounded-xl text-slate-300 group-hover:bg-white group-hover:text-relavo-blue shadow-none group-hover:shadow-lg transition-all">
                     <ChevronRight size={20} />
-                  </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* AI Alerts Panel */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-lg font-bold text-relavo-text-primary">Smart alerts</h2>
-              <span className="bg-relavo-blue text-white text-[11px] font-bold px-2 py-0.5 rounded-full">4</span>
+              <h2 className="text-xl font-bold text-relavo-navy">Smart signals</h2>
+              <span className="bg-relavo-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg shadow-relavo-blue/20">3 ACTIVE</span>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               {alerts.map((a, i) => (
-                <div key={i} className={`card border-l-4 ${getSeverityColor(a.severity)} p-5 flex flex-col gap-3 transition-transform hover:translate-x-1 cursor-pointer`}>
-                  <div className="flex justify-between items-start">
-                    <h4 className="text-sm font-bold text-relavo-text-primary">{a.client}</h4>
-                    <span className="text-[10px] text-relavo-text-muted font-medium">{a.time}</span>
+                <div key={i} className={`card-premium border-l-[6px] ${a.severity === 'high' ? 'border-l-relavo-danger' : 'border-l-relavo-warning'} p-8 flex flex-col gap-4 group cursor-pointer`}>
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-black text-relavo-navy uppercase tracking-widest">{a.client}</h4>
+                    <span className="text-[10px] text-relavo-text-muted font-bold group-hover:text-relavo-navy transition-colors">{a.time}</span>
                   </div>
-                  <p className="text-sm text-relavo-text-secondary leading-relaxed">{a.message}</p>
-                  <div className="flex justify-end pt-1">
-                    <button className="text-[11px] font-bold text-relavo-text-muted hover:text-relavo-blue uppercase tracking-wider transition-colors">
-                      Dismiss
+                  <p className="text-[15px] text-relavo-text-secondary font-medium leading-relaxed italic">
+                    "{a.message}"
+                  </p>
+                  <div className="flex justify-end pt-2">
+                    <button className="text-[10px] font-black text-relavo-text-muted hover:text-relavo-blue uppercase tracking-widest transition-colors flex items-center gap-1">
+                      Mark Resolved <ChevronRight size={12} />
                     </button>
                   </div>
                 </div>
               ))}
+              
+              <div className="bg-relavo-blueLight/50 p-10 rounded-[24px] border border-dashed border-relavo-blue/30 flex flex-col items-center text-center gap-4">
+                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-relavo-blue shadow-lg">
+                    <Sparkles size={20} />
+                 </div>
+                 <p className="text-xs font-bold text-relavo-text-secondary">AI identifies patterns daily. <br /> Check back for updates.</p>
+              </div>
             </div>
           </div>
         </div>
