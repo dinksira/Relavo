@@ -15,9 +15,12 @@ backend/
 │   ├── app.js            # Express application setup
 │   ├── index.js          # Entry point (server start)
 │   ├── routes/           # Route definitions (Auth, Clients, Alerts, AI)
-│   ├── controllers/      # Business logic handlers
-│   ├── services/         # External integrations (AI Service, Supabase)
+│   ├── controllers/      # Request handlers (ClientController, AIController)
+│   ├── services/         # Business logic layer (ClientService, AIService)
+│   ├── repositories/     # Database access layer (ClientRepository)
+│   ├── config/           # Configuration files (Supabase, etc.)
 │   ├── middleware/       # JWT validation, error handling
+│   ├── models/           # Data models/schemas (if any)
 │   └── utils/            # Helper functions
 ├── tests/                # Jest unit and integration tests
 └── .env                  # Environment variables

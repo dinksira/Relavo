@@ -25,38 +25,41 @@ ai-service/
 
 | Method | Path | Request Body | Response JSON |
 |--------|------|--------------|---------------|
-| POST | `/score` | `{ "client_id": "...", "data": {...} }` | `{ "score": 85, "risk_level": "healthy" }` |
-| POST | `/summarize` | `{ "client_id": "...", "data": {...} }` | `{ "insight": "Client is healthy..." }` |
-| POST | `/suggest` | `{ "client_id": "...", "reason": "..." }` | `{ "action": "Call client", "draft": "..." }` |
+| GET | `/health` | N/A | `{ "status": "ok", "service": "relavo-ai" }` |
+| POST | `/score` | `ClientData` | `{ "score": 85, "risk_level": "healthy", ... }` |
+| POST | `/summarize` | `ClientData` | `{ "ai_insight": "Client is healthy...", ... }` |
+| POST | `/suggest` | `EmailRequest` | `{ "subject": "...", "body": "..." }` |
 
 ## Data Models
 
-### HealthScoreInput (JSON)
+### ClientData (JSON)
 | Field | Type | Description |
 |-------|------|-------------|
-| days_since_contact | int | Number of days since last interaction |
-| overdue_invoices | int | Count of unpaid invoices past due |
-| response_time_trend | float | Change in response time (-1 to 1) |
-| activity_level | int | Task/project activity count |
+| client_name | string | Name of the client |
+| days_since_contact | int | Days since last interaction |
+| overdue_invoices_count | int | Number of unpaid invoices |
+| response_time_trend | float | Change in response speed (-1 to 1) |
+| activity_ratio | float | Current activity vs historical (0.1 to 2.0) |
 
-### AISummary (Response)
+### EmailRequest (JSON)
 | Field | Type | Description |
 |-------|------|-------------|
-| insight | string | 2–3 sentence plain-English summary |
-| suggested_action | string | Next best action recommendation |
+| client_name | string | Name of the recipient |
+| context | string | Details about the client relationship |
+| tone | string | Optional: Professional, Friendly, Urgent (default: Professional) |
 
 ## AI Logic: Scoring Weights
 The service calculates the health score (0–100) using the following weights:
-- **Last Contact (30%)**: Decay starts after 7 days of no contact.
-- **Invoices (25%)**: Penalties for overdue status and total amount.
-- **Response Time (25%)**: Trend analysis over the last 30 days.
-- **Activity (20%)**: Project/task volume relative to historical average.
+- **Last Contact (35%)**: Penalty applies after 10 days of no contact.
+- **Financial Status (30%)**: Significant impact based on overdue invoice count.
+- **Activity Engagement (20%)**: Measured against historical project ratios.
+- **Response Velocity (15%)**: Real-time trend analysis of communication speed.
 
 ## Service Connections
 
 ### Anthropic Claude API
-- **Model**: `claude-3-sonnet-20240229` (or latest).
-- **Purpose**: Powering the `summarize` and `suggest` (email drafting) features.
+- **Model**: `claude-3-haiku-20240307` (Default) or `claude-3-sonnet`.
+- **Primary Tasks**: `summarize` (insight generation) and `suggest` (email drafting).
 
 ## Environment Variables
 

@@ -2,9 +2,9 @@
 
 The Relavo Frontend is a modern React application built with Vite and Tailwind CSS. It provides a highly visual and interactive experience for managing client relationships.
 
-## Module Purpose
-- Provide a unified dashboard for client health monitoring.
-- Visualize trends and risk factors using charts.
+- Provide an immersive, cinematic Landing Page representing the brand's premium value.
+- unified dashboard for client health monitoring.
+- Visualize trends and risk factors using interactive charts and 3D elements.
 - Interface for logging touchpoints and managing invoices.
 - Display real-time AI insights and alerts.
 - Handle user authentication and session management.
@@ -24,21 +24,22 @@ frontend/
 └── tailwind.config.js    # Design system configuration
 ```
 
-## Key Views
+### 1. Landing Page (Elite)
+- **Cinema Hero**: Full-screen interactive background with `Blue_Abstract.mp4` and adaptive typography (Relavo White).
+- **Interactive Solutions**: Six HD-visualized cards (Health, AI, Logger, Revenue, Sentiment, Integrations) featuring parallax zoom and 3D lift.
+- **Intelligence Showcase**: Cinematic split-screen with `Relationship.mp4` loop and Predictive Retention Engine specifications.
+- **Micro-interactions**: Global 3D mouse-tracking tilt effect on key UI dashboard previews.
 
-### 1. Main Dashboard
-- **Client Cards**: Displays name, current health score (with color coding), and a risk level badge.
-- **Top Metrics**: Total active clients, average health score, count of "At Risk" clients.
-- **Alert Feed**: Real-time list of client alerts and suggested actions.
+### 2. Main Dashboard
+- **Client Cards**: High-fidelity cards with health scores (weighted algorithm) and risk badges.
+- **Top Metrics**: Total live revenue at risk, average portfolio health, and active signal counts.
+- **Alert Feed**: Real-time ticker for churn alerts and prioritized re-engagement tasks.
 
-### 2. Client Profile
-- **Health Trend**: Line chart showing score changes over the last 30 days.
-- **Touchpoint History**: Timeline of recent interactions.
-- **AI Summary Section**: Detailed plain-English summary and "Draft Re-engagement Email" button.
-- **Invoices Table**: Status and due dates of all invoices.
-
-### 3. Touchpoint Logger
-- A quick-entry modal to record outcomes of calls, meetings, and emails.
+### 3. Client Profile & Tools
+- **Deep Health Analysis**: 30-day health trend visualization.
+- **Touchpoint History**: Actionable timeline of every client interaction.
+- **AI Drafter**: Claude-powered module to generate contextual re-engagement emails.
+- **Quick Entry**: Centered modal for rapid interaction logging.
 
 ## State Management (Zustand)
 

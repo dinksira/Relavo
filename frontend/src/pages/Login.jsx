@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { Mail, Lock, ArrowRight, Sparkles, Globe, ShieldCheck } from 'lucide-react';
-import heroImg from '../assets/images/hero.png';
+import bgVideo from '../assets/BGAUTH.mp4';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,71 +18,73 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-white flex overflow-hidden">
       {/* Left side: Form */}
-      <div className="w-full lg:w-[550px] flex flex-col p-8 md:p-16 xl:p-24 relative z-10 bg-white">
-        <div className="mb-auto">
+      <div className="w-full lg:w-[550px] flex flex-col p-8 md:p-12 relative z-10 bg-white shadow-2xl">
+        <div className="mb-4">
           <Link to="/">
-            <Logo className="h-8" />
+            <Logo className="h-7" />
           </Link>
         </div>
-
-        <div className="max-w-[400px] w-full mx-auto my-20">
-          <div className="space-y-3 mb-10">
-            <h1 className="text-4xl font-black text-relavo-navy tracking-tight">Welcome back.</h1>
-            <p className="text-relavo-text-secondary font-medium">Enter your credentials to access your agency dashboard.</p>
+ 
+        <div className="max-w-[380px] w-full mx-auto my-auto py-6">
+          <div className="space-y-2 mb-8">
+            <h1 className="text-3xl font-black text-relavo-navy tracking-tight">Welcome back.</h1>
+            <p className="text-relavo-text-secondary text-sm font-medium">Enter your credentials to access your agency dashboard.</p>
           </div>
-
+ 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-relavo-text-muted uppercase tracking-widest ml-1">
+              <label className="text-[10px] font-black text-relavo-navy/40 uppercase tracking-[0.2em] ml-1">
                 Agency Email
               </label>
               <div className="relative group">
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-relavo-text-muted group-focus-within:text-relavo-blue transition-colors" size={18} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-relavo-blue transition-all rounded-l-xl z-20" />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-relavo-blue transition-colors z-10" size={18} />
                 <input
                   type="email"
                   required
                   placeholder="name@agency.com"
-                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-relavo-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-relavo-blue/10 focus:border-relavo-blue font-medium transition-all"
+                  className="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-relavo-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-relavo-navy"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
-
+ 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">
+                <label className="text-[10px] font-black text-relavo-navy/40 uppercase tracking-[0.2em]">
                   Password
                 </label>
-                <a href="#" className="text-[10px] font-black text-relavo-blue uppercase tracking-widest hover:underline">Forgot?</a>
+                <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-relavo-blue uppercase tracking-widest hover:underline">Forgot?</Link>
               </div>
               <div className="relative group">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-relavo-text-muted group-focus-within:text-relavo-blue transition-colors" size={18} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-relavo-blue transition-all rounded-l-xl z-20" />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-relavo-blue transition-colors z-10" size={18} />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-relavo-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-relavo-blue/10 focus:border-relavo-blue font-medium transition-all"
+                  className="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-relavo-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-relavo-navy"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
-
-            <button type="submit" className="btn-premium w-full py-4 text-lg mt-4 shadow-xl shadow-relavo-blue/20">
-              Sign in to Dashboard <ArrowRight size={20} />
+ 
+            <button type="submit" className="btn-premium w-full py-4 text-base mt-2 shadow-2xl shadow-relavo-blue/20 flex items-center justify-center gap-3">
+              Sign in to Dashboard <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
             </button>
           </form>
-
-          <p className="mt-10 text-center text-sm font-medium text-relavo-text-secondary">
+ 
+          <p className="mt-8 text-center text-xs font-medium text-relavo-text-secondary">
             New to Relavo?{' '}
             <Link to="/register" className="text-relavo-blue font-bold hover:underline">
               Create an agency account
             </Link>
           </p>
         </div>
-
-        <div className="mt-auto pt-10 border-t border-slate-100 flex justify-between items-center text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">
+ 
+        <div className="mt-4 pt-6 border-t border-slate-100 flex justify-between items-center text-[9px] font-black text-relavo-text-muted uppercase tracking-widest">
           <span>&copy; 2026 relavo inc.</span>
           <div className="flex gap-4">
             <a href="#" className="hover:text-relavo-navy">Privacy</a>
@@ -94,19 +96,23 @@ const Login = () => {
       {/* Right side: Visual/Marketing */}
       <div className="hidden lg:flex flex-1 bg-relavo-navy relative overflow-hidden items-center justify-center p-20">
          <div className="absolute inset-0 z-0">
-            <img 
-               src={heroImg} 
-               alt="Abstract pulses" 
-               className="w-full h-full object-cover opacity-40 mix-blend-overlay"
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-relavo-navy via-relavo-navy/80 to-relavo-blueDark/50" />
+            <video 
+               autoPlay 
+               loop 
+               muted 
+               playsInline
+               className="w-full h-full object-cover opacity-60"
+            >
+               <source src={bgVideo} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-br from-relavo-navy via-relavo-navy/60 to-transparent" />
          </div>
 
          <div className="relative z-10 max-w-[500px] w-full">
             <div className="space-y-12">
-               <div className="w-20 h-20 bg-white/10 backdrop-blur-xl rounded-[32px] border border-white/20 flex items-center justify-center text-white shadow-2xl">
-                  <Sparkles size={40} className="text-relavo-blue" />
-               </div>
+                <div className="mb-10">
+                   <Logo className="h-12 brightness-0 invert" showText={false} />
+                </div>
                
                <div className="space-y-6">
                   <h2 className="text-5xl font-black text-white leading-[1.1] tracking-tight">
@@ -115,7 +121,7 @@ const Login = () => {
                     Client Data.
                   </h2>
                   <p className="text-xl text-white/60 font-medium leading-relaxed">
-                    Join 200+ agencies using Relavo to detect silent churn and protect their recurring revenue.
+                    Join the waitlist of 200+ agencies choosing Relavo to detect silent churn and protect their recurring revenue.
                   </p>
                </div>
 
@@ -132,14 +138,6 @@ const Login = () => {
                   </div>
                </div>
 
-               <div className="pt-10 flex items-center gap-4">
-                  <div className="flex -space-x-3">
-                     {[1,2,3,4].map(i => (
-                        <div key={i} className="w-10 h-10 rounded-full border-2 border-relavo-navy bg-slate-700" />
-                     ))}
-                  </div>
-                  <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Trusted by Enterprise Teams</p>
-               </div>
             </div>
          </div>
 

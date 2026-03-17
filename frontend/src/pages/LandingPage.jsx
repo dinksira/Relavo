@@ -17,6 +17,15 @@ import heroImg from '../assets/images/hero.png';
 import teamImg from '../assets/images/team.png';
 import aiGlowImg from '../assets/images/ai-glow.png';
 import heroVideo from '../assets/Blue_Abstract.mp4';
+import relationshipVideo from '../assets/Relationship.mp4';
+
+// HD Card Images
+import cardHealth from '../assets/images/card-health.png';
+import cardAi from '../assets/images/card-ai.png';
+import cardTeam from '../assets/images/card-team.png';
+import cardPulse from '../assets/images/card-pulse.png';
+import cardDashboard from '../assets/images/card-dashboard.png';
+import cardIntegrations from '../assets/images/card-integrations.png';
 
 const LandingPage = () => {
   useRevealOnScroll();
@@ -112,36 +121,48 @@ const LandingPage = () => {
              title="Real-time Health Scoring" 
              description="A proprietary weighted algorithm scoring every client from 0 to 100 every 24 hours based on communication, finances, and activity."
              delay="0ms"
+             color="blue"
+             image={cardHealth}
            />
            <FeatureCard 
              icon={MessageCircle} 
              title="AI Insight Generation" 
              description="Stop reading logs. Our Claude-powered engine translates complex data patterns into 3-sentence plain English summaries."
              delay="100ms"
+             color="indigo"
+             image={cardAi}
            />
            <FeatureCard 
              icon={MousePointer2} 
              title="Smart Touchpoint Logger" 
              description="Log a call, meeting, or message in 2 seconds. Our system automatically correlates every touchpoint with client health."
              delay="200ms"
+             color="emerald"
+             image={cardTeam}
            />
            <FeatureCard 
              icon={BarChart3} 
              title="Revenue at Risk" 
              description="See exactly how much revenue is tied to your 'At Risk' clients. Prioritize your outreach by pure business impact."
              delay="300ms"
+             color="rose"
+             image={cardDashboard}
            />
            <FeatureCard 
              icon={ShieldCheck} 
              title="Sentiment Detection" 
              description="AI automatically scans the tone of recent interactions to flag frustration before it becomes an email complaint."
              delay="400ms"
+             color="amber"
+             image={cardPulse}
            />
            <FeatureCard 
              icon={Globe} 
              title="Integration Library" 
              description="Connect your Gmail, Slack, and Stripe for a unified view of your relationship health without finger-pointing."
              delay="500ms"
+             color="violet"
+             image={cardIntegrations}
            />
         </div>
       </section>
@@ -179,21 +200,31 @@ const LandingPage = () => {
            </div>
 
            <div className="reveal flex justify-center lg:justify-end" style={{ transitionDelay: '300ms' }}>
-              <div className="w-full max-w-[500px] bg-white rounded-[32px] overflow-hidden shadow-2xl rotate-3 scale-105">
-                 <img src={teamImg} alt="Team success" className="w-full h-80 object-cover" />
+              <div className="w-full max-w-[500px] bg-white rounded-[32px] overflow-hidden shadow-2xl rotate-3 scale-105 border border-slate-100">
+                 <div className="h-80 relative overflow-hidden">
+                    <video 
+                       autoPlay 
+                       loop 
+                       muted 
+                       playsInline 
+                       className="w-full h-full object-cover"
+                    >
+                       <source src={relationshipVideo} type="video/mp4" />
+                    </video>
+                 </div>
                  <div className="p-8 space-y-4">
                     <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                          <ShieldCheck size={18} />
+                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-relavo-blue">
+                          <Activity size={18} />
                        </div>
-                       <h4 className="font-bold text-relavo-navy">Saved Relationship: Acme Corp</h4>
+                       <h4 className="font-bold text-relavo-navy">Predictive Retention Engine</h4>
                     </div>
-                    <p className="text-sm text-relavo-text-secondary leading-relaxed font-medium italic">
-                      "Since implementing Relavo, we prevented 3 churns in our first month just by seeing the '9-day contact lag' alerts."
+                    <p className="text-sm text-relavo-text-secondary leading-relaxed font-medium">
+                      Relavo analyzes communication gaps, sentiment shifts, and financial erraticism to predict churn <span className="text-relavo-navy font-bold">14 days</span> before it happens.
                     </p>
                     <div className="pt-4 border-t border-relavo-border flex justify-between items-center">
-                       <span className="text-xs font-bold text-relavo-text-muted uppercase">Health improved +45%</span>
-                       <span className="text-relavo-blue font-bold text-sm">Case Study &rarr;</span>
+                       <span className="text-xs font-bold text-relavo-text-muted uppercase">Early Detection Protocol</span>
+                       <span className="text-relavo-blue font-bold text-sm">How it works &rarr;</span>
                     </div>
                  </div>
               </div>
@@ -214,39 +245,75 @@ const LandingPage = () => {
               <p className="text-xl text-relavo-text-secondary leading-relaxed font-medium mb-12">Whether you need to integrate your existing stack or learn about AI-driven relationship management, our resources are designed to help you grow.</p>
               
               <div className="grid sm:grid-cols-2 gap-6">
-                <a href="#" className="p-8 rounded-[32px] border border-relavo-border hover:border-relavo-blue hover:shadow-xl transition-all group active:scale-95">
-                  <div className="w-12 h-12 bg-relavo-blueLight rounded-2xl flex items-center justify-center text-relavo-blue mb-6 group-hover:bg-relavo-blue group-hover:text-white transition-colors">
-                    <Globe size={24} />
+                <a href="#" className="group relative rounded-[32px] bg-white border border-slate-100 hover:border-relavo-blue/30 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
+                  <div className="relative h-48 overflow-hidden shrink-0">
+                    <img src={cardIntegrations} alt="Integrations" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
                   </div>
-                  <h4 className="text-xl font-bold text-relavo-navy mb-2">Integration Library</h4>
-                  <p className="text-sm text-relavo-text-secondary font-medium">Connect Gmail, Slack, Stripe and 50+ other tools in minutes.</p>
+                  <div className="p-8 pt-4 flex-1 flex flex-col justify-between relative z-10">
+                    <div>
+                      <h4 className="text-2xl font-black text-relavo-navy mb-3 tracking-tight group-hover:text-relavo-blue transition-colors">Integration Library</h4>
+                      <p className="text-relavo-text-secondary font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">Connect Gmail, Slack, Stripe and 50+ other tools in minutes.</p>
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-relavo-blue">Explore Integrations</span>
+                      <ArrowRight size={16} className="text-relavo-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
+                    </div>
+                  </div>
                 </a>
-                <a href="#" className="p-8 rounded-[32px] border border-relavo-border hover:border-relavo-blue hover:shadow-xl transition-all group active:scale-95">
-                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-500 mb-6 group-hover:bg-relavo-navy group-hover:text-white transition-colors">
-                    <Zap size={24} />
+
+                <a href="#" className="group relative rounded-[32px] bg-white border border-slate-100 hover:border-relavo-blue/30 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
+                  <div className="relative h-48 overflow-hidden shrink-0">
+                    <img src={cardAi} alt="API Docs" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
                   </div>
-                  <h4 className="text-xl font-bold text-relavo-navy mb-2">API Documentation</h4>
-                  <p className="text-sm text-relavo-text-secondary font-medium">Build custom automation using our robust REST API endpoints.</p>
+                  <div className="p-8 pt-4 flex-1 flex flex-col justify-between relative z-10">
+                    <div>
+                      <h4 className="text-2xl font-black text-relavo-navy mb-3 tracking-tight group-hover:text-relavo-blue transition-colors">API Documentation</h4>
+                      <p className="text-relavo-text-secondary font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">Build custom automation using our robust REST API endpoints.</p>
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-relavo-navy">Read Docs</span>
+                      <ArrowRight size={16} className="text-relavo-navy opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
+                    </div>
+                  </div>
                 </a>
               </div>
             </div>
             
-            <div className="reveal space-y-6" style={{ transitionDelay: '200ms' }}>
-              <div className="bg-relavo-navy p-1 flex flex-col rounded-[40px] overflow-hidden shadow-2xl">
-                <div className="p-10 space-y-8">
+            <div className="reveal group relative" style={{ transitionDelay: '200ms' }}>
+               {/* Premium Card Glow */}
+               <div className="absolute -inset-1 bg-gradient-to-r from-relavo-blue to-indigo-600 rounded-[44px] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+               
+               <div className="relative bg-relavo-navy flex flex-col rounded-[40px] overflow-hidden shadow-2xl h-full border border-white/5">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-relavo-blue/10 blur-[100px] pointer-events-none" />
+                
+                <div className="p-12 space-y-10 relative z-10 flex-1">
                   <div className="flex justify-between items-center">
-                    <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Featured Resource</h5>
-                    <span className="text-relavo-blue font-black text-[10px] uppercase tracking-widest">New Guide</span>
+                    <div className="flex items-center gap-3">
+                       <span className="w-2 h-2 bg-relavo-blue rounded-full animate-pulse" />
+                       <h5 className="text-white/40 font-black uppercase tracking-[0.2em] text-[10px]">Featured Asset</h5>
+                    </div>
+                    <span className="bg-relavo-blue/10 text-relavo-blue font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border border-relavo-blue/20">v2.0 Update</span>
                   </div>
-                  <h3 className="text-3xl font-bold text-white leading-tight underline decoration-relavo-blue decoration-4 underline-offset-8">The Modern Agency Guide to Client Retention (2026)</h3>
-                  <p className="text-white/60 font-medium leading-relaxed">Download our 42-page handbook on how AI is changing the way we monitor relationship vitality and financial pulses.</p>
-                  <button className="w-full btn-premium py-4">Download Playbook &rarr;</button>
-                </div>
-                <div className="bg-gradient-to-t from-relavo-blueDark to-relavo-blue p-8 flex justify-between items-center">
-                  <div className="flex -space-x-2">
-                    {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full bg-white/20 border-2 border-relavo-navy" />)}
+                  
+                  <div className="space-y-6">
+                    <h3 className="text-4xl md:text-5xl font-black text-white leading-[1.1] tracking-tighter">
+                      The Modern Agency Guide to <span className="text-relavo-blue">Retention.</span>
+                    </h3>
+                    <p className="text-xl text-white/50 font-medium leading-relaxed max-w-[400px]">
+                      Download our 42-page blueprint on how AI shifts relationship monitoring from reactive to predictive.
+                    </p>
                   </div>
-                  <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Downloaded 1.2k times this month</span>
+                  
+                  <div className="pt-4">
+                    <button className="w-full btn-premium py-5 text-lg font-black tracking-tight group/btn overflow-hidden relative">
+                       <span className="relative z-10 flex items-center justify-center gap-2">
+                         Download Playbook 
+                         <ArrowRight size={20} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
+                       </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -257,8 +324,8 @@ const LandingPage = () => {
       {/* Final CTA */}
       <section className="py-24 md:py-48 px-6 bg-white">
         <div className="max-w-[1000px] mx-auto text-center reveal">
-           <div className="w-20 h-20 bg-relavo-blue/10 rounded-3xl flex items-center justify-center text-relavo-blue mx-auto mb-10">
-              <Logo className="h-6" showText={false} />
+           <div className="flex items-center justify-center text-relavo-blue mx-auto mb-12">
+              <Logo className="h-12" showText={false} />
            </div>
            <h2 className="text-6xl md:text-8xl font-black text-relavo-navy mb-10 tracking-tighter leading-[0.9]">
              Stop losing revenue to <br /> <span className="text-relavo-blue">silent churn.</span>
@@ -275,43 +342,67 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-relavo-surface pt-20 pb-10 px-6 border-t border-relavo-border">
-         <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
-            <div className="col-span-2">
-               <Logo className="h-7 mb-6" />
-               <p className="text-relavo-text-secondary max-w-[300px] font-medium leading-relaxed">
-                 The AI-powered health monitoring layer for your small business client relationships.
-               </p>
+      <footer className="relative bg-slate-950 pt-32 pb-12 px-6 overflow-hidden">
+         {/* Ambient Glows */}
+         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-relavo-blue/10 blur-[120px] rounded-full pointer-events-none" />
+         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
+
+         <div className="max-w-[1400px] mx-auto relative z-10">
+            <div className="grid lg:grid-cols-5 gap-16 mb-24">
+               {/* Brand Column */}
+               <div className="lg:col-span-2 space-y-8">
+                  <Logo className="h-8 brightness-0 invert" />
+                  <p className="text-slate-400 text-lg font-medium leading-relaxed max-w-[320px]">
+                    The AI-powered health monitoring layer for your small business client relationships.
+                  </p>
+               </div>
+
+               {/* Links Columns */}
+               <div className="grid grid-cols-2 lg:grid-cols-3 lg:col-span-3 gap-12">
+                  <div className="space-y-8">
+                     <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Product</h5>
+                     <ul className="space-y-4">
+                        {['Features', 'Integrations', 'AI Engine', 'Waitlist'].map(link => (
+                          <li key={link}>
+                            <a href="#" className="text-slate-400 font-medium hover:text-relavo-blue transition-colors flex items-center group">
+                              {link}
+                              <ArrowRight size={12} className="ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                            </a>
+                          </li>
+                        ))}
+                     </ul>
+                  </div>
+                  <div className="space-y-8">
+                     <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Platform</h5>
+                     <ul className="space-y-4">
+                        {['Success Stories', 'Knowledge Hub', 'Documentation', 'API Reference'].map(link => (
+                          <li key={link}>
+                            <a href="#" className="text-slate-400 font-medium hover:text-white transition-colors flex items-center group">
+                              {link}
+                            </a>
+                          </li>
+                        ))}
+                     </ul>
+                  </div>
+                  <div className="space-y-8">
+                    <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Company</h5>
+                    <ul className="space-y-4">
+                       {['Our Mission', 'Careers', 'Contact', 'Privacy Policy'].map(link => (
+                         <li key={link}>
+                           <a href="#" className="text-slate-400 font-medium hover:text-white transition-colors">
+                             {link}
+                           </a>
+                         </li>
+                       ))}
+                    </ul>
+                  </div>
+               </div>
             </div>
-            <div>
-               <h5 className="font-bold text-relavo-navy mb-6">Product</h5>
-               <ul className="space-y-4 text-sm font-medium text-relavo-text-secondary">
-                  <li><a href="#" className="hover:text-relavo-blue">Features</a></li>
-                  <li><a href="#" className="hover:text-relavo-blue">Integrations</a></li>
-                  <li><a href="#" className="hover:text-relavo-blue">AI Service</a></li>
-               </ul>
-            </div>
-            <div>
-               <h5 className="font-bold text-relavo-navy mb-6">Company</h5>
-               <ul className="space-y-4 text-sm font-medium text-relavo-text-secondary">
-                  <li><a href="#" className="hover:text-relavo-blue">About</a></li>
-                  <li><a href="#" className="hover:text-relavo-blue">Contact</a></li>
-                  <li><a href="#" className="hover:text-relavo-blue">Blog</a></li>
-               </ul>
-            </div>
-            <div>
-               <h5 className="font-bold text-relavo-navy mb-6">Legal</h5>
-               <ul className="space-y-4 text-sm font-medium text-relavo-text-secondary">
-                  <li><a href="#" className="hover:text-relavo-blue">Privacy</a></li>
-                  <li><a href="#" className="hover:text-relavo-blue">Terms</a></li>
-               </ul>
-            </div>
-         </div>
-         <div className="max-w-[1400px] mx-auto pt-10 border-t border-relavo-border flex justify-between items-center text-xs font-bold text-relavo-text-muted uppercase tracking-widest">
-            <span>&copy; 2026 relavo inc.</span>
-            <div className="flex gap-8">
-               <a href="#" className="hover:text-relavo-blue">LinkedIn</a>
-               <a href="#" className="hover:text-relavo-blue">Twitter</a>
+
+            <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+               <div className="flex items-center gap-6">
+                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 relavo inc.</span>
+               </div>
             </div>
          </div>
       </footer>
@@ -319,19 +410,58 @@ const LandingPage = () => {
   );
 };
 
-const FeatureCard = ({ icon: Icon, title, description, delay }) => (
-  <div className="card-premium p-10 reveal flex flex-col gap-6" style={{ transitionDelay: delay }}>
-    <div className="w-14 h-14 bg-relavo-blue/10 rounded-[20px] flex items-center justify-center text-relavo-blue shadow-sm">
-      <Icon size={28} />
+const FeatureCard = ({ icon: Icon, title, description, delay, color, image }) => {
+  const colorMap = {
+    blue: "from-blue-500/10 to-blue-600/5 text-blue-600 border-blue-200/30",
+    indigo: "from-indigo-500/10 to-indigo-600/5 text-indigo-600 border-indigo-200/30",
+    emerald: "from-emerald-500/10 to-emerald-600/5 text-emerald-600 border-emerald-200/30",
+    rose: "from-rose-500/10 to-rose-600/5 text-rose-600 border-rose-200/30",
+    amber: "from-amber-500/10 to-amber-600/5 text-amber-600 border-amber-200/30",
+    violet: "from-violet-500/10 to-violet-600/5 text-violet-600 border-violet-200/30",
+  };
+
+  const scheme = colorMap[color] || colorMap.blue;
+
+  return (
+    <div 
+      className="group relative reveal overflow-hidden bg-white border border-slate-100 rounded-[32px] transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 flex flex-col h-full" 
+      style={{ transitionDelay: delay }}
+    >
+      {/* HD Image Header */}
+      <div className="relative h-64 overflow-hidden shrink-0">
+        <img 
+          src={image} 
+          alt={title} 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
+      </div>
+      
+      <div className="relative z-10 p-10 flex-1 flex flex-col justify-between">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-black text-relavo-navy tracking-tight group-hover:text-relavo-blue transition-colors">
+              {title}
+            </h3>
+            <ArrowRight size={20} className="text-relavo-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
+          </div>
+          <p className="text-relavo-text-secondary font-medium leading-relaxed text-lg opacity-80 group-hover:opacity-100 transition-opacity">
+            {description}
+          </p>
+        </div>
+
+        {/* Bottom Detail */}
+        <div className="mt-8 pt-6 border-t border-slate-50 flex items-center gap-2">
+           <div className={`w-1.5 h-1.5 rounded-full bg-current ${scheme.split(' ')[2]}`} />
+           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-relavo-text-muted">Relavo Core Engine</span>
+        </div>
+      </div>
+
+      {/* Decorative Background Mesh */}
+      <div className={`absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br ${scheme.split(' ').slice(0, 2).join(' ')} blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
     </div>
-    <div className="space-y-3">
-      <h3 className="text-2xl font-bold text-relavo-navy">{title}</h3>
-      <p className="text-relavo-text-secondary font-medium leading-relaxed">
-        {description}
-      </p>
-    </div>
-  </div>
-);
+  );
+};
 
 const Mail = ({ className, size = 20 }) => (
   <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
