@@ -78,7 +78,7 @@ class ClaudeService:
             content = message.content[0].text
             try:
                 return json.loads(content)
-            except:
+            except Exception:
                 return {
                     "subject": f"Checking in - {client_name}",
                     "body": content

@@ -1,3 +1,84 @@
+# Relavo — Technical Overview
+### The complete onboarding document for every developer joining this project.
+### Read this first. Read it fully. Everything you need to understand the system is here.
+
+---
+
+## 1. What Is Relavo?
+
+Relavo is an AI-powered client relationship health platform for small businesses,
+agencies, and startups. It solves one specific problem: businesses lose clients
+silently because there is no early warning system. By the time they notice a client
+drifting, it is already too late.
+
+Relavo watches every client signal — last contact date, invoice status, response
+time, project activity — and uses AI to score each client from 0 to 100, explain
+in plain English why a client is at risk, and suggest the exact next action to take.
+
+**The core loop in one sentence:** Data comes in → AI scores it → Dashboard shows
+who needs attention → User takes action → Client is saved.
+
+---
+
+## 2. The Full System At a Glance
+
+```
+╔══════════════════════════════════════════════════════════════════════╗
+║                        RELAVO SYSTEM MAP                             ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║   ┌─────────────────────┐      ┌──────────────────────┐             ║
+║   │   React Dashboard   │      │  React Native App    │             ║
+║   │   (Web Browser)     │      │  (iOS + Android)     │             ║
+║   │   Vercel · port 3000│      │  Expo · Phase 2      │             ║
+║   └──────────┬──────────┘      └──────────┬───────────┘             ║
+║              │                            │                          ║
+║              │         HTTPS              │                          ║
+║              └────────────┬───────────────┘                         ║
+║                           ▼                                          ║
+║              ┌────────────────────────────┐                         ║
+║              │     Node.js + Express      │                         ║
+║              │       Backend API          │                         ║
+║              │    Railway · port 3001     │                         ║
+║              │                            │                         ║
+║              │  /api/auth                 │                         ║
+║              │  /api/clients              │                         ║
+║              │  /api/alerts               │                         ║
+║              │  /api/ai                   │                         ║
+║              └──────┬──────────┬──────────┘                         ║
+║                     │          │                                     ║
+║            ┌────────┘          └──────────────┐                     ║
+║            ▼                                  ▼                     ║
+║   ┌─────────────────┐             ┌───────────────────────┐         ║
+║   │    Supabase     │             │  Python AI Service    │         ║
+║   │   PostgreSQL    │             │  FastAPI · port 8000  │         ║
+║   │   + Auth        │             │  Railway              │         ║
+║   │   + Realtime    │             │                       │         ║
+║   └─────────────────┘             │  POST /score          │         ║
+║                                   │  POST /summarize      │         ║
+║                                   │  POST /draft-email    │         ║
+║                                   └──────────┬────────────┘         ║
+║                                              │                      ║
+║                                              ▼                      ║
+║                                   ┌──────────────────────┐          ║
+║                                   │   Anthropic Claude   │          ║
+║                                   │   claude-sonnet API  │          ║
+║                                   └──────────────────────┘          ║
+╚══════════════════════════════════════════════════════════════════════╝
+```
+
+**Golden rule:** The React frontend NEVER talks to Supabase directly for
+data, and NEVER calls the AI service directly. Everything goes through
+the Node.js backend. This keeps all secrets and business logic server-side.
+
+The only exception: Supabase Auth tokens are obtained client-side via the
+Supabase JS SDK, then sent to the backend on every request as a Bearer token.
+
+---
+
+
+
+
 # Relavo — Full Technical Development Documentation
 
 > This document is the complete technical guide for implementing Relavo's

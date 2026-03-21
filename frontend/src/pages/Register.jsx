@@ -3,6 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { User, Mail, Lock, ArrowRight, Zap, Target, Rocket } from 'lucide-react';
 import bgVideo from '../assets/BGAUTH.mp4';
+import { authAPI } from '../services/api';
+import { supabase } from '../services/supabase';
+import useAuthStore from '../store/authStore';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,12 +14,41 @@ const Register = () => {
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const setAuth = useAuthStore(state => state.setAuth);
 
-  const handleSubmit = (e) => {
+  const handleGoogleSignup = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/auth/callback'
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError(err.message || "Failed to initialize Google signup.");
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // For now, just navigate to dashboard
-    navigate('/dashboard');
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await authAPI.register(formData.email, formData.password, formData.name);
+      setAuth(data.user, data.token);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.error || "Registration failed. Check your details or use another email.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -174,8 +206,28 @@ const Register = () => {
                </p>
             </div>
 
-            <button type="submit" className="btn-premium w-full py-4 text-base mt-2 shadow-2xl shadow-relavo-blue/10 flex items-center justify-center gap-2 group/btn">
-              Create Agency Space <ArrowRight size={20} className="transition-transform group-hover/btn:translate-x-1" />
+            {error && (
+              <p className="text-[#dc2626] text-xs font-bold py-3 px-4 bg-red-50 rounded-xl border border-red-100/50">
+                {error}
+              </p>
+            )}
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="btn-premium w-full py-4 text-base mt-2 shadow-2xl shadow-relavo-blue/10 flex items-center justify-center gap-2 group/btn disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                   <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                   </svg>
+                   Creating Account...
+                </div>
+              ) : (
+                <>Create Agency Space <ArrowRight size={20} className="transition-transform group-hover/btn:translate-x-1" /></>
+              )}
             </button>
           </form>
 
@@ -188,7 +240,11 @@ const Register = () => {
             </div>
           </div>
 
-          <button className="w-full py-3.5 px-6 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-sm text-relavo-navy hover:bg-slate-50 hover:border-slate-200 transition-all group">
+          <button 
+            type="button"
+            onClick={handleGoogleSignup}
+            className="w-full py-3.5 px-6 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-sm text-relavo-navy hover:bg-slate-50 hover:border-slate-200 transition-all group"
+          >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
