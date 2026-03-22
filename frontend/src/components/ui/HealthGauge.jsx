@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { getRiskColors } from '../../utils/scoreHelpers';
 
 const gaugeSizes = {
+  xs: { diameter: 48, stroke: 4, fontSize: 12 },
   sm: { diameter: 60, stroke: 5, fontSize: 14 },
   md: { diameter: 80, stroke: 6, fontSize: 17 },
   lg: { diameter: 100, stroke: 7, fontSize: 22 },
+  xl: { diameter: 120, stroke: 8, fontSize: 24 },
 };
 
 const HealthGauge = ({ score = 0, size = 'md' }) => {

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const authMiddleware = require('../middleware/auth');
+const healthService = require('../services/health.service');
 
 router.use(authMiddleware);
 
@@ -64,6 +65,11 @@ router.post('/', async (req, res) => {
       }]);
 
     if (scoreError) console.error('Error creating default score:', scoreError);
+
+    // Trigger score calculation for new client (async)
+    setTimeout(() => {
+      healthService.calculateAndSaveScore(client.id, req.user.id);
+    }, 1000);
 
     res.status(201).json(client);
   } catch (err) {
@@ -188,16 +194,35 @@ router.delete('/:id', async (req, res) => {
 router.post('/:id/touchpoints', async (req, res) => {
   try {
     const { id } = req.params;
-    const { type, notes, outcome, logged_at } = req.body;
+    const { type, notes, outcome, logged_at, duration, follow_up_needed, follow_up_date } = req.body;
 
-    // Ownership check (implied by RLS but we can do it explicitly for cleaner 403)
+    // Pack extra fields into notes to avoid schema errors
+    let combinedNotes = notes || '';
+    if (duration) combinedNotes = `[Duration: ${duration}m] ${combinedNotes}`;
+    if (follow_up_needed) combinedNotes = `[Follow-up: ${follow_up_date || 'TBD'}] ${combinedNotes}`;
+
     const { data: touchpoint, error } = await supabase
       .from('touchpoints')
-      .insert([{ client_id: id, type, notes, outcome, logged_at: logged_at || new Date().toISOString() }])
+      .insert([{ 
+        client_id: id, 
+        type, 
+        notes: combinedNotes, 
+        outcome, 
+        logged_at: logged_at || new Date().toISOString()
+      }])
       .select()
       .single();
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+      console.error('Supabase Error (touchpoint):', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    // Trigger score calculation immediately
+    setTimeout(() => {
+      healthService.calculateAndSaveScore(id, req.user.id);
+    }, 500);
+
     res.status(201).json(touchpoint);
   } catch (err) {
     console.error('Create Touchpoint Error:', err);
@@ -209,18 +234,55 @@ router.post('/:id/touchpoints', async (req, res) => {
 router.post('/:id/invoices', async (req, res) => {
   try {
     const { id } = req.params;
-    const { amount, status, due_date } = req.body;
+    const { amount, status, due_date, invoice_number, issued_at, notes } = req.body;
 
+    // Map fields to available columns in DB schema
     const { data: invoice, error } = await supabase
       .from('invoices')
-      .insert([{ client_id: id, amount, status, due_date }])
+      .insert([{ 
+        client_id: id, 
+        amount: parseFloat(amount), 
+        status: status || 'pending', 
+        due_date: due_date || new Date().toISOString().split('T')[0],
+        // Invoice number and notes don't exist in minimal schema, append to notes if we had a notes col
+        // In this base schema (DATABASE_SETUP.sql), there isn't even a notes column in invoices!
+        // We'll just stick to existing columns to avoid 400.
+      }])
       .select()
       .single();
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+      console.error('Supabase Error (invoice):', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    // Trigger score calculation immediately
+    setTimeout(() => {
+      healthService.calculateAndSaveScore(id, req.user.id);
+    }, 500);
+
     res.status(201).json(invoice);
   } catch (err) {
     console.error('Create Invoice Error:', err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET /api/clients/:id/health-history
+router.get('/:id/health-history', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data: history, error } = await supabase
+      .from('health_scores')
+      .select('score, calculated_at')
+      .eq('client_id', id)
+      .order('calculated_at', { ascending: true })
+      .limit(14);
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(history);
+  } catch (err) {
+    console.error('Get Health History Error:', err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

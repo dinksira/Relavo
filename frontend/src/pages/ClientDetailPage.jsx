@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, PlusCircle, DollarSign, Sparkles, Clock, Mail,
-  Phone, Activity, AlertTriangle, CheckCircle, MessageSquare, Video
+  Phone, Activity, AlertTriangle, CheckCircle, MessageSquare, Video, RefreshCw
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import DashboardLayout from '../components/layout/DashboardLayout';
@@ -14,7 +14,12 @@ import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import TouchpointModal from '../components/clients/TouchpointModal';
 import InvoiceModal from '../components/clients/InvoiceModal';
-import { clientsAPI } from '../services/api';
+import EmailDraftModal from '../components/clients/EmailDraftModal';
+import ScoreHistoryChart from '../components/clients/ScoreHistoryChart';
+import AIBriefing from '../components/clients/AIBriefing';
+import AIChat from '../components/clients/AIChat';
+import useClients from '../hooks/useClients';
+import { clientsAPI, aiAPI } from '../services/api';
 import { getRiskLabel, getRiskColors } from '../utils/scoreHelpers';
 import { formatDaysAgo, formatDate, formatCurrency } from '../utils/formatters';
 import useToast from '../hooks/useToast';
@@ -33,13 +38,21 @@ const ClientDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [touchpointModalOpen, setTouchpointModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [history, setHistory] = useState([]);
+  const { analyzeClient } = useClients();
 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
       try {
-        const res = await clientsAPI.getById(id);
-        setClient(res.data?.data || res.data);
+        const [clientRes, historyRes] = await Promise.all([
+          clientsAPI.getById(id),
+          aiAPI.getHealthHistory(id)
+        ]);
+        setClient(clientRes.data?.data || clientRes.data);
+        setHistory(historyRes.data?.data || historyRes.data || []);
       } catch {
         toast.error('Failed to load client');
       } finally { setLoading(false); }
@@ -59,6 +72,21 @@ const ClientDetailPage = () => {
     setClient(res.data?.data || res.data);
   };
 
+  const handleRecalculate = async () => {
+    setIsRecalculating(true);
+    const updatedScore = await analyzeClient(id);
+    if (updatedScore) {
+      const [res, historyRes] = await Promise.all([
+        clientsAPI.getById(id),
+        aiAPI.getHealthHistory(id)
+      ]);
+      setClient(res.data?.data || res.data);
+      setHistory(historyRes.data?.data || historyRes.data || []);
+      toast.success('Health score updated');
+    }
+    setIsRecalculating(false);
+  };
+
   if (loading) return (
     <DashboardLayout>
       <LoadingSkeleton variant="detail" count={3} />
@@ -71,7 +99,8 @@ const ClientDetailPage = () => {
     </DashboardLayout>
   );
 
-  const score = client.latest_health_score || 0;
+  const healthScore = client.latest_health_score || {};
+  const score = typeof healthScore === 'object' ? (healthScore.score || 0) : (healthScore || 0);
   const colors = getRiskColors(score);
   const badgeVariant = score >= 70 ? 'healthy' : score >= 40 ? 'warning' : 'danger';
   const touchpoints = client.touchpoints || [];
@@ -127,6 +156,7 @@ const ClientDetailPage = () => {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <Button variant="outline" size="sm" icon={Mail} onClick={() => setEmailModalOpen(true)}>Draft Email</Button>
           <Button variant="outline" size="sm" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)}>Log Touchpoint</Button>
           <Button variant="outline" size="sm" icon={DollarSign} onClick={() => setInvoiceModalOpen(true)}>Add Invoice</Button>
         </div>
@@ -137,10 +167,24 @@ const ClientDetailPage = () => {
         {/* Health Score */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20, textAlign: 'center' }}>
           <p style={{ fontSize: 12, color: '#64748b', fontWeight: 500, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Health Score</p>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-            <HealthGauge score={score} size="lg" />
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <HealthGauge score={score} size="xl" />
           </div>
           <Badge variant={badgeVariant}>{getRiskLabel(score)}</Badge>
+          <div style={{ marginTop: 12 }}>
+            <button
+              onClick={handleRecalculate}
+              disabled={isRecalculating}
+              style={{
+                fontSize: 11, fontWeight: 700, color: '#3b82f6', background: 'none', border: 'none',
+                cursor: isRecalculating ? 'not-allowed' : 'pointer', textTransform: 'uppercase',
+                display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto', opacity: isRecalculating ? 0.6 : 1
+              }}
+            >
+              <RefreshCw size={12} className={isRecalculating ? 'animate-spin' : ''} />
+              {isRecalculating ? 'Calculating...' : 'Recalculate'}
+            </button>
+          </div>
         </div>
 
         {/* Last Contact */}
@@ -170,38 +214,14 @@ const ClientDetailPage = () => {
         </div>
       </div>
 
-      {/* AI Insight */}
-      {client.ai_insight && (
-        <div style={{
-          background: '#eff6ff', border: '1px solid #bfdbfe',
-          borderLeft: '4px solid #3b82f6', borderRadius: 10,
-          padding: '20px 24px', marginBottom: 24,
-          display: 'flex', gap: 16, alignItems: 'flex-start',
-        }}>
-          <Sparkles size={24} color="#3b82f6" style={{ flexShrink: 0, marginTop: 2 }} />
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b82f6', margin: '0 0 6px' }}>AI Insight</p>
-            <p style={{ fontSize: 15, color: '#1b2a3b', lineHeight: 1.7, margin: 0 }}>{client.ai_insight}</p>
-          </div>
-        </div>
-      )}
+      {/* AI Intelligence Center */}
+      <AIBriefing clientId={id} clientName={client.name} />
+      <AIChat clientId={id} clientName={client.name} />
 
       {/* Trend chart */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20, marginBottom: 24 }}>
-        <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: '0 0 20px' }}>Health score over time</p>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={trendData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-            <Tooltip
-              contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}
-            />
-            <ReferenceLine y={70} strokeDasharray="4 4" stroke="#16a34a" />
-            <ReferenceLine y={40} strokeDasharray="4 4" stroke="#dc2626" />
-            <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-          </LineChart>
-        </ResponsiveContainer>
+        <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: '0 0 20px' }}>Health score history</p>
+        <ScoreHistoryChart scores={history} />
       </div>
 
       {/* Two columns: Touchpoints + Invoices */}
@@ -301,13 +321,20 @@ const ClientDetailPage = () => {
         isOpen={touchpointModalOpen}
         onClose={() => setTouchpointModalOpen(false)}
         clientId={id}
+        clientName={client.name}
         onSuccess={handleAddTouchpoint}
       />
       <InvoiceModal
         isOpen={invoiceModalOpen}
         onClose={() => setInvoiceModalOpen(false)}
         clientId={id}
+        clientName={client.name}
         onSuccess={handleAddInvoice}
+      />
+      <EmailDraftModal
+        isOpen={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        client={client}
       />
     </DashboardLayout>
   );

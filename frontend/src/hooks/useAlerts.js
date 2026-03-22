@@ -20,10 +20,10 @@ const useAlerts = () => {
     fetch();
   }, []);
 
-  const unreadCount = useMemo(() => alerts.filter(a => !a.is_read).length, [alerts]);
+  const unreadCount = useMemo(() => alerts.filter(a => !a.read).length, [alerts]);
 
   const markRead = async (id) => {
-    setAlerts(prev => prev.map(a => a.id === id ? { ...a, is_read: true } : a));
+    setAlerts(prev => prev.map(a => a.id === id ? { ...a, read: true } : a));
     try { await alertsAPI.markRead(id); } catch {}
   };
 
@@ -33,9 +33,9 @@ const useAlerts = () => {
   };
 
   const markAllRead = async () => {
-    setAlerts(prev => prev.map(a => ({ ...a, is_read: true })));
+    setAlerts(prev => prev.map(a => ({ ...a, read: true })));
     try {
-      await Promise.all(alerts.filter(a => !a.is_read).map(a => alertsAPI.markRead(a.id)));
+      await Promise.all(alerts.filter(a => !a.read).map(a => alertsAPI.markRead(a.id)));
     } catch {}
   };
 

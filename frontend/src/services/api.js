@@ -49,4 +49,13 @@ export const alertsAPI = {
   dismiss: (id) => api.delete(`/alerts/${id}`),
 };
 
+export const aiAPI = {
+  analyzeClient: (clientId) => api.post(`/ai/analyze/${clientId}`),
+  draftEmail: (clientId, tone) => api.post('/ai/draft-email', { clientId, tone }),
+  recalculateAll: () => api.post('/ai/recalculate-all'),
+  getHealthHistory: (clientId) => api.get(`/clients/${clientId}/health-history`),
+  getBriefing: (clientId) => api.get(`/ai/briefing/${clientId}`),
+  chat: (clientId, data) => api.post(`/ai/chat/${clientId}`, data),
+};
+
 export default api;

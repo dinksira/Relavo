@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Users, CheckCircle, AlertTriangle, XCircle, Plus, ChevronRight, Sparkles, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Users, CheckCircle, AlertTriangle, XCircle, Plus, ChevronRight, Sparkles, Bell, ArrowUp, ArrowDown, Minus, RefreshCw, Loader2 } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
-import ScoreBar from '../components/ui/ScoreBar';
+import HealthGauge from '../components/ui/HealthGauge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import Button from '../components/ui/Button';
@@ -14,7 +14,8 @@ import useAlerts from '../hooks/useAlerts';
 import useAuthStore from '../store/authStore';
 import { getRiskLabel } from '../utils/scoreHelpers';
 import { formatDaysAgo } from '../utils/formatters';
-import { clientsAPI } from '../services/api';
+import { aiAPI } from '../services/api';
+import useToast from '../hooks/useToast';
 
 const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, subtitle, valueColor }) => {
   const [hovered, setHovered] = useState(false);
@@ -45,38 +46,120 @@ const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, subtitle, val
   );
 };
 
-const ClientRow = ({ client, onClick }) => {
+const ClientRow = ({ client, onClick, onRefresh }) => {
   const [hovered, setHovered] = useState(false);
-  const score = client.latest_health_score || 0;
+  const [isRetrying, setIsRetrying] = useState(false);
+  
+  // Prioritize the absolute latest score we have in local state
+  const healthScore = client.latest_health_score || client.health_score || {};
+  const score = healthScore.score || 0;
+  
+  // Trend calculation
+  const prevScore = client.previous_score || score;
+  const TrendIcon = score > prevScore ? ArrowUp : score < prevScore ? ArrowDown : Minus;
+  const trendColor = score > prevScore ? '#16a34a' : score < prevScore ? '#dc2626' : '#94a3b8';
+
   const badgeVariant = score >= 70 ? 'healthy' : score >= 40 ? 'warning' : 'danger';
+
+  // AI Insight Logic
+  const hasInsight = !!healthScore.ai_insight;
+  // It's calculating if we have a score (from DB) but no narrative insight yet
+  const isCalculating = score > 0 && !hasInsight; 
+
+  const handleCardClick = (e) => {
+    // If the click was on the retry button, don't navigate
+    if (e.target.closest('button')) {
+      return;
+    }
+    console.log('Link clicked for client:', client.id);
+  };
+
+  const [retryCount, setRetryCount] = useState(0);
+
+  const handleManualRetry = async (e) => {
+    if (e) e.stopPropagation();
+    setIsRetrying(true);
+    await onRefresh(client.id);
+    setIsRetrying(false);
+    setRetryCount(0); // Reset count after manual attempt
+  };
+
+  useEffect(() => {
+    // If calculating, check again in 5 seconds, up to 3 times
+    let timer;
+    if (isCalculating && retryCount < 3) {
+      timer = setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+        onRefresh(client.id);
+      }, 5000);
+    }
+    return () => clearTimeout(timer);
+  }, [isCalculating, client.id, retryCount]);
+
   return (
-    <div
-      onClick={onClick}
+    <Link
+      to={`/clients/${client.id}`}
+      onClick={handleCardClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: 16,
-        padding: '14px 16px', background: hovered ? '#f8fafc' : '#fff',
+        padding: '16px', background: hovered ? '#f8fafc' : '#fff',
         border: `1px solid ${hovered ? '#d1d5db' : '#e2e8f0'}`,
-        borderRadius: 8, marginBottom: 8, cursor: 'pointer',
+        borderRadius: 12, marginBottom: 12, cursor: 'pointer',
         transition: 'all 150ms',
+        boxShadow: hovered ? '0 4px 6px -1px rgb(0 0 0 / 0.1)' : 'none',
+        textDecoration: 'none',
+        color: 'inherit'
       }}
     >
       <Avatar name={client.name} size="md" />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 500, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.name}</p>
-        <p style={{ fontSize: 12, color: '#64748b', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.contact_name || client.email || '—'}</p>
+        <p style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', margin: '0 0 2px', truncate: true }}>{client.name}</p>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {hasInsight ? (
+            <p style={{ fontSize: 13, color: '#64748b', fontStyle: 'italic', margin: 0, truncate: true }}>
+              {healthScore.ai_insight.length > 60 ? healthScore.ai_insight.substring(0, 60) + '...' : healthScore.ai_insight}
+            </p>
+          ) : isCalculating && retryCount < 3 ? (
+            <p style={{ fontSize: 12, color: '#3b82f6', fontWeight: 500, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Loader2 size={12} className="animate-spin" />
+              Analyzing health data...
+            </p>
+          ) : (
+            <button 
+              onClick={handleManualRetry}
+              disabled={isRetrying}
+              style={{
+                fontSize: 12, color: '#3b82f6', fontWeight: 600, padding: 0,
+                background: 'none', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4,
+                position: 'relative', zIndex: 10
+              }}
+            >
+              <Sparkles size={12} />
+              {isRetrying ? 'Analyzing...' : retryCount >= 3 ? 'AI Timeout: Try again' : 'Generate AI Insight'}
+            </button>
+          )}
+        </div>
       </div>
-      <div style={{ width: 140 }}>
-        <ScoreBar score={score} />
-        <p style={{ fontSize: 13, fontWeight: 600, color: score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#dc2626', margin: '4px 0 0', textAlign: 'right' }}>{score}</p>
+      
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <TrendIcon size={14} color={trendColor} />
+          <HealthGauge score={score} size="xs" />
+        </div>
+        <div style={{ width: 85 }}>
+          <Badge variant={badgeVariant} size="sm">{getRiskLabel(score)}</Badge>
+        </div>
       </div>
-      <Badge variant={badgeVariant} size="sm">{getRiskLabel(score)}</Badge>
+
       <p style={{ width: 70, fontSize: 12, color: '#94a3b8', textAlign: 'right', flexShrink: 0 }}>
         {formatDaysAgo(client.last_contact_date)}
       </p>
-      <ChevronRight size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-    </div>
+      <ChevronRight size={18} color="#94a3b8" style={{ flexShrink: 0 }} />
+    </Link>
   );
 };
 
@@ -120,10 +203,12 @@ const AlertsPanel = ({ alerts, onDismiss }) => {
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const user = useAuthStore(s => s.user);
-  const { clients, loading, addClient, healthyCount, warningCount, atRiskCount, sortedByScore } = useClients();
+  const { clients, loading, addClient, analyzeClient, refreshClients, healthyCount, warningCount, atRiskCount, sortedByScore } = useClients();
   const { alerts, dismiss } = useAlerts();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -131,9 +216,24 @@ const DashboardPage = () => {
 
   const handleAddClient = async (data) => {
     const newClient = await addClient(data);
-    // Trigger AI health score
-    try { await clientsAPI.create && fetch(`/api/clients/${newClient.id}/trigger-score`, { method: 'POST' }); } catch {}
+    // Immediately trigger AI health score
+    analyzeClient(newClient.id); // This will update the client in local state when done
     return newClient;
+  };
+
+  const handleRefreshAll = async () => {
+    setIsRefreshing(true);
+    try {
+      await aiAPI.recalculateAll();
+      toast.success('All scores updated!');
+      // Refresh local client list
+      if (refreshClients) await refreshClients();
+      else window.location.reload(); 
+    } catch (err) {
+      toast.error('Refresh failed');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (
@@ -146,7 +246,17 @@ const DashboardPage = () => {
           </h1>
           <p style={{ fontSize: 14, color: '#64748b', margin: '4px 0 0' }}>Here's your client health overview</p>
         </div>
-        <Button variant="primary" icon={Plus} onClick={() => setShowAddModal(true)}>Add Client</Button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <Button 
+            variant="outline" 
+            icon={RefreshCw} 
+            loading={isRefreshing}
+            onClick={handleRefreshAll}
+          >
+            Refresh AI Scores
+          </Button>
+          <Button variant="primary" icon={Plus} onClick={() => setShowAddModal(true)}>Add Client</Button>
+        </div>
       </div>
 
       {/* Metric cards */}
@@ -184,7 +294,7 @@ const DashboardPage = () => {
               <ClientRow
                 key={client.id}
                 client={client}
-                onClick={() => navigate(`/clients/${client.id}`)}
+                onRefresh={analyzeClient}
               />
             ))
           )}
@@ -195,7 +305,7 @@ const DashboardPage = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: 0 }}>Smart Alerts</p>
-              <Badge variant="info">{alerts.filter(a => !a.is_read).length}</Badge>
+              <Badge variant="info">{alerts.filter(a => !a.read).length}</Badge>
             </div>
             <a href="/alerts" style={{ fontSize: 13, color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
           </div>
