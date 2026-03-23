@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import useAuthStore from '../store/authStore';
@@ -6,92 +6,91 @@ import useAuthStore from '../store/authStore';
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
   const setAuth = useAuthStore(state => state.setAuth);
+  const [status, setStatus] = useState('Signing you in...');
 
   useEffect(() => {
-    const handleCallback = async () => {
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const tryGetSession = async () => {
+      attempts++;
+      setStatus(`Signing you in... (${attempts})`);
+
       try {
-        // PRIMARY: Read tokens directly from URL hash (#access_token=...)
-        // This is the implicit flow — token is in the URL, not exchanged via code
-        const hashParams = new URLSearchParams(
-          window.location.hash.substring(1)
-        );
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
+        const { data: { session }, error } = await supabase.auth.getSession();
 
-        if (accessToken) {
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || '',
-          });
-
-          if (data?.session) {
-            // Upsert profile row for OAuth users (first time Google login)
-            await supabase.from('profiles').upsert({
-              id: data.session.user.id,
-              email: data.session.user.email,
-              full_name: data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || '',
-              avatar_url: data.session.user.user_metadata?.avatar_url || ''
-            }, { onConflict: 'id' });
-
-            setAuth(data.session.user, data.session.access_token);
-            navigate('/dashboard', { replace: true });
-            return;
-          }
-        }
-
-        // FALLBACK: Try getting an already-existing session (email/password logins)
-        const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          await supabase.from('profiles').upsert({
-            id: session.user.id,
-            email: session.user.email,
-            full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
-            avatar_url: session.user.user_metadata?.avatar_url || ''
-          }, { onConflict: 'id' });
+          // Upsert profile row for OAuth users (first-time Google login)
+          try {
+            await supabase.from('profiles').upsert({
+              id: session.user.id,
+              email: session.user.email,
+              full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+              avatar_url: session.user.user_metadata?.avatar_url || ''
+            }, { onConflict: 'id' });
+          } catch (profileErr) {
+            // Non-fatal — continue even if upsert fails
+            console.warn('Profile upsert failed:', profileErr);
+          }
 
           setAuth(session.user, session.access_token);
           navigate('/dashboard', { replace: true });
           return;
         }
 
-        // Nothing worked — send back to login
-        navigate('/login', { replace: true });
-      } catch (error) {
-        console.error('Auth callback error:', error);
-        navigate('/login', { replace: true });
+        if (error) {
+          console.error('Session error:', error);
+        }
+
+        if (attempts < maxAttempts) {
+          setTimeout(tryGetSession, 500);
+        } else {
+          setStatus('Login failed. Redirecting...');
+          setTimeout(() => navigate('/login', { replace: true }), 1500);
+        }
+      } catch (err) {
+        console.error('Auth error:', err);
+        if (attempts < maxAttempts) {
+          setTimeout(tryGetSession, 500);
+        } else {
+          navigate('/login', { replace: true });
+        }
       }
     };
 
-    handleCallback();
+    tryGetSession();
   }, []);
 
   return (
     <div style={{
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      background: '#f8fafc'
+      background: '#f8fafc',
+      fontFamily: 'Inter, sans-serif'
     }}>
-      <div style={{ textAlign: 'center' }}>
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-        <div style={{
-          width: 40,
-          height: 40,
-          border: '3px solid #e2e8f0',
-          borderTop: '3px solid #3b82f6',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-          margin: '0 auto 16px'
-        }} />
-        <p style={{ color: '#64748b', fontSize: 14, fontWeight: 600 }}>
-          Signing you in...
-        </p>
-      </div>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      <div style={{
+        width: 44,
+        height: 44,
+        border: '3px solid #e2e8f0',
+        borderTop: '3px solid #3b82f6',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+        marginBottom: 20
+      }} />
+      <p style={{ color: '#64748b', fontSize: 15, fontWeight: 500, margin: 0 }}>
+        {status}
+      </p>
+      <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 8 }}>
+        Completing your sign in...
+      </p>
     </div>
   );
 }
