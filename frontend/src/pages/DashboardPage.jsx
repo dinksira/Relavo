@@ -12,191 +12,147 @@ import AddClientModal from '../components/clients/AddClientModal';
 import useClients from '../hooks/useClients';
 import useAlerts from '../hooks/useAlerts';
 import useAuthStore from '../store/authStore';
-import { getRiskLabel } from '../utils/scoreHelpers';
+import { getRiskLabel, getNumericScore } from '../utils/scoreHelpers';
 import { formatDaysAgo } from '../utils/formatters';
 import { aiAPI } from '../services/api';
 import useToast from '../hooks/useToast';
 
-const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, subtitle, valueColor }) => {
-  const [hovered, setHovered] = useState(false);
+const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, subtitle, valueColor, borderTopColor }) => {
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20,
-        boxShadow: hovered ? '0 4px 12px rgba(0,0,0,0.07)' : '0 1px 3px rgba(0,0,0,0.06)',
-        transition: 'all 150ms',
-      }}
+      className="bg-white border border-[#e2e8f0] rounded-[14px] p-[20px_24px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-[1px]"
+      style={borderTopColor ? { borderTop: `3px solid ${borderTopColor}` } : {}}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 500, margin: 0 }}>{title}</p>
-        <div style={{
-          width: 36, height: 36, borderRadius: 8, background: iconBg || '#eff6ff',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={18} color={iconColor || '#3b82f6'} />
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-[12px] font-medium uppercase text-[#94a3b8] tracking-[0.05em] m-0">{title}</p>
+          <p className="text-[36px] font-bold text-[#0f172a] mt-2 mb-0 leading-none" style={valueColor ? { color: valueColor } : {}}>
+            {value}
+          </p>
+          {subtitle && <p className="text-[13px] text-[#94a3b8] mt-1 m-0">{subtitle}</p>}
+        </div>
+        <div 
+          className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
+          style={{ background: iconBg }}
+        >
+          <Icon size={20} color={iconColor} />
         </div>
       </div>
-      <p style={{ fontSize: 32, fontWeight: 600, color: valueColor || '#0f172a', margin: '8px 0 4px', lineHeight: 1 }}>
-        {value}
-      </p>
-      {subtitle && <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{subtitle}</p>}
     </div>
   );
 };
 
-const ClientRow = ({ client, onClick, onRefresh }) => {
-  const [hovered, setHovered] = useState(false);
-  const [isRetrying, setIsRetrying] = useState(false);
-  
-  // Prioritize the absolute latest score we have in local state
+const ClientRow = ({ client, onRefresh }) => {
+  const score = getNumericScore(client);
   const healthScore = client.latest_health_score || client.health_score || {};
-  const score = healthScore.score || 0;
   
-  // Trend calculation
-  const prevScore = client.previous_score || score;
-  const TrendIcon = score > prevScore ? ArrowUp : score < prevScore ? ArrowDown : Minus;
-  const trendColor = score > prevScore ? '#16a34a' : score < prevScore ? '#dc2626' : '#94a3b8';
-
-  const badgeVariant = score >= 70 ? 'healthy' : score >= 40 ? 'warning' : 'danger';
-
-  // AI Insight Logic
-  const hasInsight = !!healthScore.ai_insight;
-  // It's calculating if we have a score (from DB) but no narrative insight yet
-  const isCalculating = score > 0 && !hasInsight; 
-
-  const handleCardClick = (e) => {
-    // If the click was on the retry button, don't navigate
-    if (e.target.closest('button')) {
-      return;
-    }
-    console.log('Link clicked for client:', client.id);
+  const scoreBadgeStyles = {
+    healthy: "bg-[#f0fdf4] text-[#16a34a]",
+    warning: "bg-[#fffbeb] text-[#d97706]",
+    danger: "bg-[#fef2f2] text-[#dc2626]",
   };
 
-  const [retryCount, setRetryCount] = useState(0);
+  const status = score >= 70 ? 'healthy' : score >= 40 ? 'warning' : 'danger';
+  const barColor = score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#dc2626';
 
-  const handleManualRetry = async (e) => {
-    if (e) e.stopPropagation();
-    setIsRetrying(true);
-    await onRefresh(client.id);
-    setIsRetrying(false);
-    setRetryCount(0); // Reset count after manual attempt
+  const name = client.name || 'Unknown Client';
+  const firstChar = name.charAt(0).toUpperCase();
+  
+  const getGradient = (char) => {
+    if (char <= 'F') return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+    if (char <= 'M') return 'linear-gradient(135deg, #7c3aed, #5b21b6)';
+    if (char <= 'S') return 'linear-gradient(135deg, #0891b2, #0e7490)';
+    return 'linear-gradient(135deg, #059669, #047857)';
   };
-
-  useEffect(() => {
-    // If calculating, check again in 5 seconds, up to 3 times
-    let timer;
-    if (isCalculating && retryCount < 3) {
-      timer = setTimeout(() => {
-        setRetryCount(prev => prev + 1);
-        onRefresh(client.id);
-      }, 5000);
-    }
-    return () => clearTimeout(timer);
-  }, [isCalculating, client.id, retryCount]);
 
   return (
     <Link
       to={`/clients/${client.id}`}
-      onClick={handleCardClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 16,
-        padding: '16px', background: hovered ? '#f8fafc' : '#fff',
-        border: `1px solid ${hovered ? '#d1d5db' : '#e2e8f0'}`,
-        borderRadius: 12, marginBottom: 12, cursor: 'pointer',
-        transition: 'all 150ms',
-        boxShadow: hovered ? '0 4px 6px -1px rgb(0 0 0 / 0.1)' : 'none',
-        textDecoration: 'none',
-        color: 'inherit'
-      }}
+      className="flex items-center gap-[14px] p-[16px_20px] bg-white border-b border-[#f1f5f9] last:border-b-0 hover:bg-[#f8fafc] transition-colors duration-150 group"
     >
-      <Avatar name={client.name} size="md" />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', margin: '0 0 2px', truncate: true }}>{client.name}</p>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {hasInsight ? (
-            <p style={{ fontSize: 13, color: '#64748b', fontStyle: 'italic', margin: 0, truncate: true }}>
-              {healthScore.ai_insight.length > 60 ? healthScore.ai_insight.substring(0, 60) + '...' : healthScore.ai_insight}
-            </p>
-          ) : isCalculating && retryCount < 3 ? (
-            <p style={{ fontSize: 12, color: '#3b82f6', fontWeight: 500, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Loader2 size={12} className="animate-spin" />
-              Analyzing health data...
-            </p>
-          ) : (
-            <button 
-              onClick={handleManualRetry}
-              disabled={isRetrying}
-              style={{
-                fontSize: 12, color: '#3b82f6', fontWeight: 600, padding: 0,
-                background: 'none', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 4,
-                position: 'relative', zIndex: 10
-              }}
-            >
-              <Sparkles size={12} />
-              {isRetrying ? 'Analyzing...' : retryCount >= 3 ? 'AI Timeout: Try again' : 'Generate AI Insight'}
-            </button>
-          )}
-        </div>
+      <div 
+        className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white text-[15px] font-bold shrink-0 shadow-sm"
+        style={{ background: getGradient(firstChar) }}
+      >
+        {firstChar}
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <TrendIcon size={14} color={trendColor} />
-          <HealthGauge score={score} size="xs" />
-        </div>
-        <div style={{ width: 85 }}>
-          <Badge variant={badgeVariant} size="sm">{getRiskLabel(score)}</Badge>
+      <div className="flex-1 min-w-0">
+        <p className="text-[14px] font-semibold text-[#0f172a] m-0 group-hover:text-[#3b82f6] transition-colors truncate">
+          {name}
+        </p>
+        <p className="text-[12px] text-[#64748b] m-0 truncate font-normal">
+          {healthScore.ai_insight || 'No recent insights available'}
+        </p>
+      </div>
+      
+      <div className="w-[120px] shrink-0">
+        <div className="h-1.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden">
+          <div 
+            className="h-full rounded-full transition-all duration-700 ease-out" 
+            style={{ width: `${score}%`, backgroundColor: barColor }}
+          />
         </div>
       </div>
 
-      <p style={{ width: 70, fontSize: 12, color: '#94a3b8', textAlign: 'right', flexShrink: 0 }}>
+      <div className={`p-1 px-[10px] rounded-full text-[12px] font-semibold shrink-0 min-w-[32px] text-center ${scoreBadgeStyles[status]}`}>
+        {score}
+      </div>
+
+      <div className="text-[12px] text-[#94a3b8] w-[70px] text-right shrink-0">
         {formatDaysAgo(client.last_contact_date)}
-      </p>
-      <ChevronRight size={18} color="#94a3b8" style={{ flexShrink: 0 }} />
+      </div>
+
+      <ChevronRight size={14} className="text-[#cbd5e1] group-hover:text-[#94a3b8] transition-colors shrink-0" />
     </Link>
   );
 };
 
 const AlertsPanel = ({ alerts, onDismiss }) => {
-  const severityColors = { high: '#dc2626', medium: '#d97706', low: '#3b82f6' };
-  const shown = alerts.slice(0, 5);
+  const accentColors = { high: '#dc2626', medium: '#d97706', low: '#3b82f6' };
+  
   return (
-    <div>
-      {shown.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '32px 0' }}>
-          <Bell size={32} color="#94a3b8" style={{ margin: '0 auto 8px' }} />
-          <p style={{ fontSize: 14, fontWeight: 500, color: '#0f172a', margin: '0 0 4px' }}>All caught up!</p>
-          <p style={{ fontSize: 13, color: '#94a3b8', margin: 0 }}>No active alerts</p>
-        </div>
-      ) : shown.map(alert => (
-        <div key={alert.id} style={{
-          background: '#fff',
-          border: '1px solid #e2e8f0',
-          borderLeft: `4px solid ${severityColors[alert.severity] || '#3b82f6'}`,
-          borderRadius: '0 8px 8px 0',
-          padding: '12px 14px', marginBottom: 8,
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: 0 }}>{alert.client_name || 'Client'}</p>
-            <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>{formatDaysAgo(alert.created_at)}</p>
+    <div className="bg-white border border-[#e2e8f0] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+      {alerts.length === 0 ? (
+        <div className="p-12 text-center">
+          <div className="w-[60px] h-[60px] bg-[#f1f5f9] rounded-[16px] flex items-center justify-center mx-auto mb-4">
+            <Users size={28} className="text-[#94a3b8]" />
           </div>
-          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>{alert.message}</p>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <p className="text-[16px] font-semibold text-[#374151] m-0">No active alerts</p>
+          <p className="text-[14px] text-[#94a3b8] mt-1.5 m-0">You're all caught up!</p>
+        </div>
+      ) : (
+        alerts.slice(0, 5).map(alert => (
+          <div key={alert.id} className="p-[14px_16px_14px_19px] border-b border-[#f8fafc] last:border-b-0 relative group">
+            <div 
+              className="absolute left-0 top-0 bottom-0 w-[3px]" 
+              style={{ backgroundColor: accentColors[alert.severity] || '#3b82f6' }}
+            />
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] font-semibold text-[#0f172a]">{alert.client_name}</span>
+                <span className="text-[11px] font-medium bg-[#f1f5f9] text-[#64748b] px-[7px] py-[2px] rounded-[4px] uppercase">
+                  {alert.type || 'Alert'}
+                </span>
+              </div>
+              <span className="text-[11px] text-[#94a3b8]">{formatDaysAgo(alert.created_at)}</span>
+            </div>
+            <p className="text-[13px] text-[#374151] mt-1 leading-[1.5] m-0">{alert.message}</p>
+            {alert.suggestion && (
+              <div className="flex gap-1 items-start mt-1 text-[12px] text-[#64748b] italic">
+                <Sparkles size={12} className="text-[#3b82f6] shrink-0 mt-0.5" />
+                <span>{alert.suggestion}</span>
+              </div>
+            )}
             <button
               onClick={() => onDismiss(alert.id)}
-              style={{ fontSize: 12, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+              className="mt-2 text-[12px] text-[#94a3b8] hover:text-[#dc2626] transition-colors block ml-auto bg-transparent border-none cursor-pointer"
             >
               Dismiss
             </button>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 };
@@ -238,76 +194,138 @@ const DashboardPage = () => {
 
   return (
     <DashboardLayout>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+      {/* Greeting and Header Section */}
+      <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, color: '#0f172a', margin: 0 }}>
+          <h1 className="text-[26px] font-bold text-[#0f172a] m-0 leading-tight">
             {greeting}, {firstName} 👋
           </h1>
-          <p style={{ fontSize: 14, color: '#64748b', margin: '4px 0 0' }}>Here's your client health overview</p>
+          <p className="text-[14px] text-[#64748b] mt-1 m-0">Here's your client health overview</p>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="flex items-center gap-3">
           <Button 
             variant="outline" 
             icon={RefreshCw} 
             loading={isRefreshing}
             onClick={handleRefreshAll}
+            className="!h-[38px] !rounded-[9px] !text-[13px] !font-medium"
           >
             Refresh AI Scores
           </Button>
-          <Button variant="primary" icon={Plus} onClick={() => setShowAddModal(true)}>Add Client</Button>
+          <Button 
+            variant="primary" 
+            icon={Plus} 
+            onClick={() => setShowAddModal(true)}
+            className="!h-[38px] !rounded-[9px] !text-[13px] !font-semibold"
+          >
+            Add Client
+          </Button>
         </div>
       </div>
 
-      {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
-        <MetricCard title="Total Clients" value={clients.length} icon={Users} iconColor="#3b82f6" iconBg="#eff6ff" subtitle="Active accounts" />
-        <MetricCard title="Healthy" value={healthyCount} icon={CheckCircle} iconColor="#16a34a" iconBg="#dcfce7" subtitle="Score 70–100" valueColor="#16a34a" />
-        <MetricCard title="Need Attention" value={warningCount} icon={AlertTriangle} iconColor="#d97706" iconBg="#fef9c3" subtitle="Score 40–69" valueColor="#d97706" />
-        <MetricCard title="At Risk" value={atRiskCount} icon={XCircle} iconColor="#dc2626" iconBg="#fee2e2" subtitle="Score 0–39" valueColor="#dc2626" />
+      {/* Metric Cards Grid */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <MetricCard 
+          title="Total Clients" 
+          value={clients.length} 
+          icon={Users} 
+          iconColor="#3b82f6" 
+          iconBg="#eff6ff" 
+          subtitle="Active accounts" 
+        />
+        <MetricCard 
+          title="Healthy" 
+          value={healthyCount} 
+          icon={CheckCircle} 
+          iconColor="#16a34a" 
+          iconBg="#f0fdf4" 
+          subtitle="Score 70–100" 
+          valueColor="#16a34a"
+          borderTopColor="#16a34a"
+        />
+        <MetricCard 
+          title="Need Attention" 
+          value={warningCount} 
+          icon={AlertTriangle} 
+          iconColor="#d97706" 
+          iconBg="#fffbeb" 
+          subtitle="Score 40–69" 
+          valueColor="#d97706"
+          borderTopColor="#d97706"
+        />
+        <MetricCard 
+          title="At Risk" 
+          value={atRiskCount} 
+          icon={XCircle} 
+          iconColor="#dc2626" 
+          iconBg="#fef2f2" 
+          subtitle="Score 0–39" 
+          valueColor="#dc2626"
+          borderTopColor="#dc2626"
+        />
       </div>
 
-      {/* Two-column layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '65% 35%', gap: 24 }}>
-        {/* Left: Client list */}
+      {/* Main Content — Two Columns */}
+      <div className="grid grid-cols-[65%_35%] gap-5">
+        {/* Left Column: Client list */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: 0 }}>Client health overview</p>
-              <Badge variant="neutral">{clients.length}</Badge>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-[16px] font-semibold text-[#0f172a] m-0">Client health overview</h2>
+              <span className="bg-[#f1f5f9] text-[#64748b] text-[12px] font-semibold px-2 py-0.5 rounded-full">
+                {clients.length}
+              </span>
             </div>
-            <a href="/clients" style={{ fontSize: 13, color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
+            <Link to="/clients" className="text-[13px] font-medium text-[#3b82f6] hover:text-[#2563eb] transition-colors no-underline">
+              View all →
+            </Link>
           </div>
 
-          {loading ? (
-            <LoadingSkeleton variant="row" count={4} />
-          ) : sortedByScore.length === 0 ? (
-            <EmptyState
-              icon={Users}
-              title="No clients yet"
-              subtitle="Add your first client to start monitoring their relationship health"
-              actionLabel="Add your first client"
-              action={() => setShowAddModal(true)}
-            />
-          ) : (
-            sortedByScore.map(client => (
-              <ClientRow
-                key={client.id}
-                client={client}
-                onRefresh={analyzeClient}
-              />
-            ))
-          )}
+          <div className="bg-white border border-[#e2e8f0] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+            {loading ? (
+              <div className="p-6">
+                <LoadingSkeleton variant="row" count={4} />
+              </div>
+            ) : sortedByScore.length === 0 ? (
+              <div className="p-12 text-center">
+                <div className="w-[60px] h-[60px] bg-[#f1f5f9] rounded-[16px] flex items-center justify-center mx-auto mb-4">
+                  <Users size={28} className="text-[#94a3b8]" />
+                </div>
+                <p className="text-[16px] font-semibold text-[#374151] m-0">No clients yet</p>
+                <p className="text-[14px] text-[#94a3b8] mt-1.5 m-0">Add your first client to start monitoring their relationship health</p>
+                <Button 
+                  variant="primary" 
+                  icon={Plus} 
+                  onClick={() => setShowAddModal(true)}
+                  className="mt-5"
+                >
+                  Add your first client
+                </Button>
+              </div>
+            ) : (
+              sortedByScore.map(client => (
+                <ClientRow
+                  key={client.id}
+                  client={client}
+                  onRefresh={analyzeClient}
+                />
+              ))
+            )}
+          </div>
         </div>
 
-        {/* Right: Alerts */}
+        {/* Right Column: Alerts */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: 0 }}>Smart Alerts</p>
-              <Badge variant="info">{alerts.filter(a => !a.read).length}</Badge>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-[16px] font-semibold text-[#0f172a] m-0">Smart alerts</h2>
+              <span className="bg-[#eff6ff] text-[#3b82f6] text-[12px] font-semibold px-2 py-0.5 rounded-full">
+                {alerts.filter(a => !a.read).length}
+              </span>
             </div>
-            <a href="/alerts" style={{ fontSize: 13, color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
+            <Link to="/alerts" className="text-[13px] font-medium text-[#3b82f6] hover:text-[#2563eb] transition-colors no-underline">
+              View all →
+            </Link>
           </div>
           <AlertsPanel alerts={alerts} onDismiss={dismiss} />
         </div>

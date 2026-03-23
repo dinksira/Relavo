@@ -3,61 +3,43 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Bell, FileText, Settings, LogOut
 } from 'lucide-react';
-import Logo from '../Logo';
-import Avatar from '../ui/Avatar';
 import useAuthStore from '../../store/authStore';
 import useAlerts from '../../hooks/useAlerts';
 import { supabase } from '../../services/supabase';
-
-const navMain = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: Users,           label: 'Clients',   path: '/clients' },
-  { icon: Bell,            label: 'Alerts',    path: '/alerts' },
-  { icon: FileText,        label: 'Invoices',  path: '/invoices' },
-];
-
-const navAccount = [
-  { icon: Settings, label: 'Settings', path: '/settings' },
-];
+import logoPath from '../../assets/relavo-logo.svg';
 
 const NavItem = ({ icon: Icon, label, path, badge }) => (
   <NavLink
     to={path}
-    style={({ isActive }) => ({
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: isActive ? '9px 9px 9px 9px' : '9px 12px',
-      borderRadius: '0 8px 8px 0',
-      marginRight: 8,
-      fontSize: 14, fontWeight: 500,
-      textDecoration: 'none',
-      color: isActive ? '#3b82f6' : '#64748b',
-      background: isActive ? '#eff6ff' : 'transparent',
-      borderLeft: isActive ? '3px solid #3b82f6' : '3px solid transparent',
-      transition: 'all 100ms',
-    })}
+    className={({ isActive }) => `
+      flex items-center gap-[10px] px-3 py-[9px] rounded-lg mb-0.5 cursor-pointer transition-all duration-150 ease-in-out group
+      ${isActive 
+        ? 'bg-[rgba(59,130,246,0.2)] text-white font-semibold shadow-[inset_0_0_0_1px_rgba(59,130,246,0.3)]' 
+        : 'bg-transparent text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.8)]'
+      }
+    `}
   >
-    <Icon size={18} />
-    <span style={{ flex: 1 }}>{label}</span>
-    {badge > 0 && (
-      <span style={{
-        background: '#3b82f6', color: '#fff',
-        fontSize: 11, fontWeight: 600,
-        minWidth: 18, height: 18, borderRadius: 999,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '0 4px',
-      }}>
-        {badge}
-      </span>
+    {({ isActive }) => (
+      <>
+        <Icon 
+          size={16} 
+          className={isActive ? 'text-[#3b82f6]' : 'text-[rgba(255,255,255,0.4)] group-hover:text-[rgba(255,255,255,0.7)]'} 
+        />
+        <span className="text-[14px]">{label}</span>
+        {badge > 0 && (
+          <span className="ml-auto bg-[#3b82f6] text-white text-[11px] font-semibold min-w-[18px] h-[18px] rounded-full flex items-center justify-center">
+            {badge}
+          </span>
+        )}
+      </>
     )}
   </NavLink>
 );
 
-const SectionLabel = ({ text }) => (
-  <p style={{
-    fontSize: 10, fontWeight: 600, letterSpacing: '0.12em',
-    textTransform: 'uppercase', color: '#94a3b8',
-    padding: '8px 12px', margin: '0 0 4px',
-  }}>{text}</p>
+const SectionLabel = ({ text, className = "" }) => (
+  <p className={`text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)] px-2 py-2 mb-1 ${className}`}>
+    {text}
+  </p>
 );
 
 const Sidebar = () => {
@@ -68,6 +50,7 @@ const Sidebar = () => {
 
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
   const email = user?.email || '';
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -76,64 +59,43 @@ const Sidebar = () => {
   };
 
   return (
-    <div style={{
-      width: 240, height: '100vh',
-      background: '#fff',
-      borderRight: '1px solid #e2e8f0',
-      display: 'flex', flexDirection: 'column',
-      flexShrink: 0, zIndex: 40,
-    }}>
-      {/* Logo */}
-      <div style={{ padding: 20, borderBottom: '1px solid #e2e8f0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Logo style={{ height: 28 }} />
-          <span style={{ fontSize: 18, fontWeight: 600, color: '#1b2a3b' }}>relavo</span>
-        </div>
+    <div className="w-[240px] h-screen bg-[#0f172a] flex flex-col fixed left-0 shrink-0 z-[40]">
+      {/* Logo Area */}
+      <div className="p-6 pb-5 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-[10px]">
+        <img 
+          src={logoPath} 
+          alt="relavo" 
+          className="h-8 brightness-0 invert" 
+        />
+        <span className="text-white text-[18px] font-bold tracking-[-0.3px]">relavo</span>
       </div>
 
       {/* Navigation */}
-      <nav style={{ flex: 1, padding: '12px 0' }}>
-        <SectionLabel text="Main Menu" />
-        {navMain.map(item => (
-          <NavItem key={item.path} {...item} badge={item.label === 'Alerts' ? unreadCount : 0} />
-        ))}
-        <div style={{ margin: '12px 12px', borderTop: '1px solid #e2e8f0' }} />
-        <SectionLabel text="Account" />
-        {navAccount.map(item => (
-          <NavItem key={item.path} {...item} />
-        ))}
+      <nav className="flex-1 p-[12px] overflow-y-auto">
+        <SectionLabel text="Main Menu" className="pt-4" />
+        <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" />
+        <NavItem icon={Users} label="Clients" path="/clients" />
+        <NavItem icon={Bell} label="Alerts" path="/alerts" badge={unreadCount} />
+        <NavItem icon={FileText} label="Invoices" path="/invoices" />
+        
+        <SectionLabel text="Account" className="mt-2 pt-2" />
+        <NavItem icon={Settings} label="Settings" path="/settings" />
       </nav>
 
-      {/* User footer */}
-      <div style={{
-        padding: 16, borderTop: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <Avatar name={name} size="sm" />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            fontSize: 13, fontWeight: 500, color: '#0f172a',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0,
-          }}>{name}</p>
-          <p style={{
-            fontSize: 11, color: '#94a3b8', margin: 0,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>{email}</p>
+      {/* Bottom User Section */}
+      <div className="p-4 px-3 border-t border-[rgba(255,255,255,0.06)] flex items-center gap-[10px]">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white text-[12px] font-bold flex items-center justify-center shrink-0">
+          {initials}
         </div>
-        <button
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-semibold text-white truncate m-0">{name}</p>
+          <p className="text-[11px] text-[#94a3b8] truncate m-0">{email}</p>
+        </div>
+        <LogOut 
+          size={16} 
+          className="text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.7)] cursor-pointer ml-auto transition-colors duration-150"
           onClick={handleLogout}
-          title="Sign out"
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#94a3b8', padding: 6, borderRadius: 6,
-            display: 'flex', alignItems: 'center',
-            transition: 'color 150ms',
-          }}
-          onMouseEnter={e => e.currentTarget.style.color = '#dc2626'}
-          onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
-        >
-          <LogOut size={16} />
-        </button>
+        />
       </div>
     </div>
   );

@@ -10,6 +10,13 @@ export const getRiskLabel = (score) => {
   return 'At Risk';
 };
 
+export const getNumericScore = (client) => {
+  if (!client) return 0;
+  const hs = client.latest_health_score || client.health_score;
+  if (typeof hs === 'object' && hs !== null) return hs.score || 0;
+  return hs || 0;
+};
+
 export const getRiskColors = (score) => {
   if (score >= 70) return {
     bg: '#dcfce7', text: '#16a34a',

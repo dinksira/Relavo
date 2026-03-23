@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, PlusCircle, DollarSign, Sparkles, Clock, Mail,
-  Phone, Activity, AlertTriangle, CheckCircle, MessageSquare, Video, RefreshCw
+  Phone, Activity, AlertTriangle, CheckCircle, MessageSquare, Video, RefreshCw,
+  Share2, Edit, ExternalLink, ChevronRight, TrendingUp, TrendingDown
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
@@ -20,15 +20,13 @@ import AIBriefing from '../components/clients/AIBriefing';
 import AIChat from '../components/clients/AIChat';
 import useClients from '../hooks/useClients';
 import { clientsAPI, aiAPI } from '../services/api';
-import { getRiskLabel, getRiskColors } from '../utils/scoreHelpers';
+import { getRiskLabel, getRiskColors, getNumericScore } from '../utils/scoreHelpers';
 import { formatDaysAgo, formatDate, formatCurrency } from '../utils/formatters';
 import useToast from '../hooks/useToast';
 
 const typeIcons = {
   call: Phone, email: Mail, meeting: Video, message: MessageSquare
 };
-
-const outcomeColors = { positive: '#16a34a', neutral: '#94a3b8', negative: '#dc2626' };
 
 const ClientDetailPage = () => {
   const { id } = useParams();
@@ -89,231 +87,230 @@ const ClientDetailPage = () => {
 
   if (loading) return (
     <DashboardLayout>
-      <LoadingSkeleton variant="detail" count={3} />
+      <div className="p-8">
+        <LoadingSkeleton variant="detail" count={3} />
+      </div>
     </DashboardLayout>
   );
 
   if (!client) return (
     <DashboardLayout>
-      <EmptyState icon={Activity} title="Client not found" subtitle="This client may have been deleted." />
+      <div className="p-16 text-center bg-white rounded-[14px] border border-[#e2e8f0] m-8">
+        <AlertTriangle size={48} className="text-[#94a3b8] mx-auto mb-4" />
+        <h2 className="text-[20px] font-bold text-[#374151]">Client not found</h2>
+        <p className="text-[14px] text-[#94a3b8] mt-2">This client may have been deleted or the ID is incorrect.</p>
+        <Button variant="outline" className="mt-6" onClick={() => navigate('/clients')}>Back to Clients</Button>
+      </div>
     </DashboardLayout>
   );
 
+  const score = getNumericScore(client);
   const healthScore = client.latest_health_score || {};
-  const score = typeof healthScore === 'object' ? (healthScore.score || 0) : (healthScore || 0);
-  const colors = getRiskColors(score);
-  const badgeVariant = score >= 70 ? 'healthy' : score >= 40 ? 'warning' : 'danger';
   const touchpoints = client.touchpoints || [];
   const invoices = client.invoices || [];
   const openInvoices = invoices.filter(i => i.status !== 'paid');
   const totalOutstanding = openInvoices.reduce((sum, i) => sum + (i.amount || 0), 0);
 
-  // Mock trend data if none
-  const trendData = client.health_scores || [
-    { date: '7d ago', score: Math.max(0, score - 15) },
-    { date: '6d ago', score: Math.max(0, score - 10) },
-    { date: '5d ago', score: Math.max(0, score - 8) },
-    { date: '4d ago', score: Math.max(0, score - 5) },
-    { date: '3d ago', score: Math.max(0, score - 3) },
-    { date: '2d ago', score: Math.max(0, score - 1) },
-    { date: 'Today', score },
-  ];
+  const firstChar = client.name?.charAt(0).toUpperCase() || '?';
+  const getAvatarGradient = (char) => {
+    if (char <= 'F') return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+    if (char <= 'M') return 'linear-gradient(135deg, #7c3aed, #5b21b6)';
+    if (char <= 'S') return 'linear-gradient(135deg, #0891b2, #0e7490)';
+    return 'linear-gradient(135deg, #059669, #047857)';
+  };
 
   return (
     <DashboardLayout>
-      {/* Back */}
-      <button
-        onClick={() => navigate('/clients')}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: '#64748b', fontFamily: 'inherit',
-          marginBottom: 20, padding: 0,
-        }}
-      >
-        <ArrowLeft size={16} /> Clients
-      </button>
+      {/* Breadcrumb Nav */}
+      <div className="flex items-center gap-2 mb-6 text-[13px] font-medium">
+        <Link to="/clients" className="text-[#64748b] hover:text-[#0f172a] no-underline transition-colors">Clients</Link>
+        <ChevronRight size={14} className="text-[#cbd5e1]" />
+        <span className="text-[#0f172a]">{client.name}</span>
+      </div>
 
-      {/* Client header */}
-      <div style={{
-        background: '#fff', border: '1px solid #e2e8f0',
-        borderRadius: 10, padding: 24, marginBottom: 24,
-        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-      }}>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-          <Avatar name={client.name} size="xl" />
+      {/* Main Page Header */}
+      <div className="flex justify-between items-start mb-8 bg-white border border-[#e2e8f0] rounded-[16px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+        <div className="flex gap-5">
+          <div 
+            className="w-16 h-16 rounded-[18px] flex items-center justify-center text-white text-[24px] font-bold shadow-md shrink-0"
+            style={{ background: getAvatarGradient(firstChar) }}
+          >
+            {firstChar}
+          </div>
           <div>
-            <h1 style={{ fontSize: 28, fontWeight: 600, color: '#0f172a', margin: '0 0 4px' }}>{client.name}</h1>
-            {client.contact_name && (
-              <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 2px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Mail size={14} /> {client.contact_name}
-              </p>
-            )}
-            {client.email && (
-              <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 6px' }}>{client.email}</p>
-            )}
-            <Badge variant={client.status === 'active' ? 'active' : 'paused'}>{client.status || 'Active'}</Badge>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="outline" size="sm" icon={Mail} onClick={() => setEmailModalOpen(true)}>Draft Email</Button>
-          <Button variant="outline" size="sm" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)}>Log Touchpoint</Button>
-          <Button variant="outline" size="sm" icon={DollarSign} onClick={() => setInvoiceModalOpen(true)}>Add Invoice</Button>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 24 }}>
-        {/* Health Score */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: '#64748b', fontWeight: 500, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Health Score</p>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-            <HealthGauge score={score} size="xl" />
-          </div>
-          <Badge variant={badgeVariant}>{getRiskLabel(score)}</Badge>
-          <div style={{ marginTop: 12 }}>
-            <button
-              onClick={handleRecalculate}
-              disabled={isRecalculating}
-              style={{
-                fontSize: 11, fontWeight: 700, color: '#3b82f6', background: 'none', border: 'none',
-                cursor: isRecalculating ? 'not-allowed' : 'pointer', textTransform: 'uppercase',
-                display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto', opacity: isRecalculating ? 0.6 : 1
-              }}
-            >
-              <RefreshCw size={12} className={isRecalculating ? 'animate-spin' : ''} />
-              {isRecalculating ? 'Calculating...' : 'Recalculate'}
-            </button>
-          </div>
-        </div>
-
-        {/* Last Contact */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: '#64748b', fontWeight: 500, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Last Contact</p>
-          <Clock size={28} color="#94a3b8" style={{ margin: '0 auto 8px' }} />
-          <p style={{ fontSize: 24, fontWeight: 600, color: '#0f172a', margin: '0 0 4px' }}>{formatDaysAgo(client.last_contact_date)}</p>
-          {touchpoints[0] && <Badge variant="neutral" size="sm">{touchpoints[0].type}</Badge>}
-        </div>
-
-        {/* Financial Health */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: '#64748b', fontWeight: 500, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Financial Health</p>
-          <DollarSign size={28} color="#94a3b8" style={{ margin: '0 auto 8px' }} />
-          {openInvoices.length === 0 ? (
-            <>
-              <CheckCircle size={24} color="#16a34a" style={{ margin: '0 auto 8px' }} />
-              <p style={{ fontSize: 14, color: '#16a34a', fontWeight: 500, margin: 0 }}>All paid</p>
-            </>
-          ) : (
-            <>
-              <p style={{ fontSize: 24, fontWeight: 600, color: '#dc2626', margin: '0 0 4px' }}>{openInvoices.length}</p>
-              <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 4px' }}>open invoices</p>
-              <p style={{ fontSize: 13, color: '#dc2626', fontWeight: 500, margin: 0 }}>{formatCurrency(totalOutstanding)} outstanding</p>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* AI Intelligence Center */}
-      <AIBriefing clientId={id} clientName={client.name} />
-      <AIChat clientId={id} clientName={client.name} />
-
-      {/* Trend chart */}
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 20, marginBottom: 24 }}>
-        <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: '0 0 20px' }}>Health score history</p>
-        <ScoreHistoryChart scores={history} />
-      </div>
-
-      {/* Two columns: Touchpoints + Invoices */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-        {/* Touchpoints */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: 0 }}>Activity Timeline</p>
-            <Button variant="outline" size="sm" onClick={() => setTouchpointModalOpen(true)}>Log Touchpoint</Button>
-          </div>
-
-          {touchpoints.length === 0 ? (
-            <EmptyState icon={Activity} title="No activity logged yet" subtitle="Record your first interaction" />
-          ) : (
-            <div style={{ position: 'relative' }}>
-              {touchpoints.map((tp, i) => {
-                const Icon = typeIcons[tp.type] || MessageSquare;
-                return (
-                  <div key={tp.id || i} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{
-                        width: 10, height: 10, borderRadius: '50%',
-                        background: outcomeColors[tp.outcome] || '#94a3b8',
-                        flexShrink: 0, marginTop: 4,
-                      }} />
-                      {i < touchpoints.length - 1 && (
-                        <div style={{ width: 2, flex: 1, background: '#e2e8f0', marginTop: 4 }} />
-                      )}
-                    </div>
-                    <div style={{
-                      flex: 1, background: '#fff', border: '1px solid #e2e8f0',
-                      borderRadius: 8, padding: '12px 16px', marginBottom: 4,
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <Icon size={14} color="#64748b" />
-                          <span style={{ fontSize: 13, fontWeight: 500, color: '#0f172a' }}>{tp.type}</span>
-                        </div>
-                        <span style={{ fontSize: 12, color: '#94a3b8' }}>{formatDaysAgo(tp.created_at)}</span>
-                      </div>
-                      <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                        {tp.notes || <em>No notes recorded</em>}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex items-center gap-3">
+              <h1 className="text-[24px] font-bold text-[#0f172a] m-0">{client.name}</h1>
+              <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider ${
+                client.status === 'active' ? 'bg-[#f0fdf4] text-[#16a34a]' : 'bg-[#f8fafc] text-[#64748b]'
+              }`}>
+                {client.status || 'Active'}
+              </span>
             </div>
-          )}
+            <div className="flex items-center gap-4 mt-2">
+              <div className="flex items-center gap-1.5 text-[13px] text-[#64748b]">
+                <Mail size={14} /> {client.email || 'No email'}
+              </div>
+              <div className="flex items-center gap-1.5 text-[13px] text-[#64748b]">
+                <Phone size={14} /> {client.phone || client.contact_phone || 'No phone'}
+              </div>
+            </div>
+          </div>
         </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" icon={Edit} className="!h-[36px] !rounded-[8px]">Edit</Button>
+          <Button variant="primary" size="sm" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-[36px] !rounded-[8px]">
+            Log Interaction
+          </Button>
+        </div>
+      </div>
 
-        {/* Invoices */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: 0 }}>Invoices</p>
-            <Button variant="outline" size="sm" onClick={() => setInvoiceModalOpen(true)}>Add Invoice</Button>
+      <div className="grid grid-cols-[1fr_360px] gap-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Quick Metrics Grid */}
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Health Score</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-[24px] font-bold ${score >= 70 ? 'text-[#16a34a]' : score >= 40 ? 'text-[#d97706]' : 'text-[#dc2626]'}`}>{score}</span>
+                <span className="text-[11px] font-semibold text-[#64748b]">/ 100</span>
+              </div>
+            </div>
+            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Touchpoints</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[24px] font-bold text-[#0f172a]">{touchpoints.length}</span>
+                <span className="text-[11px] font-semibold text-[#64748b]">All time</span>
+              </div>
+            </div>
+            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Sentiment</p>
+              <div className="flex items-center gap-2">
+                <TrendingUp size={18} className="text-[#16a34a]" />
+                <span className="text-[16px] font-bold text-[#0f172a]">Positive</span>
+              </div>
+            </div>
+            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Open Invoices</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-[24px] font-bold ${openInvoices.length > 0 ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}>{openInvoices.length}</span>
+                <span className="text-[11px] font-semibold text-[#64748b]">{formatCurrency(totalOutstanding)}</span>
+              </div>
+            </div>
           </div>
 
-          {invoices.length === 0 ? (
-            <EmptyState icon={DollarSign} title="No invoices" subtitle="Add an invoice to track payments" />
-          ) : (
-            <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 12 }}>
-                {[
-                  { label: 'Total', val: formatCurrency(invoices.reduce((s, i) => s + (i.amount || 0), 0)), color: '#0f172a' },
-                  { label: 'Paid', val: formatCurrency(invoices.filter(i => i.status === 'paid').reduce((s, i) => s + (i.amount || 0), 0)), color: '#16a34a' },
-                  { label: 'Outstanding', val: formatCurrency(openInvoices.reduce((s, i) => s + (i.amount || 0), 0)), color: openInvoices.length > 0 ? '#dc2626' : '#94a3b8' },
-                ].map(stat => (
-                  <div key={stat.label} style={{ textAlign: 'center', padding: 10, background: '#f8fafc', borderRadius: 8 }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: stat.color, margin: 0 }}>{stat.val}</p>
-                    <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>{stat.label}</p>
-                  </div>
-                ))}
+          {/* AI Intelligence Card */}
+          <AIBriefing clientId={id} clientName={client.name} />
+
+          {/* Detailed Activity Timeline */}
+          <div className="bg-white border border-[#e2e8f0] rounded-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="p-5 border-b border-[#f1f5f9] flex justify-between items-center">
+              <h2 className="text-[16px] font-bold text-[#0f172a] m-0">Relationship Activity</h2>
+              <div className="flex gap-2">
+                <button className="p-1 px-3 bg-[#f1f5f9] text-[#64748b] text-[12px] font-semibold rounded-full border-none cursor-pointer hover:bg-[#e2e8f0] transition-colors">Filter</button>
+                <button className="p-1 px-3 bg-[#f1f5f9] text-[#64748b] text-[12px] font-semibold rounded-full border-none cursor-pointer hover:bg-[#e2e8f0] transition-colors">Export</button>
               </div>
-              {invoices.map((inv, i) => {
-                const statusVariant = inv.status === 'paid' ? 'active' : inv.status === 'overdue' ? 'danger' : 'warning';
-                return (
-                  <div key={inv.id || i} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    background: '#fff', border: '1px solid #e2e8f0',
-                    borderRadius: 8, padding: '14px 16px', marginBottom: 8,
-                  }}>
-                    <div>
-                      <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: 0 }}>{formatCurrency(inv.amount)}</p>
-                      <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Due {formatDate(inv.due_date)}</p>
-                    </div>
-                    <Badge variant={statusVariant} size="sm">{inv.status}</Badge>
+            </div>
+            
+            <div className="p-5 pb-8 relative">
+              {touchpoints.length === 0 ? (
+                <div className="py-12 text-center text-[#94a3b8]">
+                  <Activity size={32} className="mx-auto mb-3 opacity-30" />
+                  <p className="text-[14px]">No interactions logged since onboarding.</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {touchpoints.map((tp, idx) => {
+                    const Icon = typeIcons[tp.type] || MessageSquare;
+                    return (
+                      <div key={tp.id || idx} className="flex gap-4 relative">
+                        {idx !== touchpoints.length - 1 && (
+                          <div className="absolute left-[16px] top-[40px] bottom-[-24px] w-[2px] bg-[#f1f5f9]" />
+                        )}
+                        <div className="w-8 h-8 rounded-[10px] bg-[#f8fafc] border border-[#f1f5f9] flex items-center justify-center shrink-0 z-10">
+                          <Icon size={14} className="text-[#64748b]" />
+                        </div>
+                        <div className="flex-1 bg-[#fbfcfd] border border-[#f1f5f9] rounded-[12px] p-4 group hover:border-[#3b82f6] transition-all">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <span className="text-[13px] font-bold text-[#0f172a] capitalize">{tp.type}</span>
+                              <span className="mx-2 text-[#cbd5e1]">•</span>
+                              <span className="text-[11px] text-[#94a3b8] font-medium">{formatDaysAgo(tp.created_at)}</span>
+                            </div>
+                            <div className={`w-2 h-2 rounded-full ${
+                              tp.outcome === 'positive' ? 'bg-[#16a34a]' : tp.outcome === 'negative' ? 'bg-[#dc2626]' : 'bg-[#94a3b8]'
+                            }`} />
+                          </div>
+                          <p className="text-[13px] text-[#374151] leading-[1.6] m-0">{tp.notes || 'Routine check-in call with the primary account manager.'}</p>
+                          <div className="mt-3 flex gap-2">
+                             <div className="text-[10px] font-bold text-[#3b82f6] bg-[#eff6ff] px-2 py-0.5 rounded-full uppercase">Sentiment: Normal</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Health Gauge Circular Card */}
+          <div className="bg-white border border-[#e2e8f0] rounded-[16px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-center">
+             <div className="flex justify-between items-center mb-6">
+                <span className="text-[12px] font-bold text-[#64748b] uppercase tracking-wider">Health Insight</span>
+                <button onClick={handleRecalculate} disabled={isRecalculating} className="text-[#3b82f6] hover:text-[#2563eb] transition-colors bg-transparent border-none cursor-pointer">
+                  <RefreshCw size={16} className={isRecalculating ? 'animate-spin' : ''} />
+                </button>
+             </div>
+             <div className="flex flex-col items-center">
+                <HealthGauge score={score} size="xl" />
+                <h3 className="text-[20px] font-bold text-[#0f172a] mt-4 mb-1">
+                  {score >= 70 ? 'Healthy Partner' : score >= 40 ? 'Moderate Risk' : 'High Risk'}
+                </h3>
+                <p className="text-[13px] text-[#64748b] m-0">Updated {formatDaysAgo(healthScore.created_at || new Date())}</p>
+             </div>
+          </div>
+
+          {/* Score History Graph */}
+          <div className="bg-white border border-[#e2e8f0] rounded-[16px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+             <h3 className="text-[13px] font-bold text-[#94a3b8] uppercase tracking-wider mb-5 m-0">6-Month Trend</h3>
+             <ScoreHistoryChart scores={history} height={120} />
+          </div>
+
+          {/* Pending Invoices Card */}
+          <div className="bg-white border border-[#e2e8f0] rounded-[16px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+            <div className="p-4 border-b border-[#f1f5f9] flex justify-between items-center bg-[#f8fafc]">
+               <h3 className="text-[13px] font-bold text-[#0f172a] m-0">Invoices</h3>
+               <button onClick={() => setInvoiceModalOpen(true)} className="text-[11px] font-bold text-[#3b82f6] bg-white border border-[#bfdbfe] px-2 py-1 rounded-[6px] cursor-pointer hover:bg-[#eff6ff] transition-colors">Add New</button>
+            </div>
+            <div className="divide-y divide-[#f1f5f9]">
+              {invoices.length === 0 ? (
+                <div className="p-6 text-center text-[#94a3b8] text-[13px]">No billing history yet.</div>
+              ) : (
+                invoices.slice(0, 4).map((inv, idx) => (
+                  <div key={inv.id || idx} className="p-4 hover:bg-[#fbfcfd] transition-colors">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-[14px] font-bold text-[#0f172a] m-0">{formatCurrency(inv.amount)}</p>
+                           <p className="text-[11px] text-[#94a3b8] mt-1 m-0">Due {formatDate(inv.due_date)}</p>
+                        </div>
+                        <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold uppercase ${
+                          inv.status === 'paid' ? 'bg-[#f0fdf4] text-[#16a34a]' : 'bg-[#fef2f2] text-[#dc2626]'
+                        }`}>{inv.status}</span>
+                     </div>
                   </div>
-                );
-              })}
-            </>
-          )}
+                ))
+              )}
+            </div>
+            {invoices.length > 4 && (
+              <button className="w-full py-3 bg-[#f8fafc] text-[#64748b] text-[12px] font-medium border-none cursor-pointer hover:bg-[#f1f5f9] transition-colors">View All Invoices</button>
+            )}
+          </div>
+
+          <AIChat clientId={id} clientName={client.name} />
         </div>
       </div>
 

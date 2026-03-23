@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, RefreshCw, Sparkles } from 'lucide-react';
+import { Bell, RefreshCw, Zap } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import EmptyState from '../components/ui/EmptyState';
 import useAlerts from '../hooks/useAlerts';
 import { formatDaysAgo } from '../utils/formatters';
-
-const severityColors = { high: '#dc2626', medium: '#d97706', low: '#3b82f6' };
-const severityVariants = { high: 'danger', medium: 'warning', low: 'info' };
 
 const AlertsPage = () => {
   const navigate = useNavigate();
@@ -38,137 +33,144 @@ const AlertsPage = () => {
     { key: 'low', label: 'Low' },
   ];
 
+  const severityColors = { 
+    high: { accent: '#dc2626', bg: '#fef2f2', text: '#dc2626' },
+    medium: { accent: '#d97706', bg: '#fffbeb', text: '#d97706' },
+    low: { accent: '#3b82f6', bg: '#eff6ff', text: '#3b82f6' }
+  };
+
   return (
     <DashboardLayout>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+      {/* Header Section */}
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 600, color: '#0f172a', margin: 0 }}>Smart Alerts</h1>
-          <p style={{ fontSize: 14, color: unreadCount > 0 ? '#3b82f6' : '#64748b', margin: '4px 0 0', fontWeight: unreadCount > 0 ? 500 : 400 }}>
-            {unreadCount > 0 ? `${unreadCount} unread alerts` : 'All caught up'}
+          <h1 className="text-[26px] font-bold text-[#0f172a] m-0">Smart Alerts</h1>
+          <p className="text-[14px] text-[#64748b] mt-1 m-0">
+            {unreadCount > 0 ? `${unreadCount} unread alerts` : 'No unread alerts'}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex items-center gap-4">
           {unreadCount > 0 && (
-            <Button variant="ghost" onClick={markAllRead}>Mark all as read</Button>
+            <button 
+              onClick={markAllRead}
+              className="text-[13px] font-medium text-[#64748b] hover:text-[#0f172a] bg-transparent border-none cursor-pointer transition-colors"
+            >
+              Mark all as read
+            </button>
           )}
-          <Button variant="outline" icon={RefreshCw} onClick={() => window.location.reload()}>Refresh</Button>
+          <Button 
+            variant="outline" 
+            icon={RefreshCw} 
+            onClick={() => window.location.reload()}
+            className="!h-[38px] !rounded-[9px]"
+          >
+            Refresh
+          </Button>
         </div>
       </div>
 
-      {/* Filter pills */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+      {/* Filter Tabs */}
+      <div className="flex bg-[#f1f5f9] p-1 rounded-[10px] gap-1 self-start mb-6 w-fit">
         {filterTabs.map(tab => (
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 500,
-              cursor: 'pointer', border: 'none', fontFamily: 'inherit',
-              background: filter === tab.key ? '#3b82f6' : '#f1f5f9',
-              color: filter === tab.key ? '#fff' : '#64748b',
-              transition: 'all 150ms',
-            }}
+            className={`px-[14px] py-[6px] rounded-[7px] text-[13px] font-medium transition-all duration-150 border-none cursor-pointer flex items-center gap-1.5 ${
+              filter === tab.key 
+                ? 'bg-white text-[#0f172a] font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.1)]' 
+                : 'bg-transparent text-[#64748b] hover:text-[#0f172a]'
+            }`}
           >
             {tab.label}
-            <span style={{
-              background: filter === tab.key ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
-              color: filter === tab.key ? '#fff' : '#64748b',
-              borderRadius: 999, fontSize: 11, fontWeight: 600,
-              padding: '0 6px', height: 18, display: 'flex', alignItems: 'center',
-            }}>
-              {counts[tab.key]}
+            <span className={`text-[11px] font-bold px-1.5 rounded-full ${
+              filter === tab.key ? 'text-[#3b82f6]' : 'text-[#94a3b8]'
+            }`}>
+              ({counts[tab.key]})
             </span>
           </button>
         ))}
       </div>
 
-      {/* Alerts list */}
-      {loading ? (
-        <p style={{ color: '#94a3b8', fontSize: 14 }}>Loading alerts...</p>
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          icon={Bell}
-          title="You're all caught up!"
-          subtitle="No alerts right now. Relavo will notify you when a client needs attention."
-        />
-      ) : (
-        filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(alert => (
-          <div
-            key={alert.id}
-            style={{
-              background: alert.is_read ? '#fff' : '#fafbff',
-              border: '1px solid #e2e8f0',
-              borderLeft: `4px solid ${severityColors[alert.severity] || '#3b82f6'}`,
-              borderRadius: '0 10px 10px 0',
-              padding: '16px 20px', marginBottom: 10,
-              transition: 'all 150ms',
-            }}
-          >
-            {/* Top row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {!alert.is_read && (
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
-                )}
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{alert.client_name || 'Client'}</span>
-                <Badge variant="neutral" size="sm">{alert.type || 'alert'}</Badge>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Badge variant={severityVariants[alert.severity] || 'info'} size="sm">{alert.severity}</Badge>
-                <span style={{ fontSize: 12, color: '#94a3b8' }}>{formatDaysAgo(alert.created_at)}</span>
-              </div>
+      {/* Alerts List */}
+      <div className="flex flex-col gap-[10px]">
+        {loading ? (
+          <div className="p-8 text-center text-[#94a3b8]">Loading alerts...</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-16 text-center bg-white rounded-[14px] border border-[#e2e8f0]">
+            <div className="w-[80px] h-[80px] bg-[#f1f5f9] rounded-[20px] flex items-center justify-center mx-auto mb-5">
+              <Bell size={36} className="text-[#94a3b8]" />
             </div>
-
-            {/* Message */}
-            <p style={{ fontSize: 14, color: '#0f172a', lineHeight: 1.6, margin: '0 0 8px' }}>{alert.message}</p>
-
-            {/* AI suggestion */}
-            {alert.ai_suggestion && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 10 }}>
-                <Sparkles size={14} color="#3b82f6" style={{ marginTop: 2, flexShrink: 0 }} />
-                <p style={{ fontSize: 13, color: '#64748b', fontStyle: 'italic', margin: 0, lineHeight: 1.5 }}>
-                  Suggestion: {alert.ai_suggestion}
-                </p>
-              </div>
-            )}
-
-            {/* Footer */}
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <a
-                href={`/clients/${alert.client_id}`}
-                style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}
-              >
-                {alert.client_name}
-              </a>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {!alert.is_read && (
-                  <button
-                    onClick={() => markRead(alert.id)}
-                    style={{
-                      fontSize: 12, color: '#64748b', background: 'none',
-                      border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer',
-                      padding: '4px 10px', fontFamily: 'inherit',
-                    }}
-                  >
-                    Mark as read
-                  </button>
-                )}
-                <button
-                  onClick={() => dismiss(alert.id)}
-                  style={{
-                    fontSize: 12, color: '#94a3b8', background: 'none',
-                    border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 0',
-                  }}
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
+            <h2 className="text-[18px] font-semibold text-[#374151] m-0">You're all caught up!</h2>
+            <p className="text-[14px] text-[#94a3b8] mt-2 m-0 max-w-[400px] mx-auto">
+              No alerts right now. Relavo will notify you when a client needs attention.
+            </p>
           </div>
-        ))
-      )}
+        ) : (
+          filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(alert => {
+            const colors = severityColors[alert.severity] || severityColors.low;
+            return (
+              <div key={alert.id} className="bg-white border border-[#e2e8f0] rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex">
+                <div 
+                  className="w-1 shrink-0" 
+                  style={{ backgroundColor: colors.accent }}
+                />
+                <div className="p-[16px_20px] flex-1">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span 
+                        className="text-[11px] font-bold uppercase px-2 py-0.5 rounded-[4px]"
+                        style={{ backgroundColor: colors.bg, color: colors.text }}
+                      >
+                        {alert.severity}
+                      </span>
+                      <span 
+                        className="text-[14px] font-semibold text-[#0f172a] cursor-pointer hover:text-[#3b82f6]"
+                        onClick={() => navigate(`/clients/${alert.client_id}`)}
+                      >
+                        {alert.client_name}
+                      </span>
+                      <span className="text-[11px] bg-[#f1f5f9] text-[#64748b] px-2 py-0.5 rounded-[4px]">
+                        {alert.type || 'Alert'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-[#94a3b8]">{formatDaysAgo(alert.created_at)}</span>
+                  </div>
+
+                  <p className="text-[15px] font-medium text-[#0f172a] mt-2 mb-0 leading-[1.5]">
+                    {alert.message}
+                  </p>
+
+                  {(alert.ai_suggestion || alert.suggestion) && (
+                    <div className="mt-[10px] bg-[#f8fafc] border border-[#f1f5f9] rounded-[8px] p-[10px_14px] flex gap-2 items-start">
+                      <Zap size={14} className="text-[#3b82f6] shrink-0 mt-0.5" />
+                      <p className="text-[13px] text-[#374151] leading-[1.6] m-0">
+                        {alert.ai_suggestion || alert.suggestion}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex gap-3 items-center">
+                    {!alert.is_read && (
+                      <button
+                        onClick={() => markRead(alert.id)}
+                        className="text-[13px] font-medium text-[#3b82f6] bg-transparent border border-[#bfdbfe] rounded-[6px] px-3 py-[5px] cursor-pointer hover:bg-[#eff6ff] transition-all duration-150"
+                      >
+                        Mark as read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => dismiss(alert.id)}
+                      className="text-[13px] font-medium text-[#94a3b8] bg-transparent border-none cursor-pointer hover:text-[#dc2626] transition-colors"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </DashboardLayout>
   );
 };

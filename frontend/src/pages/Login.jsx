@@ -60,23 +60,23 @@ const Login = () => {
  
         <div className="max-w-[380px] w-full mx-auto my-auto py-6">
           <div className="space-y-2 mb-8">
-            <h1 className="text-3xl font-black text-relavo-navy tracking-tight">Welcome back.</h1>
-            <p className="text-relavo-text-secondary text-sm font-medium">Enter your credentials to access your agency dashboard.</p>
+            <h1 className="text-3xl font-black text-navy tracking-tight">Welcome back.</h1>
+            <p className="text-text-2 text-sm font-medium">Enter your credentials to access your agency dashboard.</p>
           </div>
  
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-relavo-navy/40 uppercase tracking-[0.2em] ml-1">
+              <label className="text-[10px] font-black text-navy/40 uppercase tracking-[0.2em] ml-1">
                 Agency Email
               </label>
               <div className="relative group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-relavo-blue transition-all rounded-l-xl z-20" />
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-relavo-blue transition-colors z-10" size={18} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue transition-all rounded-l-xl z-20" />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue transition-colors z-10" size={18} />
                 <input
                   type="email"
                   required
                   placeholder="name@agency.com"
-                  className="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-relavo-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-relavo-navy"
+                  className="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-navy"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -85,19 +85,19 @@ const Login = () => {
  
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-[10px] font-black text-relavo-navy/40 uppercase tracking-[0.2em]">
+                <label className="text-[10px] font-black text-navy/40 uppercase tracking-[0.2em]">
                   Password
                 </label>
-                <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-relavo-blue uppercase tracking-widest hover:underline">Forgot?</Link>
+                <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-blue uppercase tracking-widest hover:underline">Forgot?</Link>
               </div>
               <div className="relative group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-relavo-blue transition-all rounded-l-xl z-20" />
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-relavo-blue transition-colors z-10" size={18} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue transition-all rounded-l-xl z-20" />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue transition-colors z-10" size={18} />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-relavo-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-relavo-navy"
+                  className="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-navy"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -113,7 +113,7 @@ const Login = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="btn-premium w-full py-4 text-base mt-2 shadow-2xl shadow-relavo-blue/20 flex items-center justify-center gap-3 disabled:opacity-50"
+              className="bg-blue/80 hover:bg-blue/90 text-white font-black w-full py-4 rounded-xl text-lg mt-2 shadow-xl shadow-blue/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ const Login = () => {
           <button 
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full py-3.5 px-6 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-sm text-relavo-navy hover:bg-slate-50 hover:border-slate-200 transition-all group"
+            className="w-full py-3.5 px-6 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-sm text-navy hover:bg-slate-50 hover:border-slate-200 transition-all group"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -152,25 +152,25 @@ const Login = () => {
             Google
           </button>
  
-          <p className="mt-8 text-center text-xs font-medium text-relavo-text-secondary">
+          <p className="mt-8 text-center text-xs font-medium text-text-2">
             New to Relavo?{' '}
-            <Link to="/register" className="text-relavo-blue font-bold hover:underline">
+            <Link to="/register" className="text-blue font-bold hover:underline">
               Create an agency account
             </Link>
           </p>
         </div>
  
-        <div className="mt-4 pt-6 border-t border-slate-100 flex justify-between items-center text-[9px] font-black text-relavo-text-muted uppercase tracking-widest">
+        <div className="mt-4 pt-6 border-t border-slate-100 flex justify-between items-center text-[9px] font-black text-text-3 uppercase tracking-widest">
           <span>&copy; 2026 relavo inc.</span>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-relavo-navy">Privacy</a>
-            <a href="#" className="hover:text-relavo-navy">Terms</a>
+            <a href="#" className="hover:text-navy">Privacy</a>
+            <a href="#" className="hover:text-navy">Terms</a>
           </div>
         </div>
       </div>
 
       {/* Right side: Visual/Marketing */}
-      <div className="hidden lg:flex flex-1 bg-relavo-navy relative overflow-hidden items-center justify-center p-20">
+      <div className="hidden lg:flex flex-1 bg-navy relative overflow-hidden items-center justify-center p-20">
          <div className="absolute inset-0 z-0">
             <video 
                autoPlay 
@@ -181,7 +181,7 @@ const Login = () => {
             >
                <source src={bgVideo} type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-gradient-to-br from-relavo-navy via-relavo-navy/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy/60 to-transparent" />
          </div>
 
          <div className="relative z-10 max-w-[500px] w-full">
@@ -193,7 +193,7 @@ const Login = () => {
                <div className="space-y-6">
                   <h2 className="text-5xl font-black text-white leading-[1.1] tracking-tight">
                     Intelligence <br />
-                    <span className="text-relavo-blue">Informed</span> by <br />
+                    <span className="text-blue">Informed</span> by <br />
                     Client Data.
                   </h2>
                   <p className="text-xl text-white/60 font-medium leading-relaxed">
@@ -203,12 +203,12 @@ const Login = () => {
 
                <div className="grid grid-cols-2 gap-4">
                   <div className="p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl space-y-2">
-                     <Globe className="text-relavo-blue" size={24} />
+                     <Globe className="text-blue" size={24} />
                      <p className="text-xs font-black text-white/40 uppercase tracking-widest">Global Sync</p>
                      <p className="text-lg font-bold text-white tracking-tight">50+ Tools</p>
                   </div>
                   <div className="p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl space-y-2">
-                     <ShieldCheck className="text-relavo-blue" size={24} />
+                     <ShieldCheck className="text-blue" size={24} />
                      <p className="text-xs font-black text-white/40 uppercase tracking-widest">Security</p>
                      <p className="text-lg font-bold text-white tracking-tight">SSO Ready</p>
                   </div>

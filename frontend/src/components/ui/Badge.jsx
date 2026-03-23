@@ -1,44 +1,29 @@
 import React from 'react';
 
 const variants = {
-  healthy:  { bg: '#dcfce7', text: '#16a34a' },
-  warning:  { bg: '#fef9c3', text: '#d97706' },
-  danger:   { bg: '#fee2e2', text: '#dc2626' },
-  info:     { bg: '#eff6ff', text: '#3b82f6' },
-  neutral:  { bg: '#f1f5f9', text: '#64748b' },
-  active:   { bg: '#dcfce7', text: '#16a34a' },
-  paused:   { bg: '#fef9c3', text: '#d97706' },
-  churned:  { bg: '#fee2e2', text: '#dc2626' },
+  healthy:  "bg-[#f0fdf4] text-[#16a34a]",
+  active:   "bg-[#f0fdf4] text-[#16a34a]",
+  warning:  "bg-[#fffbeb] text-[#d97706]",
+  paused:   "bg-[#fffbeb] text-[#d97706]",
+  danger:   "bg-[#fef2f2] text-[#dc2626]",
+  churned:  "bg-[#fef2f2] text-[#dc2626]",
+  info:     "bg-[#eff6ff] text-[#3b82f6]",
+  neutral:  "bg-[#f1f5f9] text-[#64748b]",
 };
 
 const sizes = {
-  sm: { fontSize: 11, padding: '2px 8px' },
-  md: { fontSize: 12, padding: '3px 10px' },
+  sm: "text-[11px] px-2 py-0.5 rounded-[4px]",
+  md: "text-[12px] px-2.5 py-1 rounded-[6px]",
 };
 
 const Badge = ({ variant = 'neutral', size = 'md', children, dot = false }) => {
-  const v = variants[variant] || variants.neutral;
-  const s = sizes[size] || sizes.md;
+  const variantClass = variants[variant] || variants.neutral;
+  const sizeClass = sizes[size] || sizes.md;
+
   return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      background: v.bg,
-      color: v.text,
-      borderRadius: 20,
-      fontWeight: 500,
-      fontSize: s.fontSize,
-      padding: s.padding,
-      whiteSpace: 'nowrap',
-    }}>
+    <span className={`inline-flex items-center gap-1.5 font-semibold uppercase tracking-wider whitespace-nowrap ${variantClass} ${sizeClass}`}>
       {dot && (
-        <span style={{
-          width: 6, height: 6,
-          borderRadius: '50%',
-          background: v.text,
-          flexShrink: 0,
-        }} />
+        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0" />
       )}
       {children}
     </span>

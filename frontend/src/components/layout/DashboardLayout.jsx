@@ -9,15 +9,11 @@ const DashboardLayout = ({ children, title }) => {
   const [quickLogOpen, setQuickLogOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div className="flex h-screen overflow-hidden bg-[#f1f5f9]">
       <Sidebar />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="flex-1 flex flex-col min-w-0 ml-[240px] overflow-hidden">
         <TopBar title={title} />
-        <main style={{
-          flex: 1, overflowY: 'auto',
-          background: '#f8fafc',
-          padding: 32,
-        }}>
+        <main className="flex-1 overflow-y-auto p-[28px_32px] min-h-screen">
           {children}
         </main>
       </div>
@@ -26,7 +22,7 @@ const DashboardLayout = ({ children, title }) => {
       <QuickLogModal 
         isOpen={quickLogOpen} 
         onClose={() => setQuickLogOpen(false)} 
-        onSuccess={() => window.location.reload()} // Global refresh for simplicity, or we can use event bus
+        onSuccess={() => window.location.reload()} 
       />
     </div>
   );

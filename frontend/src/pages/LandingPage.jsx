@@ -55,20 +55,20 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden selection:bg-relavo-blue/20">
+    <div className="min-h-screen bg-white overflow-x-hidden selection:bg-blue/20">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 px-6 py-4">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between bg-white/50 backdrop-blur-xl px-8 py-3 rounded-full border border-white/20 shadow-xl">
           <Logo className="h-7" />
-          <div className="hidden lg:flex items-center gap-10 text-sm font-extrabold text-relavo-navy uppercase tracking-widest">
-            <a href="#solutions" className="hover:text-relavo-blue transition-colors">Solutions</a>
-            <a href="#ai-intelligence" className="hover:text-relavo-blue transition-colors">AI Intelligence</a>
-            <a href="#resources" className="hover:text-relavo-blue transition-colors">Resources</a>
+          <div className="hidden lg:flex items-center gap-10 text-sm font-extrabold text-navy uppercase tracking-widest">
+            <a href="#solutions" className="hover:text-blue transition-colors">Solutions</a>
+            <a href="#ai-intelligence" className="hover:text-blue transition-colors">AI Intelligence</a>
+            <a href="#resources" className="hover:text-blue transition-colors">Resources</a>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-bold text-relavo-navy hover:text-relavo-blue pr-2 cursor-pointer transition-colors">Log in</Link>
-            <Link to="/login" className="btn-premium px-6 py-2.5 text-sm">
-              Start Building <ArrowRight size={16} />
+            <Link to="/login" className="px-5 py-2 text-sm font-black text-navy border-2 border-slate-200 rounded-xl hover:border-blue hover:text-blue cursor-pointer transition-all">Log in</Link>
+            <Link to="/login" className="bg-navy hover:bg-blue text-white px-6 py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-navy/20 transition-all">
+              Get Early Access <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -94,14 +94,14 @@ const LandingPage = () => {
           <div className="reveal">
             <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.95]">
               Don't lose clients <br />
-              <span className="text-relavo-blue">silently.</span>
+              <span className="text-blue">silently.</span>
             </h1>
             <p className="text-xl md:text-2xl text-white/80 leading-relaxed max-w-[600px] mb-10 font-medium">
               Relavo monitors 12+ health signals to detect at-risk clients <span className="text-white font-bold italic">before they churn.</span> It's the early warning system your agency needs.
             </p>
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <Link to="/login" className="btn-premium w-full sm:w-auto text-lg scale-110">
-                Get Early Access <ArrowRight size={20} />
+            <div className="flex flex-col sm:flex-row items-center gap-6 mt-4">
+              <Link to="/login" className="bg-blue hover:bg-[#2563eb] text-white rounded-2xl px-10 py-5 font-black text-xl shadow-2xl shadow-blue/30 flex items-center justify-center gap-3 transition-all hover:scale-[1.03]">
+                Get Early Access <ArrowRight size={22} className="opacity-90" />
               </Link>
             </div>
           </div>
@@ -111,8 +111,8 @@ const LandingPage = () => {
       {/* Feature Grid */}
       <section id="solutions" className="py-24 md:py-40 px-6">
         <div className="max-w-[1400px] mx-auto text-center reveal mb-20">
-          <h2 className="text-5xl md:text-7xl font-bold text-relavo-navy mb-6 tracking-tight">Powerful enough for Enterprise. <br /> Built for <span className="text-relavo-blue italic">Small Teams.</span></h2>
-          <p className="text-xl text-relavo-text-secondary max-w-[800px] mx-auto font-medium">From real-time sentiment analysis to automated health scoring, Relavo gives you the tools usually reserved for unicorn companies.</p>
+          <h2 className="text-5xl md:text-7xl font-bold text-navy mb-6 tracking-tight">Powerful enough for Enterprise. <br /> Built for <span className="text-blue italic">Small Teams.</span></h2>
+          <p className="text-xl text-text-2 max-w-[800px] mx-auto font-medium">From real-time sentiment analysis to automated health scoring, Relavo gives you the tools usually reserved for unicorn companies.</p>
         </div>
 
         <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -168,18 +168,18 @@ const LandingPage = () => {
       </section>
 
       {/* Showcase Section */}
-      <section id="ai-intelligence" className="py-24 md:py-40 bg-relavo-navy relative overflow-hidden">
+      <section id="ai-intelligence" className="py-24 md:py-40 bg-navy relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={aiGlowImg} alt="AI analysis" className="w-full h-full object-cover opacity-30" />
-          <div className="absolute inset-0 bg-gradient-to-b from-relavo-navy via-transparent to-relavo-navy" />
+          <div className="absolute inset-0 bg-gradient-to-b from-navy via-transparent to-navy" />
         </div>
 
         <div className="max-w-[1400px] mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-20 items-center">
            <div className="reveal">
-              <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight">Intelligence <br /><span className="text-relavo-blue">Informed </span> by Data.</h2>
+              <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight">Intelligence <br /><span className="text-blue">Informed </span> by Data.</h2>
               <div className="space-y-8">
                  <div className="flex gap-6 items-start">
-                    <div className="w-12 h-12 bg-relavo-blue/20 rounded-2xl flex items-center justify-center text-relavo-blue shrink-0">
+                    <div className="w-12 h-12 bg-blue/20 rounded-2xl flex items-center justify-center text-blue shrink-0">
                        <Zap size={24} />
                     </div>
                     <div>
@@ -214,17 +214,17 @@ const LandingPage = () => {
                  </div>
                  <div className="p-8 space-y-4">
                     <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-relavo-blue">
+                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue">
                           <Activity size={18} />
                        </div>
-                       <h4 className="font-bold text-relavo-navy">Predictive Retention Engine</h4>
+                       <h4 className="font-bold text-navy">Predictive Retention Engine</h4>
                     </div>
-                    <p className="text-sm text-relavo-text-secondary leading-relaxed font-medium">
-                      Relavo analyzes communication gaps, sentiment shifts, and financial erraticism to predict churn <span className="text-relavo-navy font-bold">14 days</span> before it happens.
+                    <p className="text-sm text-text-2 leading-relaxed font-medium">
+                      Relavo analyzes communication gaps, sentiment shifts, and financial erraticism to predict churn <span className="text-navy font-bold">14 days</span> before it happens.
                     </p>
-                    <div className="pt-4 border-t border-relavo-border flex justify-between items-center">
-                       <span className="text-xs font-bold text-relavo-text-muted uppercase">Early Detection Protocol</span>
-                       <span className="text-relavo-blue font-bold text-sm">How it works &rarr;</span>
+                    <div className="pt-4 border-t border-border-dark flex justify-between items-center">
+                       <span className="text-xs font-bold text-text-3 uppercase">Early Detection Protocol</span>
+                       <span className="text-blue font-bold text-sm">How it works &rarr;</span>
                     </div>
                  </div>
               </div>
@@ -241,40 +241,40 @@ const LandingPage = () => {
               <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-500 px-4 py-1.5 rounded-full border border-slate-200 text-xs font-bold uppercase tracking-wider mb-6">
                 Knowledge Hub
               </div>
-              <h2 className="text-5xl md:text-7xl font-bold text-relavo-navy mb-8 tracking-tight">Intelligence at your <span className="text-relavo-blue italic">fingertips.</span></h2>
-              <p className="text-xl text-relavo-text-secondary leading-relaxed font-medium mb-12">Whether you need to integrate your existing stack or learn about AI-driven relationship management, our resources are designed to help you grow.</p>
+              <h2 className="text-5xl md:text-7xl font-bold text-navy mb-8 tracking-tight">Intelligence at your <span className="text-blue italic">fingertips.</span></h2>
+              <p className="text-xl text-text-2 leading-relaxed font-medium mb-12">Whether you need to integrate your existing stack or learn about AI-driven relationship management, our resources are designed to help you grow.</p>
               
               <div className="grid sm:grid-cols-2 gap-6">
-                <a href="#" className="group relative rounded-[32px] bg-white border border-slate-100 hover:border-relavo-blue/30 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
+                <a href="#" className="group relative rounded-[32px] bg-white border border-slate-100 hover:border-blue/30 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
                   <div className="relative h-48 overflow-hidden shrink-0">
                     <img src={cardIntegrations} alt="Integrations" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
                   </div>
                   <div className="p-8 pt-4 flex-1 flex flex-col justify-between relative z-10">
                     <div>
-                      <h4 className="text-2xl font-black text-relavo-navy mb-3 tracking-tight group-hover:text-relavo-blue transition-colors">Integration Library</h4>
-                      <p className="text-relavo-text-secondary font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">Connect Gmail, Slack, Stripe and 50+ other tools in minutes.</p>
+                      <h4 className="text-2xl font-black text-navy mb-3 tracking-tight group-hover:text-blue transition-colors">Integration Library</h4>
+                      <p className="text-text-2 font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">Connect Gmail, Slack, Stripe and 50+ other tools in minutes.</p>
                     </div>
                     <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-relavo-blue">Explore Integrations</span>
-                      <ArrowRight size={16} className="text-relavo-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-blue">Explore Integrations</span>
+                      <ArrowRight size={16} className="text-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
                     </div>
                   </div>
                 </a>
 
-                <a href="#" className="group relative rounded-[32px] bg-white border border-slate-100 hover:border-relavo-blue/30 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
+                <a href="#" className="group relative rounded-[32px] bg-white border border-slate-100 hover:border-blue/30 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
                   <div className="relative h-48 overflow-hidden shrink-0">
                     <img src={cardAi} alt="API Docs" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
                   </div>
                   <div className="p-8 pt-4 flex-1 flex flex-col justify-between relative z-10">
                     <div>
-                      <h4 className="text-2xl font-black text-relavo-navy mb-3 tracking-tight group-hover:text-relavo-blue transition-colors">API Documentation</h4>
-                      <p className="text-relavo-text-secondary font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">Build custom automation using our robust REST API endpoints.</p>
+                      <h4 className="text-2xl font-black text-navy mb-3 tracking-tight group-hover:text-blue transition-colors">API Documentation</h4>
+                      <p className="text-text-2 font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">Build custom automation using our robust REST API endpoints.</p>
                     </div>
                     <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-relavo-navy">Read Docs</span>
-                      <ArrowRight size={16} className="text-relavo-navy opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-navy">Read Docs</span>
+                      <ArrowRight size={16} className="text-navy opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
                     </div>
                   </div>
                 </a>
@@ -283,23 +283,23 @@ const LandingPage = () => {
             
             <div className="reveal group relative" style={{ transitionDelay: '200ms' }}>
                {/* Premium Card Glow */}
-               <div className="absolute -inset-1 bg-gradient-to-r from-relavo-blue to-indigo-600 rounded-[44px] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+               <div className="absolute -inset-1 bg-gradient-to-r from-blue to-indigo-600 rounded-[44px] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                
-               <div className="relative bg-relavo-navy flex flex-col rounded-[40px] overflow-hidden shadow-2xl h-full border border-white/5">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-relavo-blue/10 blur-[100px] pointer-events-none" />
+               <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col rounded-[40px] overflow-hidden shadow-2xl h-full border border-slate-700/50">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue/10 blur-[100px] pointer-events-none" />
                 
                 <div className="p-12 space-y-10 relative z-10 flex-1">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                       <span className="w-2 h-2 bg-relavo-blue rounded-full animate-pulse" />
+                       <span className="w-2 h-2 bg-blue rounded-full animate-pulse" />
                        <h5 className="text-white/40 font-black uppercase tracking-[0.2em] text-[10px]">Featured Asset</h5>
                     </div>
-                    <span className="bg-relavo-blue/10 text-relavo-blue font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border border-relavo-blue/20">v2.0 Update</span>
+                    <span className="bg-blue/10 text-blue font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border border-blue/20">v2.0 Update</span>
                   </div>
                   
                   <div className="space-y-6">
                     <h3 className="text-4xl md:text-5xl font-black text-white leading-[1.1] tracking-tighter">
-                      The Modern Agency Guide to <span className="text-relavo-blue">Retention.</span>
+                      The Modern Agency Guide to <span className="text-blue">Retention.</span>
                     </h3>
                     <p className="text-xl text-white/50 font-medium leading-relaxed max-w-[400px]">
                       Download our 42-page blueprint on how AI shifts relationship monitoring from reactive to predictive.
@@ -307,7 +307,7 @@ const LandingPage = () => {
                   </div>
                   
                   <div className="pt-4">
-                    <button className="w-full btn-premium py-5 text-lg font-black tracking-tight group/btn overflow-hidden relative">
+                    <button className="w-full bg-blue hover:bg-blue-400 text-white rounded-2xl py-5 text-xl font-black tracking-tight group/btn shadow-xl shadow-blue/20 transition-all">
                        <span className="relative z-10 flex items-center justify-center gap-2">
                          Download Playbook 
                          <ArrowRight size={20} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
@@ -324,27 +324,27 @@ const LandingPage = () => {
       {/* Final CTA */}
       <section className="py-24 md:py-48 px-6 bg-white">
         <div className="max-w-[1000px] mx-auto text-center reveal">
-           <div className="flex items-center justify-center text-relavo-blue mx-auto mb-12">
+           <div className="flex items-center justify-center text-blue mx-auto mb-12">
               <Logo className="h-12" showText={false} />
            </div>
-           <h2 className="text-6xl md:text-8xl font-black text-relavo-navy mb-10 tracking-tighter leading-[0.9]">
-             Stop losing revenue to <br /> <span className="text-relavo-blue">silent churn.</span>
+           <h2 className="text-6xl md:text-8xl font-black text-navy mb-10 tracking-tighter leading-[0.9]">
+             Stop losing revenue to <br /> <span className="text-blue">silent churn.</span>
            </h2>
-           <p className="text-2xl text-relavo-text-secondary mb-12 font-medium max-w-[700px] mx-auto leading-relaxed">
+           <p className="text-2xl text-text-2 mb-12 font-medium max-w-[700px] mx-auto leading-relaxed">
              Join the waitlist of 200+ growth-focused agencies and small businesses.
            </p>
            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link to="/login" className="btn-premium w-full sm:w-auto text-xl py-5 px-12 scale-110">Get Early Access</Link>
-              <button className="btn-premium-outline w-full sm:w-auto py-5 px-12 text-xl">Book a Demo</button>
+              <Link to="/login" className="bg-blue hover:bg-[#2563eb] text-white rounded-2xl font-black text-xl py-5 px-12 shadow-2xl shadow-blue/30 flex items-center justify-center transition-all hover:scale-[1.03]">Get Early Access</Link>
+              <button className="bg-white hover:bg-slate-50 text-navy border-[3px] border-slate-200 rounded-2xl font-black w-full sm:w-auto py-5 px-12 text-xl transition-all hover:border-slate-300 shadow-sm">Book a Demo</button>
            </div>
-           <p className="mt-12 text-relavo-text-muted font-bold text-sm">No credit card required. Launching Q2 2026.</p>
+           <p className="mt-12 text-text-3 font-bold text-sm">No credit card required. Launching Q2 2026.</p>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="relative bg-slate-950 pt-32 pb-12 px-6 overflow-hidden">
          {/* Ambient Glows */}
-         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-relavo-blue/10 blur-[120px] rounded-full pointer-events-none" />
+         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue/10 blur-[120px] rounded-full pointer-events-none" />
          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
 
          <div className="max-w-[1400px] mx-auto relative z-10">
@@ -364,7 +364,7 @@ const LandingPage = () => {
                      <ul className="space-y-4">
                         {['Features', 'Integrations', 'AI Engine', 'Waitlist'].map(link => (
                           <li key={link}>
-                            <a href="#" className="text-slate-400 font-medium hover:text-relavo-blue transition-colors flex items-center group">
+                            <a href="#" className="text-slate-400 font-medium hover:text-blue transition-colors flex items-center group">
                               {link}
                               <ArrowRight size={12} className="ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                             </a>
@@ -440,12 +440,12 @@ const FeatureCard = ({ icon: Icon, title, description, delay, color, image }) =>
       <div className="relative z-10 p-10 flex-1 flex flex-col justify-between">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-black text-relavo-navy tracking-tight group-hover:text-relavo-blue transition-colors">
+            <h3 className="text-2xl font-black text-navy tracking-tight group-hover:text-blue transition-colors">
               {title}
             </h3>
-            <ArrowRight size={20} className="text-relavo-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
+            <ArrowRight size={20} className="text-blue opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500" />
           </div>
-          <p className="text-relavo-text-secondary font-medium leading-relaxed text-lg opacity-80 group-hover:opacity-100 transition-opacity">
+          <p className="text-text-2 font-medium leading-relaxed text-lg opacity-80 group-hover:opacity-100 transition-opacity">
             {description}
           </p>
         </div>
@@ -453,7 +453,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay, color, image }) =>
         {/* Bottom Detail */}
         <div className="mt-8 pt-6 border-t border-slate-50 flex items-center gap-2">
            <div className={`w-1.5 h-1.5 rounded-full bg-current ${scheme.split(' ')[2]}`} />
-           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-relavo-text-muted">Relavo Core Engine</span>
+           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-3">Relavo Core Engine</span>
         </div>
       </div>
 

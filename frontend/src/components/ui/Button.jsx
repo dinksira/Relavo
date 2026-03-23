@@ -1,38 +1,5 @@
 import React from 'react';
 
-const variantStyles = {
-  primary:  { background: '#3b82f6', color: '#fff', border: 'none' },
-  outline:  { background: 'transparent', color: '#0f172a', border: '1px solid #e2e8f0' },
-  ghost:    { background: 'transparent', color: '#64748b', border: 'none' },
-  danger:   { background: '#dc2626', color: '#fff', border: 'none' },
-  success:  { background: '#16a34a', color: '#fff', border: 'none' },
-};
-
-const variantHover = {
-  primary:  { background: '#2563eb' },
-  outline:  { background: '#f8fafc' },
-  ghost:    { background: '#f8fafc', color: '#0f172a' },
-  danger:   { background: '#b91c1c' },
-  success:  { background: '#15803d' },
-};
-
-const sizeStyles = {
-  sm: { height: '32px', padding: '0 12px', fontSize: '13px' },
-  md: { height: '38px', padding: '0 16px', fontSize: '14px' },
-  lg: { height: '44px', padding: '0 20px', fontSize: '15px' },
-};
-
-const Spinner = () => (
-  <span style={{
-    display: 'inline-block', width: 14, height: 14,
-    border: '2px solid rgba(255,255,255,0.4)',
-    borderTop: '2px solid currentColor',
-    borderRadius: '50%',
-    animation: 'btn-spin 0.7s linear infinite',
-    flexShrink: 0
-  }} />
-);
-
 const Button = ({
   variant = 'primary',
   size = 'md',
@@ -43,45 +10,44 @@ const Button = ({
   icon: Icon,
   fullWidth = false,
   type = 'button',
-  style = {},
+  className = "",
 }) => {
-  const [hovered, setHovered] = React.useState(false);
-  const base = variantStyles[variant] || variantStyles.primary;
-  const hover = variantHover[variant] || {};
-  const sizing = sizeStyles[size] || sizeStyles.md;
+  const baseClasses = "btn-base font-semibold rounded-[9px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap active:scale-[0.97]";
+  
+  const variants = {
+    primary: "bg-[#3b82f6] text-white shadow-[0_1px_3px_rgba(59,130,246,0.3),0_4px_8px_rgba(59,130,246,0.15)] hover:bg-[#2563eb] hover:shadow-[0_2px_6px_rgba(59,130,246,0.4)]",
+    outline: "bg-white border border-[#e2e8f0] text-[#374151] hover:bg-[#f8fafc] hover:border-[#cbd5e1]",
+    ghost: "bg-transparent text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a] shadow-none",
+    danger: "bg-[#dc2626] text-white hover:bg-[#b91c1c]",
+    success: "bg-[#16a34a] text-white hover:bg-[#15803d]",
+  };
+
+  const sizes = {
+    sm: "h-[32px] px-3 text-[13px] gap-1.5",
+    md: "h-[38px] px-4 text-[13px] gap-2",
+    lg: "h-[44px] px-5 text-[14px] gap-2",
+  };
+
+  const currentVariant = variants[variant] || variants.primary;
+  const currentSize = sizes[size] || sizes.md;
 
   return (
-    <>
-      <style>{`@keyframes btn-spin { to { transform: rotate(360deg); } }`}</style>
-      <button
-        type={type}
-        onClick={onClick}
-        disabled={disabled || loading}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          borderRadius: 8,
-          fontWeight: 500,
-          cursor: disabled || loading ? 'not-allowed' : 'pointer',
-          opacity: disabled ? 0.5 : 1,
-          transition: 'all 150ms ease',
-          fontFamily: 'inherit',
-          whiteSpace: 'nowrap',
-          width: fullWidth ? '100%' : 'auto',
-          ...sizing,
-          ...base,
-          ...(hovered && !disabled && !loading ? hover : {}),
-          ...style,
-        }}
-      >
-        {loading ? <Spinner /> : Icon ? <Icon size={size === 'sm' ? 14 : 16} /> : null}
-        {children}
-      </button>
-    </>
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={`inline-flex items-center justify-center ${baseClasses} ${currentVariant} ${currentSize} ${fullWidth ? 'w-full' : ''} ${className}`}
+    >
+      {loading ? (
+        <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      ) : Icon ? (
+        <Icon size={size === 'sm' ? 14 : 16} className={variant === 'primary' ? 'text-white' : 'text-[#64748b]'} />
+      ) : null}
+      {children}
+    </button>
   );
 };
 

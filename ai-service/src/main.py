@@ -10,11 +10,25 @@ load_dotenv()
 from src.services.scorer import calculate_score
 from src.services.summarizer import generate_insight
 from src.services.drafter import draft_email
-from groq import Groq
+from groq import AsyncGroq
+import httpx
 import os
 import json
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# Setup custom httpx client with a browser-like User-Agent
+# This helps bypass Cloudflare's strict "non-browser" block which affects some environments
+http_client = httpx.AsyncClient(
+    headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://groq.com/"
+    }
+)
+
+client = AsyncGroq(
+    api_key=os.getenv("GROQ_API_KEY"),
+    http_client=http_client
+)
 MODEL = "llama-3.3-70b-versatile"
 
 app = FastAPI(title="Relavo AI Service", version="1.0.0")
@@ -169,7 +183,7 @@ YOUR ROLE:
         
         messages.append({"role": "user", "content": req.message})
         
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model=MODEL,
             messages=messages,
             max_tokens=400,
@@ -219,7 +233,7 @@ Generate exactly this JSON structure, nothing else:
 
 Return ONLY the JSON. No other text.
 """
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=600,

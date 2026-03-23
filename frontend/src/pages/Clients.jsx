@@ -30,10 +30,10 @@ const Clients = () => {
         {/* Header */}
         <header className="flex justify-between items-end">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black text-relavo-navy tracking-tight">Clients</h1>
-            <p className="text-relavo-text-secondary font-medium">Managing <span className="text-relavo-navy font-bold">24 primary accounts</span> with AI scoring.</p>
+            <h1 className="text-4xl font-black text-navy tracking-tight">Clients</h1>
+            <p className="text-text-2 font-medium">Managing <span className="text-navy font-bold">24 primary accounts</span> with AI scoring.</p>
           </div>
-          <button className="btn-premium py-2.5 px-8 text-sm">
+          <button className="btn-primary py-2.5 px-8 text-sm">
             <Plus size={18} /> Add New Client
           </button>
         </header>
@@ -41,18 +41,18 @@ const Clients = () => {
         {/* Filters and Actions */}
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
            <div className="relative w-full md:w-[400px] group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-relavo-text-muted group-focus-within:text-relavo-blue transition-colors" size={20} />
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-3 group-focus-within:text-blue transition-colors" size={20} />
               <input 
                 type="text" 
                 placeholder="Search clients by name, company, or status..." 
-                className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-relavo-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-relavo-blue/10 focus:border-relavo-blue font-medium text-sm transition-all"
+                className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-border-dark rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue/10 focus:border-blue font-medium text-sm transition-all"
               />
            </div>
            <div className="flex gap-4 w-full md:w-auto">
-              <button className="flex-1 md:flex-none px-6 py-4 bg-white border border-relavo-border rounded-2xl text-sm font-bold text-relavo-navy flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+              <button className="flex-1 md:flex-none px-6 py-4 bg-white border border-border-dark rounded-2xl text-sm font-bold text-navy flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
                  <Filter size={18} /> Filters
               </button>
-              <button className="flex-1 md:flex-none px-6 py-4 bg-white border border-relavo-border rounded-2xl text-sm font-bold text-relavo-navy flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+              <button className="flex-1 md:flex-none px-6 py-4 bg-white border border-border-dark rounded-2xl text-sm font-bold text-navy flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
                  <TrendingUp size={18} /> Export CSV
               </button>
            </div>
@@ -60,9 +60,9 @@ const Clients = () => {
 
         {/* Client Table/Cards Grid */}
         <div className="grid grid-cols-1 gap-6">
-           <div className="card-premium overflow-hidden divide-y divide-relavo-border">
+           <div className="card-premium overflow-hidden divide-y divide-border-dark">
               {/* Table Header */}
-              <div className="hidden lg:grid grid-cols-12 gap-6 px-10 py-5 bg-slate-50 border-b border-relavo-border text-[10px] font-black text-relavo-text-muted uppercase tracking-widest">
+              <div className="hidden lg:grid grid-cols-12 gap-6 px-10 py-5 bg-slate-50 border-b border-border-dark text-[10px] font-black text-text-3 uppercase tracking-widest">
                  <div className="col-span-4">Account Details</div>
                  <div className="col-span-3">Health Vitality</div>
                  <div className="col-span-2">Revenue</div>
@@ -75,19 +75,19 @@ const Clients = () => {
                 <Link to={`/clients/${client.id}`} key={client.id} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center px-10 py-8 hover:bg-slate-50/50 transition-all group relative">
                    {/* Client Info */}
                    <div className="col-span-1 lg:col-span-4 flex items-center gap-6">
-                      <div className="w-14 h-14 rounded-2xl bg-relavo-blueLight text-relavo-blue flex items-center justify-center font-black text-sm shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                      <div className="w-14 h-14 rounded-2xl bg-blueLight text-blue flex items-center justify-center font-black text-sm shrink-0 shadow-sm group-hover:scale-110 transition-transform">
                          {client.initials}
                       </div>
                       <div className="min-w-0">
-                         <h4 className="text-lg font-bold text-relavo-navy group-hover:text-relavo-blue transition-colors truncate">{client.name}</h4>
-                         <p className="text-sm text-relavo-text-secondary font-medium truncate">{client.company}</p>
+                         <h4 className="text-lg font-bold text-navy group-hover:text-blue transition-colors truncate">{client.name}</h4>
+                         <p className="text-sm text-text-2 font-medium truncate">{client.company}</p>
                       </div>
                    </div>
 
                    {/* Health Score */}
                    <div className="col-span-1 lg:col-span-3 flex flex-col gap-2">
                       <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest leading-none">
-                         <span className="text-relavo-text-muted">Pulse Index</span>
+                         <span className="text-text-3">Pulse Index</span>
                          <span className="flex items-center gap-1">
                             {client.score}% 
                             {client.trend > 0 ? (
@@ -107,8 +107,8 @@ const Clients = () => {
 
                    {/* Revenue */}
                    <div className="col-span-1 lg:col-span-2">
-                      <p className="text-sm font-black text-relavo-navy">{client.rev}</p>
-                      <p className="text-[10px] font-bold text-relavo-text-muted uppercase tracking-wider">billed monthly</p>
+                      <p className="text-sm font-black text-navy">{client.rev}</p>
+                      <p className="text-[10px] font-bold text-text-3 uppercase tracking-wider">billed monthly</p>
                    </div>
 
                    {/* Status */}
@@ -123,7 +123,7 @@ const Clients = () => {
 
                    {/* Actions */}
                    <div className="col-span-1 lg:col-span-1 flex justify-end">
-                      <button className="p-2 rounded-xl text-slate-300 hover:bg-white hover:text-relavo-navy shadow-none hover:shadow-lg transition-all">
+                      <button className="p-2 rounded-xl text-slate-300 hover:bg-white hover:text-navy shadow-none hover:shadow-lg transition-all">
                          <MoreVertical size={20} />
                       </button>
                    </div>

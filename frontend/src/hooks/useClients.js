@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { clientsAPI, aiAPI } from '../services/api';
+import { getNumericScore } from '../utils/scoreHelpers';
 
 const useClients = () => {
   const [clients, setClients] = useState([]);
@@ -64,25 +65,17 @@ const useClients = () => {
     }
   };
 
-  const computed = useMemo(() => ({
-    healthyCount: clients.filter(c => {
-      const s = (c.latest_health_score?.score || c.latest_health_score || 0);
-      return s >= 70;
-    }).length,
-    warningCount: clients.filter(c => { 
-      const s = (c.latest_health_score?.score || c.latest_health_score || 0);
-      return s >= 40 && s < 70; 
-    }).length,
-    atRiskCount: clients.filter(c => {
-      const s = (c.latest_health_score?.score || c.latest_health_score || 0);
-      return s < 40;
-    }).length,
-    sortedByScore: [...clients].sort((a, b) => {
-      const sa = (a.latest_health_score?.score || a.latest_health_score || 0);
-      const sb = (b.latest_health_score?.score || b.latest_health_score || 0);
-      return sa - sb;
-    }),
-  }), [clients]);
+  const computed = useMemo(() => {
+    return {
+      healthyCount: clients.filter(c => getNumericScore(c) >= 70).length,
+      warningCount: clients.filter(c => { 
+        const s = getNumericScore(c);
+        return s >= 40 && s < 70; 
+      }).length,
+      atRiskCount: clients.filter(c => getNumericScore(c) < 40).length,
+      sortedByScore: [...clients].sort((a, b) => getNumericScore(a) - getNumericScore(b)),
+    };
+  }, [clients]);
 
   return { 
     clients, 
