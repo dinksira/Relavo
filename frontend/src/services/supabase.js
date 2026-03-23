@@ -12,5 +12,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      // Suppress React Strict Mode double-mount lock warnings
+      lock: (name, timeout, fn) => fn()
+    }
+  }
 );
