@@ -128,7 +128,9 @@ const ClientsPage = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
-  const filtered = clients.filter(c => {
+  const safeClients = Array.isArray(clients) ? clients : [];
+
+  const filtered = safeClients.filter(c => {
     const matchSearch = c.name?.toLowerCase().includes(search.toLowerCase()) || 
                        c.contact_name?.toLowerCase().includes(search.toLowerCase());
     const score = getNumericScore(c);
@@ -152,7 +154,7 @@ const ClientsPage = () => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-[26px] font-bold text-[#0f172a] m-0">Clients</h1>
-          <p className="text-[14px] text-[#64748b] mt-1 m-0">{clients.length} clients total</p>
+          <p className="text-[14px] text-[#64748b] mt-1 m-0">{safeClients.length} clients total</p>
         </div>
         <Button 
           variant="primary" 

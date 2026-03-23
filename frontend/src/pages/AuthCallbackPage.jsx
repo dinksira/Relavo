@@ -9,21 +9,55 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      try {
+        // PRIMARY: Read tokens directly from URL hash (#access_token=...)
+        // This is the implicit flow — token is in the URL, not exchanged via code
+        const hashParams = new URLSearchParams(
+          window.location.hash.substring(1)
+        );
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
 
-      if (session) {
-        setAuth(session.user, session.access_token);
+        if (accessToken) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
 
-        // Upsert profile row for OAuth users (first time Google login)
-        await supabase.from('profiles').upsert({
-          id: session.user.id,
-          email: session.user.email,
-          full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
-          avatar_url: session.user.user_metadata?.avatar_url || ''
-        }, { onConflict: 'id' });
+          if (data?.session) {
+            // Upsert profile row for OAuth users (first time Google login)
+            await supabase.from('profiles').upsert({
+              id: data.session.user.id,
+              email: data.session.user.email,
+              full_name: data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || '',
+              avatar_url: data.session.user.user_metadata?.avatar_url || ''
+            }, { onConflict: 'id' });
 
-        navigate('/dashboard', { replace: true });
-      } else {
+            setAuth(data.session.user, data.session.access_token);
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+        }
+
+        // FALLBACK: Try getting an already-existing session (email/password logins)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await supabase.from('profiles').upsert({
+            id: session.user.id,
+            email: session.user.email,
+            full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+            avatar_url: session.user.user_metadata?.avatar_url || ''
+          }, { onConflict: 'id' });
+
+          setAuth(session.user, session.access_token);
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+
+        // Nothing worked — send back to login
+        navigate('/login', { replace: true });
+      } catch (error) {
+        console.error('Auth callback error:', error);
         navigate('/login', { replace: true });
       }
     };

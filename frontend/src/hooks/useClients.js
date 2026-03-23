@@ -66,14 +66,15 @@ const useClients = () => {
   };
 
   const computed = useMemo(() => {
+    const safeClients = Array.isArray(clients) ? clients : [];
     return {
-      healthyCount: clients.filter(c => getNumericScore(c) >= 70).length,
-      warningCount: clients.filter(c => { 
+      healthyCount: safeClients.filter(c => getNumericScore(c) >= 70).length,
+      warningCount: safeClients.filter(c => { 
         const s = getNumericScore(c);
         return s >= 40 && s < 70; 
       }).length,
-      atRiskCount: clients.filter(c => getNumericScore(c) < 40).length,
-      sortedByScore: [...clients].sort((a, b) => getNumericScore(a) - getNumericScore(b)),
+      atRiskCount: safeClients.filter(c => getNumericScore(c) < 40).length,
+      sortedByScore: [...safeClients].sort((a, b) => getNumericScore(a) - getNumericScore(b)),
     };
   }, [clients]);
 

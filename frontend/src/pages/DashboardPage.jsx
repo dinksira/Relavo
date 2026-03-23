@@ -320,7 +320,7 @@ const DashboardPage = () => {
             <div className="flex items-center gap-2">
               <h2 className="text-[16px] font-semibold text-[#0f172a] m-0">Smart alerts</h2>
               <span className="bg-[#eff6ff] text-[#3b82f6] text-[12px] font-semibold px-2 py-0.5 rounded-full">
-                {alerts.filter(a => !a.read).length}
+              {(Array.isArray(alerts) ? alerts : []).filter(a => !a.read).length}
               </span>
             </div>
             <Link to="/alerts" className="text-[13px] font-medium text-[#3b82f6] hover:text-[#2563eb] transition-colors no-underline">

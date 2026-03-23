@@ -15,6 +15,10 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder-key',
   {
     auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'implicit',
       // Suppress React Strict Mode double-mount lock warnings
       lock: (name, timeout, fn) => fn()
     }
