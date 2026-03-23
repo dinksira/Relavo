@@ -11,7 +11,11 @@ const useClients = () => {
     setLoading(true);
     try {
       const res = await clientsAPI.getAll();
-      setClients(res.data?.data || res.data || []);
+      setClients(Array.isArray(res.data?.data) 
+        ? res.data.data 
+        : Array.isArray(res.data) 
+          ? res.data 
+          : []);
     } catch (err) {
       setError(err.message);
     } finally {

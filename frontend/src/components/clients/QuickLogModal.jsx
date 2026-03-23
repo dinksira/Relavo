@@ -22,8 +22,8 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
     outcome: 'neutral'
   });
 
-  const filteredClients = clients.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase())
+  const filteredClients = (Array.isArray(clients) ? clients : []).filter(c => 
+    c.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSubmit = async () => {

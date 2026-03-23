@@ -11,18 +11,20 @@ const AlertsPage = () => {
   const { alerts, loading, unreadCount, markRead, dismiss, markAllRead } = useAlerts();
   const [filter, setFilter] = useState('all');
 
-  const filtered = alerts.filter(a => {
+  const safeAlerts = Array.isArray(alerts) ? alerts : [];
+
+  const filtered = safeAlerts.filter(a => {
     if (filter === 'unread') return !a.is_read;
     if (filter === 'high' || filter === 'medium' || filter === 'low') return a.severity === filter;
     return true;
   });
 
   const counts = {
-    all: alerts.length,
-    unread: alerts.filter(a => !a.is_read).length,
-    high: alerts.filter(a => a.severity === 'high').length,
-    medium: alerts.filter(a => a.severity === 'medium').length,
-    low: alerts.filter(a => a.severity === 'low').length,
+    all: safeAlerts.length,
+    unread: safeAlerts.filter(a => !a.is_read).length,
+    high: safeAlerts.filter(a => a.severity === 'high').length,
+    medium: safeAlerts.filter(a => a.severity === 'medium').length,
+    low: safeAlerts.filter(a => a.severity === 'low').length,
   };
 
   const filterTabs = [

@@ -10,7 +10,11 @@ const useAlerts = () => {
       setLoading(true);
       try {
         const res = await alertsAPI.getAll();
-        setAlerts(res.data?.data || res.data || []);
+        setAlerts(Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+            ? res.data
+            : []);
       } catch {
         setAlerts([]);
       } finally {
@@ -20,7 +24,7 @@ const useAlerts = () => {
     fetch();
   }, []);
 
-  const unreadCount = useMemo(() => alerts.filter(a => !a.read).length, [alerts]);
+  const unreadCount = useMemo(() => (Array.isArray(alerts) ? alerts : []).filter(a => !a.read).length, [alerts]);
 
   const markRead = async (id) => {
     setAlerts(prev => prev.map(a => a.id === id ? { ...a, read: true } : a));
@@ -35,7 +39,7 @@ const useAlerts = () => {
   const markAllRead = async () => {
     setAlerts(prev => prev.map(a => ({ ...a, read: true })));
     try {
-      await Promise.all(alerts.filter(a => !a.read).map(a => alertsAPI.markRead(a.id)));
+      await Promise.all((Array.isArray(alerts) ? alerts : []).filter(a => !a.read).map(a => alertsAPI.markRead(a.id)));
     } catch {}
   };
 
