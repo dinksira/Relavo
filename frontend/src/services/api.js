@@ -39,6 +39,7 @@ export const clientsAPI = {
   update: (id, data) => api.put(`/clients/${id}`, data),
   delete: (id) => api.delete(`/clients/${id}`),
   getHealth: (id) => api.get(`/clients/${id}`).then(res => res.data.latest_health_score),
+  getHealthHistory: (id) => api.get(`/clients/${id}/health-history`),
   logTouchpoint: (id, data) => api.post(`/clients/${id}/touchpoints`, data),
   addInvoice: (id, data) => api.post(`/clients/${id}/invoices`, data),
 };

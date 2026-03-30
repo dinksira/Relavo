@@ -47,7 +47,7 @@ const ClientDetailPage = () => {
       try {
         const [clientRes, historyRes] = await Promise.all([
           clientsAPI.getById(id),
-          aiAPI.getHealthHistory(id)
+          clientsAPI.getHealthHistory(id)
         ]);
         setClient(clientRes.data?.data || clientRes.data);
         setHistory(historyRes.data?.data || historyRes.data || []);
@@ -76,7 +76,7 @@ const ClientDetailPage = () => {
     if (updatedScore) {
       const [res, historyRes] = await Promise.all([
         clientsAPI.getById(id),
-        aiAPI.getHealthHistory(id)
+        clientsAPI.getHealthHistory(id)
       ]);
       setClient(res.data?.data || res.data);
       setHistory(historyRes.data?.data || historyRes.data || []);
