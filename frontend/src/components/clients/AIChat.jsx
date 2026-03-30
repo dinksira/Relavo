@@ -85,9 +85,9 @@ export default function AIChat({ clientId, clientName }) {
                 <div className="flex flex-col">
                   <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
                     msg.role === 'user' 
-                      ? 'bg-blue-600 text-white rounded-tr-none' 
+                      ? 'bg-[#3b82f6] text-white rounded-tr-none' 
                       : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'
-                  }`}>
+                  }`} style={msg.role === 'user' ? { color: 'white' } : {}}>
                     {msg.role === 'assistant' ? (
                       <div 
                         dangerouslySetInnerHTML={{ 
