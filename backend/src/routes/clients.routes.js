@@ -11,29 +11,11 @@ router.get('/', async (req, res) => {
   try {
     const { data: clients, error } = await supabase
       .from('clients')
-      .select('*, health_scores(*)')
+      .select('*')
       .eq('user_id', req.user.id);
 
     if (error) return res.status(400).json({ error: error.message });
-
-    // Format to include only latest health_score and sort
-    const formattedClients = clients.map(client => {
-      const latestScore = client.health_scores.sort((a, b) => 
-        new Date(b.calculated_at) - new Date(a.calculated_at)
-      )[0] || null;
-      
-      delete client.health_scores;
-      return { ...client, health_score: latestScore };
-    });
-
-    // Sort by health score ascending (worst first)
-    formattedClients.sort((a, b) => {
-      const scoreA = a.health_score ? a.health_score.score : 100;
-      const scoreB = b.health_score ? b.health_score.score : 100;
-      return scoreA - scoreB;
-    });
-
-    res.json(formattedClients);
+    res.json(clients);
   } catch (err) {
     console.error('Fetch Clients Error:', err);
     res.status(500).json({ error: "Internal server error" });

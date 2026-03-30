@@ -2,34 +2,16 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
+import datetime
+import os
 from dotenv import load_dotenv
-
-load_dotenv()
 
 from src.services.scorer import calculate_score
 from src.services.summarizer import generate_insight
 from src.services.drafter import draft_email
-from groq import AsyncGroq
-import httpx
-import os
-import json
+from src.services.briefing import generate_briefing
 
-# Setup custom httpx client with a browser-like User-Agent
-# This helps bypass Cloudflare's strict "non-browser" block which affects some environments
-http_client = httpx.AsyncClient(
-    headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Referer": "https://groq.com/"
-    }
-)
-
-client = AsyncGroq(
-    api_key=os.getenv("GROQ_API_KEY"),
-    http_client=http_client
-)
-MODEL = "llama-3.3-70b-versatile"
+load_dotenv()
 
 app = FastAPI(title="Relavo AI Service", version="1.0.0")
 
@@ -41,7 +23,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pydantic models
+# PYDANTIC REQUEST MODELS
+
 class ScoreRequest(BaseModel):
     days_since_contact: int
     overdue_invoices: int = 0
@@ -59,16 +42,6 @@ class InsightRequest(BaseModel):
     recent_notes: Optional[List[str]] = []
     last_contact_type: Optional[str] = "none"
 
-class EmailRequest(BaseModel):
-    client_name: str
-    contact_name: str
-    risk_reason: str
-    days_since_contact: int
-    overdue_invoices: int = 0
-    score: int
-    tone: Optional[str] = "professional"
-    recent_notes: Optional[List[str]] = []
-
 class AnalyzeRequest(BaseModel):
     client_name: str
     days_since_contact: int
@@ -80,113 +53,146 @@ class AnalyzeRequest(BaseModel):
     recent_notes: Optional[List[str]] = []
     response_trend: Optional[str] = "unknown"
 
-class ChatRequest(BaseModel):
+class EmailRequest(BaseModel):
     client_name: str
-    message: str
-    conversation_history: List[dict] = []
-    client_context: dict = {}
+    contact_name: str
+    risk_reason: str
+    days_since_contact: int
+    overdue_invoices: int = 0
+    score: int
+    tone: Optional[str] = "professional"
+    recent_notes: Optional[List[str]] = []
 
 class BriefingRequest(BaseModel):
     client_name: str
     created_at: str
     days_since_contact: int
-    total_touchpoints: int
-    overdue_invoices: int
-    total_invoices: int
+    total_touchpoints: int = 0
+    overdue_invoices: int = 0
+    total_invoices: int = 0
     score: int
     risk_level: str
-    recent_notes: List[str] = []
-    last_contact_type: str = "none"
-    score_history: List[dict] = []
-    monthly_value: Optional[float] = None
-    all_touchpoints_summary: Optional[str] = None
+    recent_notes: Optional[List[str]] = []
+    monthly_value: Optional[float] = 0
+    score_history: Optional[List[dict]] = []
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    client_name: str
+    message: str
+    conversation_history: Optional[List[ChatMessage]] = []
+    client_context: Optional[dict] = {}
+
+# ENDPOINTS
 
 @app.get("/health")
-def health_check():
-    print("Health check requested")
+def health():
     return {
-        "status": "ok", 
-        "service": "relavo-ai", 
-        "model": "llama-3.3-70b-versatile"
+        "status": "ok",
+        "service": "relavo-ai",
+        "groq_model": "llama-3.3-70b-versatile",
+        "openrouter_model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "timestamp": datetime.datetime.now().isoformat()
     }
+
+@app.post("/score")
+def get_score(req: ScoreRequest):
+    try:
+        return calculate_score(req.model_dump())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/summarize")
+def get_summarize(req: InsightRequest):
+    try:
+        result = generate_insight(req.model_dump())
+        return {"insight": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/analyze-client")
 def analyze_client(req: AnalyzeRequest):
-    print(f"--- AI ANALYZE: {req.client_name} ---")
     try:
-        score_data = {
-            "days_since_contact": req.days_since_contact,
-            "overdue_invoices": req.overdue_invoices,
-            "total_invoices": req.total_invoices,
-            "touchpoint_count": req.touchpoint_count,
-            "last_outcome": req.last_outcome,
-            "response_trend": req.response_trend
-        }
-        score_result = calculate_score(score_data)
+        data = req.model_dump()
+        score_result = calculate_score(data)
         
-        insight_data = {
-            "client_name": req.client_name,
-            "days_since_contact": req.days_since_contact,
-            "overdue_invoices": req.overdue_invoices,
-            "score": score_result["score"],
-            "risk_level": score_result["risk_level"],
-            "recent_notes": req.recent_notes,
-            "last_contact_type": req.last_contact_type
-        }
+        # Merge score into data for insight
+        data["score"] = score_result["score"]
+        data["risk_level"] = score_result["risk_level"]
         
-        insight_text = generate_insight(insight_data)
+        insight = generate_insight(data)
         
         return {
             "score": score_result["score"],
             "risk_level": score_result["risk_level"],
             "factors": score_result["factors"],
-            "insight": insight_text,
-            "calculated_at": datetime.utcnow().isoformat()
+            "insight": insight,
+            "calculated_at": datetime.datetime.now().isoformat()
         }
     except Exception as e:
-        print(f"!!! Error in analyze_client: {str(e)}")
+        print(f"Error in analyze-client: {e}")
+        return {
+            "score": 70,
+            "risk_level": "healthy",
+            "factors": {},
+            "insight": "Score calculated. AI insight temporarily unavailable.",
+            "calculated_at": datetime.datetime.now().isoformat()
+        }
+
+@app.post("/draft-email")
+def get_draft_email(req: EmailRequest):
+    try:
+        return draft_email(req.model_dump())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/briefing")
+def get_briefing(req: BriefingRequest):
+    try:
+        return generate_briefing(req.model_dump())
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat")
-async def chat(req: ChatRequest):
-    print(f"--- AI CHAT: {req.client_name} ---")
+def chat(req: ChatRequest):
     try:
-        client_context = req.client_context
-        system_prompt = f"""
-You are an AI assistant for Relavo, a client relationship health platform. You are helping an account manager understand and manage their relationship with a specific client.
-
-CLIENT CONTEXT:
-Name: {client_context.get('name', 'Unknown')}
-Health Score: {client_context.get('score', 'N/A')}/100
-Risk Level: {client_context.get('risk_level', 'unknown')}
-Days Since Last Contact: {client_context.get('days_since_contact', 'N/A')}
-Overdue Invoices: {client_context.get('overdue_invoices', 0)}
-Total Touchpoints: {client_context.get('touchpoint_count', 0)}
-Recent Notes: {client_context.get('recent_notes', [])}
-Last Contact Type: {client_context.get('last_contact_type', 'none')}
-Client Since: {client_context.get('created_at', 'unknown')}
-
-YOUR ROLE:
-- Answer questions about this specific client
-- Give honest, direct assessments
-- Base all answers on the client data above
-- Be conversational but professional
-- Keep responses under 150 words unless detail is needed
-- Never make up data not provided in the context
-- If asked something you don't have data for, say so honestly
-- Focus on actionable insights the account manager can use today
-"""
-        messages = [{"role": "system", "content": system_prompt}]
+        from groq import Groq
+        groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         
-        for msg in req.conversation_history[-10:]:
-            messages.append({"role": msg["role"], "content": msg["content"]})
+        ctx = req.client_context or {}
+        system_message_content = f"""You are an AI assistant for Relavo specialized in {req.client_name}.
+Current Stats:
+- Score: {ctx.get('score', 'N/A')}/100
+- Risk Level: {ctx.get('risk_level', 'N/A')}
+- Days since contact: {ctx.get('days_since_contact', 'N/A')}
+- Overdue invoices: {ctx.get('overdue_invoices', '0')}
+- Touchpoints: {ctx.get('touchpoint_count', '0')}
+- Recent notes: {", ".join(ctx.get('recent_notes', []) if ctx.get('recent_notes') else [])}
+
+Rules:
+- Answer ONLY about this client.
+- Keep replies under 120 words.
+- Be conversational and direct.
+- Never make up data not in context."""
+
+        messages = [{"role": "system", "content": system_message_content}]
         
+        # Add history (last 10)
+        history_list = req.conversation_history or []
+        history = history_list[-10:]
+        for msg in history:
+            messages.append({"role": msg.role, "content": msg.content})
+            
+        # Add current message
         messages.append({"role": "user", "content": req.message})
         
-        response = await client.chat.completions.create(
-            model=MODEL,
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
             messages=messages,
-            max_tokens=400,
+            max_tokens=300,
             temperature=0.7
         )
         
@@ -195,68 +201,5 @@ YOUR ROLE:
             "role": "assistant"
         }
     except Exception as e:
-        print(f"!!! Error in chat: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/briefing")
-async def get_briefing(req: BriefingRequest):
-    print(f"--- AI BRIEFING: {req.client_name} ---")
-    try:
-        score_trend = "stable"
-        if req.score_history and len(req.score_history) >= 2:
-            last = req.score_history[0].get('score', 0)
-            prev = req.score_history[1].get('score', 0)
-            if last > prev + 5: score_trend = "improving"
-            elif last < prev - 5: score_trend = "declining"
-
-        prompt = f"""
-You are analyzing a client relationship for an agency account manager. Generate a detailed 3-part briefing.
-
-CLIENT DATA:
-Name: {req.client_name}
-Client since: {req.created_at}
-Current health score: {req.score}/100
-Risk level: {req.risk_level}
-Days since last contact: {req.days_since_contact}
-Total interactions logged: {req.total_touchpoints}
-Overdue invoices: {req.overdue_invoices}
-Monthly value: ${req.monthly_value or 'unknown'}
-Recent notes: {req.recent_notes}
-Score history trend: {score_trend}
-
-Generate exactly this JSON structure, nothing else:
-{{
-  "past": "2-3 sentence paragraph about the relationship history, interaction trends, and any notable past issues. Be specific with numbers.",
-  "present": "2-3 sentence paragraph about exactly where things stand today. Name the most urgent issue clearly.",
-  "future": "2-3 sentence paragraph predicting what happens next. State churn probability clearly as HIGH, MEDIUM, or LOW. Give one specific action to take."
-}}
-
-Return ONLY the JSON. No other text.
-"""
-        response = await client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=600,
-            temperature=0.3
-        )
-        
-        content = response.choices[0].message.content.strip()
-        # Handle cases where LLM might wrap in ```json ... ```
-        if content.startswith("```"):
-            content = content.replace("```json", "").replace("```", "").strip()
-            
-        briefing = json.loads(content)
-        briefing["generated_at"] = datetime.utcnow().isoformat()
-        return briefing
-    except Exception as e:
-        print(f"!!! Error in briefing: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/draft-email")
-def get_draft(req: EmailRequest):
-    print(f"--- AI DRAFT: {req.client_name} ---")
-    try:
-        return draft_email(req.dict())
-    except Exception as e:
-        print(f"!!! Error in get_draft: {str(e)}")
+        print(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

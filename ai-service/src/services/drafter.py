@@ -1,91 +1,80 @@
+from src.utils.openrouter_client import call_openrouter
 import json
-from src.utils.claude import client, MODEL
 
 def draft_email(data: dict) -> dict:
-    """
-    Input:
-      - client_name: str
-      - contact_name: str
-      - risk_reason: str
-      - days_since_contact: int
-      - overdue_invoices: int
-      - score: int
-      - tone: str (warm/professional/direct, default professional)
-      - recent_notes: list
-    """
-    
     client_name = data.get("client_name", "the client")
-    contact_name = data.get("contact_name", "the contact")
-    risk_reason = data.get("risk_reason", "general concerns")
+    contact_name = data.get("contact_name", "there")
     days_since_contact = data.get("days_since_contact", 0)
     overdue_invoices = data.get("overdue_invoices", 0)
     score = data.get("score", 0)
+    risk_reason = data.get("risk_reason", "checking in")
     tone = data.get("tone", "professional")
     recent_notes = data.get("recent_notes", [])
-    
-    notes_text = "\n".join([f"- {note}" for note in recent_notes]) if recent_notes else "No recent notes"
 
-    prompt = f"""
-Write a re-engagement email from an account manager 
-to a client whose relationship health has declined.
+    notes_text = " | ".join(recent_notes) if recent_notes else "No recent context available."
 
-Client details:
-- Company: {client_name}
-- Contact: {contact_name}
-- Days since last contact: {days_since_contact}
-- Overdue invoices: {overdue_invoices}
-- Health score: {score}/100
-- Reason for concern: {risk_reason}
-- Recent context: {notes_text}
-- Tone requested: {tone}
+    tone_guide = {
+        "warm": "Friendly and personal, like a friend",
+        "professional": "Business-like, respectful, clear",
+        "direct": "Straight to point, brief, no fluff"
+    }
 
-Tone guide:
-  warm       = friendly, personal, caring
-  professional = business-like, respectful, direct
-  direct     = straight to the point, no fluff
+    system_prompt = """You are helping an account manager write
+a re-engagement email to a client.
+Write emails that feel genuinely human.
+Never use templates or placeholder text.
+Never mention AI, health scores, or
+monitoring tools in the email."""
 
-Write the email now. Return ONLY a valid JSON object 
-with exactly these two fields, nothing else:
+    user_prompt = f"""Write a re-engagement email.
+
+Client company: {client_name}
+Contact person: {contact_name}
+Days since last contact: {days_since_contact}
+Overdue invoices: {overdue_invoices}
+Health score: {score}/100
+Reason for concern: {risk_reason}
+Recent context: {notes_text}
+Tone: {tone} — {tone_guide.get(tone, tone_guide['professional'])}
+
+Return ONLY valid JSON with exactly these fields:
 {{
-  "subject": "email subject line here (max 8 words)",
-  "body": "full email body here (3 short paragraphs)"
+  "subject": "subject line here (max 8 words)",
+  "body": "email body here with paragraphs separated by \\n\\n"
 }}
 
-Rules for the email:
-- Do NOT use placeholders like [Your Name]
-- Sign off as "The Relavo Team" if no name given
-- First paragraph: acknowledge the gap naturally
-- Second paragraph: offer value or ask a question
+Email rules:
+- 3 short paragraphs maximum
+- No placeholders like [Your Name]
+- Sign off as: The Relavo Team
+- Maximum 120 words in body
+- First paragraph: natural reconnection
+- Second paragraph: value or open question
 - Third paragraph: clear call to action
-- Maximum 150 words total
-- Feel human, not templated
-- Never mention "health score" or "AI" in the email
-"""
+- Never mention churn, health score, or AI
+- Return ONLY the JSON object, nothing else"""
 
     try:
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
+        response = call_openrouter(
+            prompt=user_prompt,
+            system=system_prompt,
             max_tokens=500,
-            temperature=0.7
+            temperature=0.8
         )
-        if response.choices and len(response.choices) > 0:
-            content_text = response.choices[0].message.content
-            # Basic parsing
-            try:
-                # Find JSON bounds if Groq includes text
-                import re
-                json_match = re.search(r'\{.*\}', content_text, re.DOTALL)
-                if json_match:
-                    return json.loads(json_match.group())
-                return json.loads(content_text)
-            except Exception as e:
-                print(f"Error parsing JSON from Groq: {e}")
-                raise e
-        raise Exception("Empty response from Groq")
+
+        # Clean response
+        clean_response = response.strip()
+        if clean_response.startswith("```"):
+            clean_response = clean_response.split("```")[1]
+            if clean_response.startswith("json"):
+                clean_response = clean_response[4:]
+        clean_response = clean_response.strip()
+
+        return json.loads(clean_response)
+
     except Exception as e:
-        print(f"Error calling Groq: {e}")
+        print(f"Error draft_email: {e}")
         return {
             "subject": f"Checking in — {client_name}",
-            "body": f"Hi {contact_name},\n\nI wanted to reach out and check how things are going on your end.\n\nWould love to connect this week if you have a few minutes.\n\nBest regards"
+            "body": f"Hi {contact_name},\n\nI wanted to reach out and see how things are going. It's been a while since we last connected.\n\nWould you have 15 minutes this week for a quick call?\n\nLooking forward to hearing from you."
         }

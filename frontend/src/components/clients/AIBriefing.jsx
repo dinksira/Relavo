@@ -1,126 +1,112 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Brain, RefreshCw, AlertCircle } from 'lucide-react';
-import { useClientAI } from '../../hooks/useClientAI';
-import { formatDaysAgo } from '../../utils/formatters';
+import useClientAI from '../../hooks/useClientAI';
+import { formatDistanceToNow } from 'date-fns';
 
-const Pill = ({ color, label }) => {
-  const colors = {
-    blue: { bg: '#eff6ff', text: '#3b82f6', border: '#bfdbfe' },
-    amber: { bg: '#fffbeb', text: '#d97706', border: '#fef3c7' },
-    purple: { bg: '#f5f3ff', text: '#7c3aed', border: '#ddd6fe' }
-  };
-  const c = colors[color] || colors.blue;
-  return (
-    <span style={{
-      fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 100,
-      backgroundColor: c.bg, color: c.text, border: `1px solid ${c.border}`,
-      textTransform: 'uppercase', letterSpacing: '0.05em'
-    }}>
-      {label}
-    </span>
-  );
-};
+/**
+ * Shows past/present/future AI briefing on the client detail page.
+ */
+export default function AIBriefing({ clientId, clientName }) {
+  const { 
+    briefing, 
+    briefingLoading, 
+    briefingError, 
+    generateBriefing 
+  } = useClientAI(clientId);
 
-const Section = ({ title, content, color, label }) => {
-  const borderColors = { blue: '#3b82f6', amber: '#d97706', purple: '#7c3aed' };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Pill color={color} label={label} />
-        <h4 style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', margin: 0 }}>{title}</h4>
+  if (briefingLoading && !briefing) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-6 mb-5 animate-pulse">
+        <div className="h-4 bg-slate-100 rounded w-1/4 mb-4"></div>
+        <div className="space-y-3">
+          <div className="h-20 bg-slate-50 rounded w-full"></div>
+          <div className="h-20 bg-slate-50 rounded w-5/6"></div>
+          <div className="h-20 bg-slate-50 rounded w-4/6"></div>
+        </div>
+        <p className="text-[13px] text-slate-400 mt-4 text-center">AI is analyzing client data...</p>
       </div>
-      <p style={{
-        fontSize: 15, color: '#374151', lineHeight: 1.8, margin: 0,
-        paddingLeft: 16, borderLeft: `3px solid ${borderColors[color]}`
-      }}>
-        {content}
-      </p>
-    </div>
-  );
-};
+    );
+  }
 
-const Skeleton = () => (
-  <div className="animate-pulse" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-    {[85, 92, 78].map((w, i) => (
-      <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div style={{ height: 20, width: 150, background: '#f1f5f9', borderRadius: 4 }} />
-        <div style={{ height: 80, width: `${w}%`, background: '#f8fafc', borderRadius: 8 }} />
+  if (briefingError) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-8 mb-5 flex flex-col items-center justify-center text-center">
+        <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
+        <h3 className="text-slate-900 font-semibold mb-1">Could not generate briefing</h3>
+        <p className="text-slate-500 text-sm mb-4">{briefingError}</p>
+        <button 
+          onClick={() => generateBriefing()}
+          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+        >
+          Try again
+        </button>
       </div>
-    ))}
-    <p style={{ textAlign: 'center', fontSize: 13, color: '#94a3b8', marginTop: 12 }}>AI is analyzing client data...</p>
-  </div>
-);
-
-const AIBriefing = ({ clientId, clientName }) => {
-  const { briefing, briefingLoading, briefingError, generateBriefing } = useClientAI(clientId);
-
-  useEffect(() => {
-    generateBriefing();
-  }, [generateBriefing]);
-
-  if (briefingLoading) return (
-    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '28px 32px', marginBottom: 24 }}>
-      <Skeleton />
-    </div>
-  );
-
-  if (briefingError) return (
-    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '28px 32px', marginBottom: 24, textAlign: 'center' }}>
-      <AlertCircle size={40} color="#dc2626" style={{ marginBottom: 12 }} />
-      <p style={{ color: '#0f172a', fontWeight: 500 }}>Could not generate briefing</p>
-      <button 
-        onClick={() => generateBriefing()}
-        style={{ color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-      >
-        Try again
-      </button>
-    </div>
-  );
+    );
+  }
 
   if (!briefing) return null;
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '28px 32px', marginBottom: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Brain size={20} color="#3b82f6" />
-          <h3 style={{ fontSize: 18, fontWeight: 600, color: '#0f172a', margin: 0 }}>AI Client Intelligence</h3>
+    <div className="bg-white border border-slate-200 rounded-xl p-6 md:p-7 mb-5 shadow-sm">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <Brain className="w-[18px] h-[18px] text-blue-500" />
+          <h2 className="text-base font-semibold text-slate-900">AI Client Intelligence</h2>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>
-            Generated {briefing.generated_at ? formatDaysAgo(briefing.generated_at) : 'recently'}
-          </span>
+        
+        <div className="flex items-center gap-3">
+          {briefing.generated_at && (
+            <span className="text-[11px] text-slate-400">
+              Generated {formatDistanceToNow(new Date(briefing.generated_at))} ago
+            </span>
+          )}
           <button 
             onClick={() => generateBriefing()}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: 6,
-              fontSize: 12, color: '#64748b', fontWeight: 500,
-              padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
-              background: '#fff', cursor: 'pointer'
-            }}
+            disabled={briefingLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
           >
-            <RefreshCw size={14} />
-            Regenerate
+            <RefreshCw className={`w-3.5 h-3.5 ${briefingLoading ? 'animate-spin' : ''}`} />
+            {briefingLoading ? 'Analyzing...' : 'Regenerate'}
           </button>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-        <Section 
-          color="blue" label="Past Analysis" title="Relationship History"
-          content={briefing.past}
-        />
-        <Section 
-          color="amber" label="Present Status" title="Where Things Stand Today"
-          content={briefing.present}
-        />
-        <Section 
-          color="purple" label="Future Prediction" title="What Happens Next"
-          content={briefing.future}
-        />
+      <div className="h-px bg-slate-100 w-full mb-5"></div>
+
+      <div className="space-y-5">
+        {/* PAST */}
+        <div className="pl-4 border-l-3 border-blue-500">
+          <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 text-[11px] font-bold uppercase rounded-sm mb-2">
+            PAST ANALYSIS
+          </span>
+          <h3 className="text-sm font-bold text-slate-900 mb-1">Relationship History</h3>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {briefing.past}
+          </p>
+        </div>
+
+        {/* PRESENT */}
+        <div className="pl-4 border-l-3 border-amber-500">
+          <span className="inline-block px-2 py-0.5 bg-amber-50 text-amber-800 text-[11px] font-bold uppercase rounded-sm mb-2">
+            PRESENT STATUS
+          </span>
+          <h3 className="text-sm font-bold text-slate-900 mb-1">Where Things Stand Today</h3>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {briefing.present}
+          </p>
+        </div>
+
+        {/* FUTURE */}
+        <div className="pl-4 border-l-3 border-purple-500">
+          <span className="inline-block px-2 py-0.5 bg-purple-50 text-purple-700 text-[11px] font-bold uppercase rounded-sm mb-2">
+            AI PREDICTION
+          </span>
+          <h3 className="text-sm font-bold text-slate-900 mb-1">What Happens Next</h3>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {briefing.future}
+          </p>
+        </div>
       </div>
     </div>
   );
-};
-
-export default AIBriefing;
+}

@@ -50,12 +50,23 @@ export const alertsAPI = {
 };
 
 export const aiAPI = {
-  analyzeClient: (clientId) => api.post(`/ai/analyze/${clientId}`),
-  draftEmail: (clientId, tone) => api.post('/ai/draft-email', { clientId, tone }),
-  recalculateAll: () => api.post('/ai/recalculate-all'),
-  getHealthHistory: (clientId) => api.get(`/clients/${clientId}/health-history`),
-  getBriefing: (clientId) => api.get(`/ai/briefing/${clientId}`),
-  chat: (clientId, data) => api.post(`/ai/chat/${clientId}`, data),
+  analyzeClient: (clientId) => 
+    api.post(`/ai/analyze/${clientId}`),
+
+  recalculateAll: () => 
+    api.post('/ai/recalculate-all'),
+
+  draftEmail: (clientId, tone) => 
+    api.post('/ai/draft-email', { clientId, tone }),
+
+  getBriefing: (clientId) => 
+    api.post(`/ai/briefing/${clientId}`),
+
+  chat: (clientId, message, conversationHistory) => 
+    api.post(`/ai/chat/${clientId}`, { 
+      message, 
+      conversationHistory 
+    }),
 };
 
 export default api;

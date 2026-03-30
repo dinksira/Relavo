@@ -7,11 +7,8 @@ const app = express();
 
 app.use(helmet());
 app.use(morgan('dev'));
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
+app.options('*', cors());
 app.use(express.json());
 
 // Routes

@@ -4,7 +4,7 @@ import { Users, CheckCircle, AlertTriangle, XCircle, Plus, ChevronRight, Sparkle
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
-import HealthGauge from '../components/ui/HealthGauge';
+import HealthGauge from '../components/clients/HealthGauge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import Button from '../components/ui/Button';
@@ -78,29 +78,27 @@ const ClientRow = ({ client, onRefresh }) => {
       </div>
       
       <div className="flex-1 min-w-0">
-        <p className="text-[14px] font-semibold text-[#0f172a] m-0 group-hover:text-[#3b82f6] transition-colors truncate">
+        <p className="text-[14px] font-bold text-[#0f172a] m-0 group-hover:text-[#3b82f6] transition-colors truncate">
           {name}
         </p>
-        <p className="text-[12px] text-[#64748b] m-0 truncate font-normal">
-          {healthScore.ai_insight || 'No recent insights available'}
+        <p className="text-[12px] text-[#94a3b8] m-0 truncate italic mt-0.5">
+          {healthScore.ai_insight 
+            ? (healthScore.ai_insight.length > 65 ? `${healthScore.ai_insight.substring(0, 65)}...` : healthScore.ai_insight)
+            : 'Analyzing client relationship...'}
         </p>
       </div>
       
-      <div className="w-[120px] shrink-0">
-        <div className="h-1.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden">
-          <div 
-            className="h-full rounded-full transition-all duration-700 ease-out" 
-            style={{ width: `${score}%`, backgroundColor: barColor }}
-          />
-        </div>
+      <div className="shrink-0 flex items-center justify-end w-[80px]">
+        <HealthGauge 
+          score={score} 
+          size={42} 
+          strokeWidth={4} 
+          showLabel={false} 
+        />
       </div>
 
-      <div className={`p-1 px-[10px] rounded-full text-[12px] font-semibold shrink-0 min-w-[32px] text-center ${scoreBadgeStyles[status]}`}>
-        {score}
-      </div>
-
-      <div className="text-[12px] text-[#94a3b8] w-[70px] text-right shrink-0">
-        {formatDaysAgo(client.last_contact_date)}
+      <div className="text-[11px] font-medium text-[#94a3b8] w-[75px] text-right shrink-0 uppercase tracking-tight">
+        {formatDaysAgo(client.last_contact_date || client.created_at)}
       </div>
 
       <ChevronRight size={14} className="text-[#cbd5e1] group-hover:text-[#94a3b8] transition-colors shrink-0" />

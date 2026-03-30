@@ -9,7 +9,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import HealthGauge from '../components/ui/HealthGauge';
+import HealthGauge from '../components/clients/HealthGauge';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import TouchpointModal from '../components/clients/TouchpointModal';
@@ -258,19 +258,33 @@ const ClientDetailPage = () => {
         {/* Right Column */}
         <div className="space-y-6">
           {/* Health Gauge Circular Card */}
-          <div className="bg-white border border-[#e2e8f0] rounded-[16px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-center">
-             <div className="flex justify-between items-center mb-6">
-                <span className="text-[12px] font-bold text-[#64748b] uppercase tracking-wider">Health Insight</span>
-                <button onClick={handleRecalculate} disabled={isRecalculating} className="text-[#3b82f6] hover:text-[#2563eb] transition-colors bg-transparent border-none cursor-pointer">
-                  <RefreshCw size={16} className={isRecalculating ? 'animate-spin' : ''} />
+          <div className="bg-white border border-[#e2e8f0] rounded-[16px] p-8 shadow-sm flex flex-col items-center relative overflow-hidden">
+             {/* Header with Title and Recalculate */}
+             <div className="w-full flex justify-between items-center mb-6">
+                <span className="text-[12px] font-bold text-slate-400 uppercase tracking-wider">Client Health Score</span>
+                <button 
+                  onClick={handleRecalculate} 
+                  disabled={isRecalculating} 
+                  className={`p-2 rounded-lg transition-all ${isRecalculating ? 'text-slate-300' : 'text-blue-500 hover:bg-blue-50'}`}
+                  title="Recalculate Score"
+                >
+                  <RefreshCw size={18} className={isRecalculating ? 'animate-spin' : ''} />
                 </button>
              </div>
+
              <div className="flex flex-col items-center">
-                <HealthGauge score={score} size="xl" />
-                <h3 className="text-[20px] font-bold text-[#0f172a] mt-4 mb-1">
-                  {score >= 70 ? 'Healthy Partner' : score >= 40 ? 'Moderate Risk' : 'High Risk'}
-                </h3>
-                <p className="text-[13px] text-[#64748b] m-0">Updated {formatDaysAgo(healthScore.created_at || new Date())}</p>
+                <HealthGauge 
+                  score={score} 
+                  size={140} 
+                  strokeWidth={10}
+                  showLabel={true} 
+                />
+                
+                <div className="mt-4 text-center">
+                  <p className="text-slate-400 text-xs font-medium uppercase tracking-tight">
+                    Last analysis: {formatDaysAgo(healthScore.calculated_at || healthScore.created_at || new Date())}
+                  </p>
+                </div>
              </div>
           </div>
 

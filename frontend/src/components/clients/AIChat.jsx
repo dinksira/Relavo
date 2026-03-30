@@ -1,79 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Send, Brain, User, Loader2 } from 'lucide-react';
-import { useClientAI } from '../../hooks/useClientAI';
+import { Sparkles, MessageSquare, Send, RefreshCw, User } from 'lucide-react';
+import useClientAI from '../../hooks/useClientAI';
 
-const Message = ({ msg }) => {
-  const isAI = msg.role === 'assistant';
+export default function AIChat({ clientId, clientName }) {
+  const { 
+    messages, 
+    chatLoading, 
+    sendMessage, 
+    clearChat 
+  } = useClientAI(clientId);
   
-  // Format response: **bold** and newlines
-  const formattedContent = msg.content
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .split('\n')
-    .map((line, i) => (
-      <React.Fragment key={i}>
-        {line}
-        <br />
-      </React.Fragment>
-    ));
-
-  return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: isAI ? 'row' : 'row-reverse',
-      gap: 12, marginBottom: 16,
-      maxWidth: '100%'
-    }}>
-      {isAI && (
-        <div style={{
-          width: 28, height: 28, borderRadius: '50%', background: '#eff6ff',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-        }}>
-          <Sparkles size={14} color="#3b82f6" />
-        </div>
-      )}
-      
-      <div style={{ maxWidth: isAI ? '80%' : '75%' }}>
-        <div style={{
-          background: isAI ? '#ffffff' : '#3b82f6',
-          color: isAI ? '#0f172a' : '#ffffff',
-          border: isAI ? '1px solid #e2e8f0' : 'none',
-          padding: '12px 16px',
-          borderRadius: isAI ? '2px 12px 12px 12px' : '12px 12px 2px 12px',
-          fontSize: 14, lineHeight: 1.7,
-        }}>
-          <span dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} />
-        </div>
-        <p style={{ 
-          fontSize: 10, color: '#94a3b8', marginTop: 4, 
-          textAlign: isAI ? 'left' : 'right', margin: '4px 0 0' 
-        }}>
-          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-const SuggestionChip = ({ text, onClick }) => (
-  <button
-    onClick={() => onClick(text)}
-    style={{
-      background: '#fff', border: '1px solid #e2e8f0', borderRadius: 100,
-      padding: '8px 16px', fontSize: 13, color: '#374151', cursor: 'pointer',
-      textAlign: 'left', transition: 'all 150ms', fontFamily: 'inherit'
-    }}
-    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#fff'}
-  >
-    {text}
-  </button>
-);
-
-const AIChat = ({ clientId, clientName }) => {
-  const { messages, chatLoading, sendMessage } = useClientAI(clientId);
-  const [input, setInput] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -83,18 +21,13 @@ const AIChat = ({ clientId, clientName }) => {
     scrollToBottom();
   }, [messages, chatLoading]);
 
-  // Initial focus
-  useEffect(() => {
-    if (inputRef.current) inputRef.current.focus();
-  }, []);
-
   const handleSend = () => {
-    if (!input.trim() || chatLoading) return;
-    sendMessage(input);
-    setInput('');
+    if (!inputValue.trim() || chatLoading) return;
+    sendMessage(inputValue.trim());
+    setInputValue('');
   };
 
-  const onKeyDown = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -105,81 +38,141 @@ const AIChat = ({ clientId, clientName }) => {
     "What's the biggest risk with this client?",
     "Should I be worried about churn?",
     "What should I say in my next email?",
-    "Summarize our relationship in one sentence"
+    "Summarize this relationship in one sentence"
   ];
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', marginBottom: 24, display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Sparkles size={20} color="#3b82f6" />
-          <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', margin: 0 }}>Ask AI about {clientName}</h3>
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-5 shadow-sm">
+      {/* HEADER */}
+      <div className="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-blue-500" />
+          <h2 className="text-sm font-semibold text-slate-900">Ask AI about {clientName}</h2>
         </div>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>Powered by Groq · Llama 3.3</span>
+        <span className="text-[11px] text-slate-400 font-medium">Powered by Groq · Llama 3.3</span>
       </div>
 
-      {/* Messages */}
-      <div style={{ height: 380, overflowY: 'auto', padding: 20, background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+      {/* MESSAGES AREA */}
+      <div className="h-[360px] overflow-y-auto p-5 bg-slate-50/50 flex flex-col gap-4">
         {messages.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-            <Brain size={40} color="#cbd5e1" />
-            <p style={{ fontSize: 14, color: '#64748b', margin: 0 }}>Ask me anything about {clientName}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%', maxWidth: 500, marginTop: 12 }}>
-              {suggestions.map(s => <SuggestionChip key={s} text={s} onClick={sendMessage} />)}
+          <div className="flex flex-col items-center justify-center h-full text-center py-5">
+            <MessageSquare className="w-9 h-9 text-slate-300 mb-3" />
+            <h3 className="text-sm text-slate-500 mb-6">Ask anything about {clientName}</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-md">
+              {suggestions.map((text, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendMessage(text)}
+                  className="text-[13px] text-slate-700 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-left hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm"
+                >
+                  {text}
+                </button>
+              ))}
             </div>
           </div>
         ) : (
-          <>
-            {messages.map((m, i) => <Message key={i} msg={m} />)}
-            {chatLoading && (
-              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Sparkles size={14} color="#3b82f6" />
+          messages.map((msg, index) => (
+            <div 
+              key={index} 
+              className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+            >
+              <div className={`flex gap-2.5 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-1 sm:mt-0 ${msg.role === 'user' ? 'bg-blue-100' : 'bg-blue-50'}`}>
+                  {msg.role === 'user' ? <User className="w-3.5 h-3.5 text-blue-600" /> : <Sparkles className="w-3.5 h-3.5 text-blue-500" />}
                 </div>
-                <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '2px 12px 12px 12px', minWidth: 60 }}>
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
+                
+                <div className="flex flex-col">
+                  <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                    msg.role === 'user' 
+                      ? 'bg-blue-600 text-white rounded-tr-none' 
+                      : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'
+                  }`}>
+                    {msg.role === 'assistant' ? (
+                      <div 
+                        dangerouslySetInnerHTML={{ 
+                          __html: msg.content
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\n/g, '<br/>') 
+                        }} 
+                      />
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  {msg.timestamp && (
+                    <span className={`text-[10px] text-slate-400 mt-1.5 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </>
+            </div>
+          ))
         )}
+
+        {chatLoading && (
+          <div className="flex items-start gap-2.5 max-w-[85%]">
+            <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+            </div>
+            <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
+              <div className="typing-dot"></div>
+              <div className="typing-dot"></div>
+              <div className="typing-dot"></div>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div style={{ background: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 20px', display: 'flex', alignItems: 'flex-end', gap: 12 }}>
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder={`Ask anything about ${clientName}...`}
-          style={{
-            flex: 1, border: '1px solid #e2e8f0', borderRadius: 24, padding: '10px 18px',
-            fontSize: 14, fontFamily: 'inherit', color: '#0f172a', outline: 'none',
-            resize: 'none', maxHeight: 120, lineHeight: 1.5, background: '#fff'
-          }}
-          rows={1}
-        />
-        <button
-          onClick={handleSend}
-          disabled={!input.trim() || chatLoading}
-          style={{
-            width: 40, height: 40, borderRadius: '50%', background: (!input.trim() || chatLoading) ? '#94a3b8' : '#3b82f6',
-            color: '#fff', border: 'none', cursor: 'pointer', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 150ms'
-          }}
-          onMouseEnter={e => { if (input.trim() && !chatLoading) e.currentTarget.style.backgroundColor = '#2563eb' } }
-          onMouseLeave={e => { if (input.trim() && !chatLoading) e.currentTarget.style.backgroundColor = '#3b82f6' } }
-        >
-          {chatLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-        </button>
+      {/* INPUT AREA */}
+      <div className="bg-white border-t border-slate-200 p-4">
+        <div className="flex gap-2.5 items-end max-w-4xl mx-auto">
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={chatLoading}
+            placeholder={`Ask about ${clientName}...`}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-[14px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all resize-none min-h-[44px] max-h-[120px] leading-relaxed"
+            rows="1"
+            onInput={(e) => {
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!inputValue.trim() || chatLoading}
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+              inputValue.trim() && !chatLoading 
+                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200' 
+                : 'bg-slate-100 text-slate-300'
+            }`}
+          >
+            {chatLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-4px); }
+        }
+        .typing-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #94a3b8;
+          display: inline-block;
+          margin: 0 1.5px;
+          animation: bounce 1.2s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+      `}} />
     </div>
   );
-};
-
-export default AIChat;
+}

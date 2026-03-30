@@ -1,70 +1,61 @@
 def calculate_score(data: dict) -> dict:
-    """
-    Input data contains:
-      - days_since_contact: int
-      - overdue_invoices: int (count)
-      - total_invoices: int
-      - touchpoint_count: int (last 30 days)
-      - last_outcome: str (positive/neutral/negative/none)
-      - response_trend: str (improving/stable/declining/unknown)
-    """
-    
-    days_since_contact = data.get("days_since_contact", 999)
-    overdue_invoices = data.get("overdue_invoices", 0)
-    total_invoices = data.get("total_invoices", 0)
-    touchpoint_count = data.get("touchpoint_count", 0)
-    last_outcome = data.get("last_outcome", "none")
-    # response_trend = data.get("response_trend", "unknown")
+    days = data.get("days_since_contact", 999)
+    overdue = data.get("overdue_invoices", 0)
+    total_inv = data.get("total_invoices", 0)
+    touchpoints = data.get("touchpoint_count", 0)
+    outcome = data.get("last_outcome", "none")
 
     # CONTACT SCORE (30% weight)
-    if days_since_contact == 0:
+    if days == 0:
         contact_score = 100
-    elif 1 <= days_since_contact <= 3:
+    elif days <= 3:
         contact_score = 90
-    elif 4 <= days_since_contact <= 7:
+    elif days <= 7:
         contact_score = 75
-    elif 8 <= days_since_contact <= 14:
+    elif days <= 14:
         contact_score = 50
-    elif 15 <= days_since_contact <= 30:
+    elif days <= 30:
         contact_score = 25
     else:
         contact_score = 0
 
     # INVOICE SCORE (25% weight)
-    if total_invoices == 0:
+    if total_inv == 0:
         invoice_score = 80
-    elif overdue_invoices == 0:
+    elif overdue == 0:
         invoice_score = 100
-    elif overdue_invoices == 1:
+    elif overdue == 1:
         invoice_score = 50
     else:
         invoice_score = 0
 
     # ACTIVITY SCORE (25% weight)
-    if touchpoint_count >= 5:
+    if touchpoints >= 5:
         activity_score = 100
-    elif 3 <= touchpoint_count <= 4:
+    elif touchpoints >= 3:
         activity_score = 80
-    elif 1 <= touchpoint_count <= 2:
+    elif touchpoints >= 1:
         activity_score = 50
     else:
         activity_score = 20
 
     # OUTCOME SCORE (20% weight)
-    if last_outcome == "positive":
+    if outcome == "positive":
         outcome_score = 100
-    elif last_outcome == "neutral":
+    elif outcome == "neutral":
         outcome_score = 70
-    elif last_outcome == "negative":
+    elif outcome == "negative":
         outcome_score = 30
-    else: # none
+    elif outcome == "none":
+        outcome_score = 60
+    else:
         outcome_score = 60
 
     final_score = round(
-        (contact_score * 0.30) +
-        (invoice_score * 0.25) +
-        (activity_score * 0.25) +
-        (outcome_score * 0.20)
+        contact_score * 0.30 +
+        invoice_score * 0.25 +
+        activity_score * 0.25 +
+        outcome_score * 0.20
     )
 
     if final_score >= 70:
@@ -82,8 +73,8 @@ def calculate_score(data: dict) -> dict:
             "invoice_score": invoice_score,
             "activity_score": activity_score,
             "outcome_score": outcome_score,
-            "days_since_contact": days_since_contact,
-            "overdue_invoices": overdue_invoices,
-            "touchpoint_count": touchpoint_count
+            "days_since_contact": days,
+            "overdue_invoices": overdue,
+            "touchpoint_count": touchpoints
         }
     }
