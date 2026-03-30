@@ -116,7 +116,8 @@ router.post('/briefing/:clientId', async (req, res) => {
       supabase.from('invoices').select('*').eq('client_id', clientId)
     ]);
 
-    if (clientRes.error) throw clientRes.error;
+    if (clientRes.error) throw new Error(`Client not found or error: ${clientRes.error.message}`);
+    if (!clientRes.data) throw new Error('Client record missing');
     
     const client = clientRes.data;
     const healthScores = healthRes.data || [];
@@ -129,14 +130,15 @@ router.post('/briefing/:clientId', async (req, res) => {
       : 999;
 
     const result = await aiService.getBriefing({
-      client_name: client.name,
-      created_at: client.created_at,
+      client_id: clientId, // Added for context
+      client_name: client.name || "Valued Client",
+      created_at: client.created_at || new Date().toISOString(),
       days_since_contact: daysSinceContact,
       total_touchpoints: touchpoints.length,
-      overdue_invoices: invoices.filter(i => i.status === 'overdue').length,
-      total_invoices: invoices.length,
-      score: latestScore.score,
-      risk_level: latestScore.risk_level,
+      overdue_invoices: (invoices || []).filter(i => i.status === 'overdue').length,
+      total_invoices: (invoices || []).length,
+      score: latestScore.score || 70,
+      risk_level: latestScore.risk_level || 'healthy',
       recent_notes: touchpoints.slice(0, 3).map(t => t.notes).filter(Boolean),
       monthly_value: client.monthly_revenue || 0,
       score_history: healthScores.map(h => ({ score: h.score, calculated_at: h.calculated_at }))
@@ -144,7 +146,10 @@ router.post('/briefing/:clientId', async (req, res) => {
 
     res.json({ data: result });
   } catch (error) {
-    console.error('Error in /briefing/:clientId:', error.message);
+    console.error('DIAGNOSTIC: AI Briefing Error:', error.message);
+    if (error.response) {
+      console.error('DIAGNOSTIC: AI Service Response Body:', JSON.stringify(error.response.data, null, 2));
+    }
     res.status(500).json({ error: error.message });
   }
 });

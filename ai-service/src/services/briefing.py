@@ -21,12 +21,12 @@ def generate_briefing(data: dict) -> dict:
         # Calculate score trend
         trend = "insufficient history"
         if len(score_history) >= 2:
-            first_score = score_history[0]["score"]
-            last_score = score_history[-1]["score"]
-            if last_score > first_score:
-                trend = f"improving (was {first_score}, now {last_score})"
-            elif last_score < first_score:
-                trend = f"declining (was {first_score}, now {last_score})"
+            newest_score = score_history[0]["score"]
+            oldest_score = score_history[-1]["score"]
+            if newest_score > oldest_score:
+                trend = f"improving (was {oldest_score}, now {newest_score})"
+            elif newest_score < oldest_score:
+                trend = f"declining (was {oldest_score}, now {newest_score})"
             else:
                 trend = "stable"
 

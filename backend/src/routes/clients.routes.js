@@ -196,8 +196,8 @@ router.post('/:id/touchpoints', async (req, res) => {
       .single();
 
     if (error) {
-      console.error('Supabase Error (touchpoint):', error);
-      return res.status(400).json({ error: error.message });
+      console.error('DIAGNOSTIC: Supabase Touchpoint Error:', JSON.stringify(error, null, 2));
+      return res.status(400).json({ error: error.message, details: error });
     }
 
     // Trigger score calculation immediately

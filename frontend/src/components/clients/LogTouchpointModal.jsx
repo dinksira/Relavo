@@ -63,7 +63,7 @@ const LogTouchpointModal = ({ isOpen, onClose, clientId, clientName, onSuccess }
     { value: 'email', label: 'Email', icon: Mail },
     { value: 'meeting', label: 'Meeting', icon: Video },
     { value: 'message', label: 'Message', icon: MessageSquare },
-    { value: 'video', label: 'Video Call', icon: Video },
+    { value: 'meeting', label: 'Video Call', icon: Video },
   ];
 
   const outcomeTypes = [

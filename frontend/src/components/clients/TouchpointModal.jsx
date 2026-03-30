@@ -9,7 +9,7 @@ const TOUCHPOINT_TYPES = [
   { value: 'email', label: 'Email' },
   { value: 'meeting', label: 'Meeting' },
   { value: 'message', label: 'Message' },
-  { value: 'video', label: 'Video Call' }
+  { value: 'meeting', label: 'Video Call' }
 ];
 
 const OUTCOME_TYPES = [
