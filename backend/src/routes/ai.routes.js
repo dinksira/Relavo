@@ -130,7 +130,7 @@ router.post('/briefing/:clientId', async (req, res) => {
       : 999;
 
     const result = await aiService.getBriefing({
-      client_id: clientId, // Added for context
+      client_id: String(clientId),
       client_name: client.name || "Valued Client",
       created_at: client.created_at || new Date().toISOString(),
       days_since_contact: daysSinceContact,
@@ -141,7 +141,10 @@ router.post('/briefing/:clientId', async (req, res) => {
       risk_level: latestScore.risk_level || 'healthy',
       recent_notes: touchpoints.slice(0, 3).map(t => t.notes).filter(Boolean),
       monthly_value: client.monthly_revenue || 0,
-      score_history: healthScores.map(h => ({ score: h.score, calculated_at: h.calculated_at }))
+      score_history: (healthScores || []).map(h => ({ 
+        score: Number(h.score) || 70, 
+        calculated_at: String(h.calculated_at || new Date().toISOString()) 
+      }))
     });
 
     res.json({ data: result });

@@ -36,8 +36,10 @@ def call_openrouter(
             "temperature": temperature
         }
 
-        with httpx.Client(timeout=30.0) as client:
+        with httpx.Client(timeout=60.0) as client:
             response = client.post(OPENROUTER_URL, headers=headers, json=body)
+            if response.status_code != 200:
+                print(f"OpenRouter Error Status: {response.status_code}, Body: {response.text}")
             response.raise_for_status()
             data = response.json()
             return data["choices"][0]["message"]["content"]
