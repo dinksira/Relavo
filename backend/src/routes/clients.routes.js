@@ -5,6 +5,8 @@ const authMiddleware = require('../middleware/auth');
 const healthService = require('../services/health.service');
 
 router.use(authMiddleware);
+const ok = (res, data, message) => res.json({ success: true, data, message });
+const fail = (res, code, message, data = null) => res.status(code).json({ success: false, data, message });
 
 // GET /api/clients
 router.get('/', async (req, res) => {
@@ -14,11 +16,11 @@ router.get('/', async (req, res) => {
       .select('*')
       .eq('user_id', req.user.id);
 
-    if (error) return res.status(400).json({ error: error.message });
-    res.json(clients);
+    if (error) return fail(res, 400, error.message);
+    return ok(res, clients, 'Clients fetched');
   } catch (err) {
     console.error('Fetch Clients Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -34,7 +36,7 @@ router.post('/', async (req, res) => {
       .select()
       .single();
 
-    if (clientError) return res.status(400).json({ error: clientError.message });
+    if (clientError) return fail(res, 400, clientError.message);
 
     // Create default health_score row
     const { error: scoreError } = await supabase
@@ -53,10 +55,10 @@ router.post('/', async (req, res) => {
       healthService.calculateAndSaveScore(client.id, req.user.id);
     }, 1000);
 
-    res.status(201).json(client);
+    return res.status(201).json({ success: true, data: client, message: 'Client created' });
   } catch (err) {
     console.error('Create Client Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -74,7 +76,7 @@ router.get('/:id', async (req, res) => {
       .single();
 
     if (clientError || !client) {
-      return res.status(403).json({ error: "Access denied" });
+      return fail(res, 403, 'Access denied');
     }
 
     // Fetch latest health_score
@@ -100,15 +102,15 @@ router.get('/:id', async (req, res) => {
       .eq('client_id', id)
       .order('created_at', { ascending: false });
 
-    res.json({
+    return ok(res, {
       ...client,
       latest_health_score: healthScores?.[0] || null,
       touchpoints: touchpoints || [],
       invoices: invoices || []
-    });
+    }, 'Client detail fetched');
   } catch (err) {
     console.error('Get Client Detail Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -126,7 +128,7 @@ router.put('/:id', async (req, res) => {
       .eq('user_id', req.user.id)
       .single();
 
-    if (verifyError || !client) return res.status(403).json({ error: "Access denied" });
+    if (verifyError || !client) return fail(res, 403, 'Access denied');
 
     const { data: updatedClient, error } = await supabase
       .from('clients')
@@ -135,11 +137,11 @@ router.put('/:id', async (req, res) => {
       .select()
       .single();
 
-    if (error) return res.status(400).json({ error: error.message });
-    res.json(updatedClient);
+    if (error) return fail(res, 400, error.message);
+    return ok(res, updatedClient, 'Client updated');
   } catch (err) {
     console.error('Update Client Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -156,7 +158,7 @@ router.delete('/:id', async (req, res) => {
       .eq('user_id', req.user.id)
       .single();
 
-    if (verifyError || !client) return res.status(403).json({ error: "Access denied" });
+    if (verifyError || !client) return fail(res, 403, 'Access denied');
 
     // Soft delete: set status = churned
     const { error } = await supabase
@@ -164,11 +166,11 @@ router.delete('/:id', async (req, res) => {
       .update({ status: 'churned' })
       .eq('id', id);
 
-    if (error) return res.status(400).json({ error: error.message });
-    res.json({ success: true });
+    if (error) return fail(res, 400, error.message);
+    return ok(res, { id, status: 'churned' }, 'Client archived');
   } catch (err) {
     console.error('Delete Client Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -197,7 +199,7 @@ router.post('/:id/touchpoints', async (req, res) => {
 
     if (error) {
       console.error('DIAGNOSTIC: Supabase Touchpoint Error:', JSON.stringify(error, null, 2));
-      return res.status(400).json({ error: error.message, details: error });
+      return fail(res, 400, error.message);
     }
 
     // Trigger score calculation immediately
@@ -205,10 +207,10 @@ router.post('/:id/touchpoints', async (req, res) => {
       healthService.calculateAndSaveScore(id, req.user.id);
     }, 500);
 
-    res.status(201).json(touchpoint);
+    return res.status(201).json({ success: true, data: touchpoint, message: 'Touchpoint logged' });
   } catch (err) {
     console.error('Create Touchpoint Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -235,7 +237,7 @@ router.post('/:id/invoices', async (req, res) => {
 
     if (error) {
       console.error('Supabase Error (invoice):', error);
-      return res.status(400).json({ error: error.message });
+      return fail(res, 400, error.message);
     }
 
     // Trigger score calculation immediately
@@ -243,10 +245,10 @@ router.post('/:id/invoices', async (req, res) => {
       healthService.calculateAndSaveScore(id, req.user.id);
     }, 500);
 
-    res.status(201).json(invoice);
+    return res.status(201).json({ success: true, data: invoice, message: 'Invoice created' });
   } catch (err) {
     console.error('Create Invoice Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -261,11 +263,11 @@ router.get('/:id/health-history', async (req, res) => {
       .order('calculated_at', { ascending: true })
       .limit(14);
 
-    if (error) return res.status(400).json({ error: error.message });
-    res.json(history);
+    if (error) return fail(res, 400, error.message);
+    return ok(res, history, 'Health history fetched');
   } catch (err) {
     console.error('Get Health History Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 

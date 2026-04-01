@@ -4,15 +4,17 @@ const alertsService = require('../services/alerts.service');
 const authMiddleware = require('../middleware/auth');
 
 router.use(authMiddleware);
+const ok = (res, data, message) => res.json({ success: true, data, message });
+const fail = (res, code, message) => res.status(code).json({ success: false, data: null, message });
 
 // GET /api/alerts
 router.get('/', async (req, res) => {
   try {
     const alerts = await alertsService.getAlertsForUser(req.user.id);
-    res.json(alerts);
+    return ok(res, alerts, 'Alerts fetched');
   } catch (err) {
     console.error('Fetch Alerts Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -20,10 +22,10 @@ router.get('/', async (req, res) => {
 router.get('/unread-count', async (req, res) => {
   try {
     const count = await alertsService.getUnreadCount(req.user.id);
-    res.json({ count });
+    return ok(res, { count }, 'Unread count fetched');
   } catch (err) {
     console.error('Fetch Alert Count Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -32,10 +34,10 @@ router.put('/:id/read', async (req, res) => {
   try {
     const { id } = req.params;
     await alertsService.markAsRead(id);
-    res.json({ success: true });
+    return ok(res, { id }, 'Alert marked as read');
   } catch (err) {
     console.error('Read Alert Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
@@ -44,10 +46,10 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     await alertsService.dismissAlert(id);
-    res.json({ success: true });
+    return ok(res, { id }, 'Alert dismissed');
   } catch (err) {
     console.error('Delete Alert Error:', err);
-    res.status(500).json({ error: "Internal server error" });
+    return fail(res, 500, 'Internal server error');
   }
 });
 
