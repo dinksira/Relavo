@@ -7,6 +7,8 @@ const supabase = require('../config/supabase');
 
 // Apply authMiddleware to all routes
 router.use(authMiddleware);
+const ok = (res, data, message) => res.json({ success: true, data, message });
+const fail = (res, code, message) => res.status(code).json({ success: false, data: null, message });
 
 /**
  * POST /api/ai/analyze/:clientId
@@ -18,10 +20,10 @@ router.post('/analyze/:clientId', async (req, res) => {
   
   try {
     const result = await healthService.calculateAndSaveScore(clientId);
-    res.json({ data: result });
+    return ok(res, result, 'Client analyzed');
   } catch (error) {
     console.error('Error in /analyze/:clientId:', error.message);
-    res.status(500).json({ error: error.message });
+    return fail(res, 500, error.message);
   }
 });
 
@@ -32,10 +34,10 @@ router.post('/analyze/:clientId', async (req, res) => {
 router.post('/recalculate-all', async (req, res) => {
   try {
     const results = await healthService.recalculateAllClients(req.user.id);
-    res.json({ success: true, count: results.length });
+    return ok(res, { count: results.length }, 'Recalculation completed');
   } catch (error) {
     console.error('Error in /recalculate-all:', error.message);
-    res.status(500).json({ error: error.message });
+    return fail(res, 500, error.message);
   }
 });
 
@@ -94,10 +96,10 @@ router.post('/draft-email', async (req, res) => {
       recent_notes: touchpoints?.map(t => t.notes).filter(Boolean) || []
     });
 
-    res.json({ data: result });
+    return ok(res, result, 'Email draft generated');
   } catch (error) {
     console.error('Error in /draft-email:', error.message);
-    res.status(500).json({ error: error.message });
+    return fail(res, 500, error.message);
   }
 });
 
@@ -147,13 +149,13 @@ router.post('/briefing/:clientId', async (req, res) => {
       }))
     });
 
-    res.json({ data: result });
+    return ok(res, result, 'Briefing generated');
   } catch (error) {
     console.error('DIAGNOSTIC: AI Briefing Error:', error.message);
     if (error.response) {
       console.error('DIAGNOSTIC: AI Service Response Body:', JSON.stringify(error.response.data, null, 2));
     }
-    res.status(500).json({ error: error.message });
+    return fail(res, 500, error.message);
   }
 });
 
@@ -196,10 +198,10 @@ router.post('/chat/:clientId', async (req, res) => {
       client_context
     });
 
-    res.json({ data: result });
+    return ok(res, result, 'Chat response generated');
   } catch (error) {
     console.error('Error in /chat/:clientId:', error.message);
-    res.status(500).json({ error: error.message });
+    return fail(res, 500, error.message);
   }
 });
 
