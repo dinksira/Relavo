@@ -4,7 +4,7 @@ import Button from '../ui/Button';
 import useToast from '../../hooks/useToast';
 import { clientsAPI, aiAPI } from '../../services/api';
 import useClients from '../../hooks/useClients';
-import { Search, ChevronDown, Check } from 'lucide-react';
+import { Search, ChevronDown, Check, Activity, DollarSign } from 'lucide-react';
 
 const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
   const toast = useToast();
@@ -12,6 +12,7 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState('activity'); 
   const dropdownRef = useRef(null);
   
   const [form, setForm] = useState({
@@ -19,7 +20,10 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
     clientName: '',
     type: 'call',
     notes: '',
-    outcome: 'neutral'
+    outcome: 'neutral',
+    amount: '',
+    due_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+    invoice_status: 'pending'
   });
 
   const filteredClients = (Array.isArray(clients) ? clients : []).filter(c => 
@@ -28,45 +32,79 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!form.clientId) { toast.error('Please select a client'); return; }
-    if (!form.notes.trim()) { toast.error('Please add a note'); return; }
     
     setLoading(true);
     try {
-      await clientsAPI.logTouchpoint(form.clientId, {
-        type: form.type,
-        notes: form.notes,
-        outcome: form.outcome,
-        logged_at: new Date().toISOString()
-      });
+      if (activeTab === 'activity') {
+        if (!form.notes.trim()) { toast.error('Please add a note'); setLoading(false); return; }
+        
+        await clientsAPI.logTouchpoint(form.clientId, {
+          type: form.type,
+          notes: form.notes,
+          outcome: form.outcome,
+          logged_at: new Date().toISOString()
+        });
+      } else {
+        if (!form.amount || isNaN(form.amount)) { toast.error('Please enter a valid amount'); setLoading(false); return; }
+        
+        await clientsAPI.addInvoice(form.clientId, {
+          amount: parseFloat(form.amount),
+          due_date: form.due_date,
+          status: form.invoice_status
+        });
+      }
       
-      // Trigger AI Analysis
       await aiAPI.analyzeClient(form.clientId);
+      toast.success(activeTab === 'activity' ? 'Activity logged!' : 'Invoice added!');
       
-      toast.success('Logged! ✓');
-      setForm({ clientId: '', clientName: '', type: 'call', notes: '', outcome: 'neutral' });
-      setSearch('');
+      setForm(p => ({
+        ...p,
+        type: 'call',
+        notes: '',
+        outcome: 'neutral',
+        amount: '',
+        invoice_status: 'pending'
+      }));
+      
       onSuccess?.({ clientId: form.clientId });
       onClose();
     } catch (err) {
-      toast.error('Failed to log');
+      toast.error('Failed to save');
     } finally {
       setLoading(false);
     }
   };
 
-  const pillStyle = (active) => ({
-    padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-    cursor: 'pointer', border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e2e8f0',
-    background: active ? '#3b82f6' : '#fff',
+  const pillStyle = (active, activeColor = '#3b82f6') => ({
+    padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+    cursor: 'pointer', border: '1.5px solid',
+    borderColor: active ? activeColor : '#e2e8f0',
+    background: active ? activeColor : '#fff',
     color: active ? '#fff' : '#64748b',
-    transition: 'all 150ms', fontFamily: 'inherit'
+    transition: 'all 150ms', fontFamily: 'inherit',
+    flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center'
   });
 
-  const emojiBtnStyle = (active, color) => ({
-    fontSize: 24, padding: '8px 12px', borderRadius: 12, background: active ? '#f1f5f9' : 'transparent',
-    border: active ? `2px solid ${color}` : '2px solid transparent', cursor: 'pointer', transition: 'all 150ms'
+  const tabStyle = (active) => ({
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+    padding: '10px', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+    borderBottom: '2px solid', 
+    borderColor: active ? '#3b82f6' : 'transparent',
+    color: active ? '#3b82f6' : '#94a3b8',
+    transition: 'all 200ms', background: 'transparent'
   });
+
+  const inputStyle = {
+    width: '100%', height: 44, padding: '0 12px', border: '1px solid #e2e8f0',
+    borderRadius: 8, fontSize: 14, fontFamily: 'inherit', color: '#0f172a',
+    boxSizing: 'border-box'
+  };
+
+  const labelStyle = { 
+    fontSize: 11, fontWeight: 800, color: '#94a3b8', 
+    textTransform: 'uppercase', marginBottom: 6, display: 'block',
+    letterSpacing: '0.05em'
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -79,25 +117,32 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
   return (
     <Modal
       isOpen={isOpen} onClose={onClose}
-      title="Quick Log"
+      title="Quick Entry"
       size="sm"
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingBottom: 10 }}>
-        {/* Searchable Client Dropdown */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid #f1f5f9' }}>
+           <button style={tabStyle(activeTab === 'activity')} onClick={() => setActiveTab('activity')}>
+              <Activity size={14} /> Activity
+           </button>
+           <button style={tabStyle(activeTab === 'invoice')} onClick={() => setActiveTab('invoice')}>
+              <DollarSign size={14} /> Invoice
+           </button>
+        </div>
+
         <div style={{ position: 'relative' }} ref={dropdownRef}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6, display: 'block' }}>Client</label>
+          <label style={labelStyle}>Client</label>
           <div 
             onClick={() => setShowDropdown(!showDropdown)}
             style={{ 
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-              width: '100%', padding: '0 12px', height: 44, border: '1px solid #e2e8f0',
-              borderRadius: 8, cursor: 'text', background: '#fff'
+              ...inputStyle, display: 'flex', alignItems: 'center', 
+              justifyContent: 'space-between', cursor: 'text'
             }}
           >
             {form.clientId ? (
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{form.clientName}</span>
+              <span style={{ fontWeight: 600, color: '#0f172a' }}>{form.clientName}</span>
             ) : (
-              <span style={{ fontSize: 14, color: '#94a3b8' }}>Search clients...</span>
+              <span style={{ color: '#94a3b8' }}>Select client...</span>
             )}
             <ChevronDown size={16} color="#94a3b8" />
           </div>
@@ -135,57 +180,109 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
                   {form.clientId === c.id && <Check size={14} color="#3b82f6" />}
                 </div>
               ))}
-              {filteredClients.length === 0 && <div style={{ padding: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>No clients found</div>}
             </div>
           )}
         </div>
 
-        {/* Type Pill Selector */}
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Type</label>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {['Call', 'Email', 'Meeting', 'Message'].map(type => (
-              <button 
-                key={type}
-                style={pillStyle(form.type === type.toLowerCase())}
-                onClick={() => setForm(p => ({ ...p, type: type.toLowerCase() }))}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
+        {activeTab === 'activity' ? (
+          <>
+            <div>
+              <label style={labelStyle}>Contact Method</label>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {['Call', 'Email', 'Meeting', 'Message'].map(type => (
+                  <button 
+                    key={type}
+                    style={pillStyle(form.type === type.toLowerCase())}
+                    onClick={() => setForm(p => ({ ...p, type: type.toLowerCase() }))}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* Notes (Single Line) */}
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6, display: 'block' }}>Notes</label>
-          <input 
-            value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-            placeholder="What happened?"
-            style={{ 
-              width: '100%', height: 44, padding: '0 12px', border: '1px solid #e2e8f0',
-              borderRadius: 8, fontSize: 14, fontFamily: 'inherit', color: '#0f172a', boxSizing: 'border-box'
-            }}
-          />
-        </div>
+            <div>
+              <label style={labelStyle}>Interaction Notes</label>
+              <textarea 
+                value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
+                placeholder="What was discussed?"
+                rows={3}
+                style={{ ...inputStyle, height: 'auto', padding: '12px', resize: 'none' }}
+              />
+            </div>
 
-        {/* Outcome Emojis */}
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Outcome</label>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 24 }}>
-            <button style={emojiBtnStyle(form.outcome === 'positive', '#16a34a')} onClick={() => setForm(p => ({ ...p, outcome: 'positive' }))}>😊</button>
-            <button style={emojiBtnStyle(form.outcome === 'neutral', '#94a3b8')} onClick={() => setForm(p => ({ ...p, outcome: 'neutral' }))}>😐</button>
-            <button style={emojiBtnStyle(form.outcome === 'negative', '#dc2626')} onClick={() => setForm(p => ({ ...p, outcome: 'negative' }))}>😟</button>
-          </div>
-        </div>
+            <div>
+              <label style={labelStyle}>Outcome</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button 
+                  style={pillStyle(form.outcome === 'positive', '#16a34a')} 
+                  onClick={() => setForm(p => ({ ...p, outcome: 'positive' }))}
+                >
+                  Positive
+                </button>
+                <button 
+                  style={pillStyle(form.outcome === 'neutral', '#94a3b8')} 
+                  onClick={() => setForm(p => ({ ...p, outcome: 'neutral' }))}
+                >
+                  Neutral
+                </button>
+                <button 
+                  style={pillStyle(form.outcome === 'negative', '#dc2626')} 
+                  onClick={() => setForm(p => ({ ...p, outcome: 'negative' }))}
+                >
+                  Negative
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+               <div>
+                  <label style={labelStyle}>Amount ($)</label>
+                  <input 
+                    type="number"
+                    value={form.amount} 
+                    onChange={e => setForm(p => ({ ...p, amount: e.target.value }))}
+                    placeholder="0.00"
+                    style={inputStyle}
+                  />
+               </div>
+               <div>
+                  <label style={labelStyle}>Due Date</label>
+                  <input 
+                    type="date"
+                    value={form.due_date} 
+                    onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))}
+                    style={inputStyle}
+                  />
+               </div>
+            </div>
+
+            <div>
+               <label style={labelStyle}>Status</label>
+               <div style={{ display: 'flex', gap: 8 }}>
+                  {['pending', 'paid', 'overdue'].map(status => (
+                    <button 
+                      key={status}
+                      style={pillStyle(form.invoice_status === status)}
+                      onClick={() => setForm(p => ({ ...p, invoice_status: status }))}
+                    >
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
+                  ))}
+               </div>
+            </div>
+          </>
+        )}
 
         <Button 
           variant="primary" 
           onClick={handleSubmit} 
           loading={loading}
-          style={{ width: '100%', height: 48, fontWeight: 800, fontSize: 15, borderRadius: 12, marginTop: 8 }}
+          style={{ width: '100%', height: 48, fontWeight: 900, fontSize: 15, borderRadius: 12, marginTop: 8 }}
         >
-          Log It
+          {activeTab === 'activity' ? 'Log Activity' : 'Create Invoice'}
         </Button>
       </div>
     </Modal>
