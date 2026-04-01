@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, PlusCircle, DollarSign, Sparkles, Clock, Mail,
@@ -19,7 +19,7 @@ import ScoreHistoryChart from '../components/clients/ScoreHistoryChart';
 import AIBriefing from '../components/clients/AIBriefing';
 import AIChat from '../components/clients/AIChat';
 import useClients from '../hooks/useClients';
-import { clientsAPI, aiAPI } from '../services/api';
+import { clientsAPI, aiAPI, invoicesAPI } from '../services/api';
 import { getRiskLabel, getRiskColors, getNumericScore } from '../utils/scoreHelpers';
 import { formatDaysAgo, formatDate, formatCurrency } from '../utils/formatters';
 import useToast from '../hooks/useToast';
@@ -39,47 +39,69 @@ const ClientDetailPage = () => {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [history, setHistory] = useState([]);
+  const [briefingRefreshKey, setBriefingRefreshKey] = useState(0);
   const { analyzeClient } = useClients();
+
+  const refreshAllData = useCallback(async () => {
+    const [clientRes, historyRes] = await Promise.all([
+      clientsAPI.getById(id),
+      clientsAPI.getHealthHistory(id)
+    ]);
+    setClient(clientRes.data?.data || clientRes.data);
+    setHistory(historyRes.data?.data || historyRes.data || []);
+    setBriefingRefreshKey(prev => prev + 1);
+  }, [id]);
 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
       try {
-        const [clientRes, historyRes] = await Promise.all([
-          clientsAPI.getById(id),
-          clientsAPI.getHealthHistory(id)
-        ]);
-        setClient(clientRes.data?.data || clientRes.data);
-        setHistory(historyRes.data?.data || historyRes.data || []);
+        await refreshAllData();
       } catch {
         toast.error('Failed to load client');
       } finally { setLoading(false); }
     };
     fetch();
-  }, [id]);
+  }, [refreshAllData, toast]);
+
+  useEffect(() => {
+    const handleQuickLogSuccess = (event) => {
+      const affectedClientId = event?.detail?.clientId;
+      if (!affectedClientId || String(affectedClientId) === String(id)) {
+        refreshAllData().catch(() => {});
+      }
+    };
+    window.addEventListener('relavo:quicklog:success', handleQuickLogSuccess);
+    return () => window.removeEventListener('relavo:quicklog:success', handleQuickLogSuccess);
+  }, [id, refreshAllData]);
 
   const handleAddTouchpoint = async (data) => {
     await clientsAPI.logTouchpoint(id, data);
-    const res = await clientsAPI.getById(id);
-    setClient(res.data?.data || res.data);
+    await refreshAllData();
   };
 
   const handleAddInvoice = async (data) => {
     await clientsAPI.addInvoice(id, data);
-    const res = await clientsAPI.getById(id);
-    setClient(res.data?.data || res.data);
+    await refreshAllData();
+  };
+
+  const handleMarkInvoicePaid = async (invoiceId) => {
+    await invoicesAPI.update(invoiceId, { status: 'paid' });
+    toast.success('Invoice marked as paid');
+    await refreshAllData();
+  };
+
+  const handleDeleteInvoice = async (invoiceId) => {
+    await invoicesAPI.remove(invoiceId);
+    toast.success('Invoice deleted');
+    await refreshAllData();
   };
 
   const handleRecalculate = async () => {
     setIsRecalculating(true);
     const updatedScore = await analyzeClient(id);
     if (updatedScore) {
-      const [res, historyRes] = await Promise.all([
-        clientsAPI.getById(id),
-        clientsAPI.getHealthHistory(id)
-      ]);
-      setClient(res.data?.data || res.data);
-      setHistory(historyRes.data?.data || historyRes.data || []);
+      await refreshAllData();
       toast.success('Health score updated');
     }
     setIsRecalculating(false);
@@ -200,7 +222,7 @@ const ClientDetailPage = () => {
           </div>
 
           {/* AI Intelligence Card */}
-          <AIBriefing clientId={id} clientName={client.name} />
+          <AIBriefing key={briefingRefreshKey} clientId={id} clientName={client.name} />
 
           {/* Detailed Activity Timeline */}
           <div className="bg-white border border-[#e2e8f0] rounded-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
@@ -314,6 +336,22 @@ const ClientDetailPage = () => {
                         <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold uppercase ${
                           inv.status === 'paid' ? 'bg-[#f0fdf4] text-[#16a34a]' : 'bg-[#fef2f2] text-[#dc2626]'
                         }`}>{inv.status}</span>
+                     </div>
+                     <div className="mt-3 flex gap-2">
+                      {inv.status !== 'paid' && (
+                        <button
+                          onClick={() => handleMarkInvoicePaid(inv.id)}
+                          className="text-[11px] font-semibold text-[#16a34a] bg-[#f0fdf4] border border-[#bbf7d0] px-2 py-1 rounded-[6px] cursor-pointer"
+                        >
+                          Mark paid
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteInvoice(inv.id)}
+                        className="text-[11px] font-semibold text-[#dc2626] bg-[#fef2f2] border border-[#fecaca] px-2 py-1 rounded-[6px] cursor-pointer"
+                      >
+                        Delete
+                      </button>
                      </div>
                   </div>
                 ))

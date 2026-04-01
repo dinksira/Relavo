@@ -50,6 +50,13 @@ export const alertsAPI = {
   dismiss: (id) => api.delete(`/alerts/${id}`),
 };
 
+export const invoicesAPI = {
+  create: (data) => api.post('/invoices', data),
+  getByClient: (clientId) => api.get(`/invoices/client/${clientId}`),
+  update: (id, data) => api.patch(`/invoices/${id}`, data),
+  remove: (id) => api.delete(`/invoices/${id}`),
+};
+
 export const aiAPI = {
   analyzeClient: (clientId) => 
     api.post(`/ai/analyze/${clientId}`),

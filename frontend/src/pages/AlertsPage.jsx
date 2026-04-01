@@ -8,7 +8,7 @@ import { formatDaysAgo } from '../utils/formatters';
 
 const AlertsPage = () => {
   const navigate = useNavigate();
-  const { alerts, loading, unreadCount, markRead, dismiss, markAllRead } = useAlerts();
+  const { alerts, loading, unreadCount, markRead, dismiss, markAllRead, refreshAlerts } = useAlerts();
   const [filter, setFilter] = useState('all');
 
   const safeAlerts = Array.isArray(alerts) ? alerts : [];
@@ -63,7 +63,7 @@ const AlertsPage = () => {
           <Button 
             variant="outline" 
             icon={RefreshCw} 
-            onClick={() => window.location.reload()}
+            onClick={refreshAlerts}
             className="!h-[38px] !rounded-[9px]"
           >
             Refresh

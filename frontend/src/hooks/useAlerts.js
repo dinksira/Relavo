@@ -5,23 +5,32 @@ const useAlerts = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchAlerts = async () => {
+    setLoading(true);
+    try {
+      const res = await alertsAPI.getAll();
+      setAlerts(Array.isArray(res.data?.data)
+        ? res.data.data
+        : Array.isArray(res.data)
+          ? res.data
+          : []);
+    } catch {
+      setAlerts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      try {
-        const res = await alertsAPI.getAll();
-        setAlerts(Array.isArray(res.data?.data)
-          ? res.data.data
-          : Array.isArray(res.data)
-            ? res.data
-            : []);
-      } catch {
-        setAlerts([]);
-      } finally {
-        setLoading(false);
-      }
+    fetchAlerts();
+  }, []);
+
+  useEffect(() => {
+    const handleQuickLogSuccess = () => {
+      fetchAlerts();
     };
-    fetch();
+    window.addEventListener('relavo:quicklog:success', handleQuickLogSuccess);
+    return () => window.removeEventListener('relavo:quicklog:success', handleQuickLogSuccess);
   }, []);
 
   const unreadCount = useMemo(() => (Array.isArray(alerts) ? alerts : []).filter(a => !a.read).length, [alerts]);
@@ -43,7 +52,7 @@ const useAlerts = () => {
     } catch {}
   };
 
-  return { alerts, loading, unreadCount, markRead, dismiss, markAllRead };
+  return { alerts, loading, unreadCount, markRead, dismiss, markAllRead, refreshAlerts: fetchAlerts };
 };
 
 export default useAlerts;

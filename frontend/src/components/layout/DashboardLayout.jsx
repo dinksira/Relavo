@@ -22,7 +22,9 @@ const DashboardLayout = ({ children, title }) => {
       <QuickLogModal 
         isOpen={quickLogOpen} 
         onClose={() => setQuickLogOpen(false)} 
-        onSuccess={() => window.location.reload()} 
+        onSuccess={(payload) => {
+          window.dispatchEvent(new CustomEvent('relavo:quicklog:success', { detail: payload || {} }));
+        }} 
       />
     </div>
   );

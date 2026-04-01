@@ -27,6 +27,14 @@ const useClients = () => {
     fetchClients();
   }, [fetchClients]);
 
+  useEffect(() => {
+    const handleQuickLogSuccess = () => {
+      fetchClients();
+    };
+    window.addEventListener('relavo:quicklog:success', handleQuickLogSuccess);
+    return () => window.removeEventListener('relavo:quicklog:success', handleQuickLogSuccess);
+  }, [fetchClients]);
+
   const addClient = async (data) => {
     const res = await clientsAPI.create(data);
     const newClient = res.data?.data || res.data;

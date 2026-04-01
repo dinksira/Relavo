@@ -45,7 +45,7 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
       toast.success('Logged! ✓');
       setForm({ clientId: '', clientName: '', type: 'call', notes: '', outcome: 'neutral' });
       setSearch('');
-      onSuccess?.();
+      onSuccess?.({ clientId: form.clientId });
       onClose();
     } catch (err) {
       toast.error('Failed to log');
