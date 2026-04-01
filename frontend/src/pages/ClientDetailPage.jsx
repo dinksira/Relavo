@@ -62,7 +62,8 @@ const ClientDetailPage = () => {
       } finally { setLoading(false); }
     };
     fetch();
-  }, [refreshAllData, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshAllData]);
 
   useEffect(() => {
     const handleQuickLogSuccess = (event) => {
