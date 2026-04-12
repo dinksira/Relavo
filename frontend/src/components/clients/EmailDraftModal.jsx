@@ -177,7 +177,7 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
-                 <p style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>{draft.body.split(/\s+/).filter(Boolean).length} words</p>
+                 <p style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>{(draft?.body || '').split(/\s+/).filter(Boolean).length} words</p>
                  <button
                     onClick={handleCopy}
                     style={{
