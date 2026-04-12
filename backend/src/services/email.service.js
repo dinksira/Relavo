@@ -9,6 +9,8 @@ try {
   console.error('[Relavo] Failed to initialize Resend:', e.message);
 }
 
+const EMAIL_FROM = process.env.EMAIL_FROM || 'Relavo <onboarding@resend.dev>';
+
 /**
  * Sends a weekly digest email to the user
  * @param {string} userEmail 
@@ -81,7 +83,7 @@ exports.sendWeeklyDigest = async (userEmail, userName, atRiskClients) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Relavo <onboarding@resend.dev>', // Resend testing address
+      from: EMAIL_FROM,
       to: [userEmail],
       subject: `Weekly Client Health Digest — ${atRiskCount} Accounts at Risk`,
       html: html,
@@ -109,7 +111,7 @@ exports.sendEmail = async ({ to, subject, html, text }) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Relavo <onboarding@resend.dev>',
+      from: EMAIL_FROM,
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
