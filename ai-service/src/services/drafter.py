@@ -19,40 +19,31 @@ def draft_email(data: dict) -> dict:
         "direct": "Straight to point, brief, no fluff"
     }
 
-    system_prompt = """You are helping an account manager write
-a re-engagement email to a client.
-Write emails that feel genuinely human.
-Never use templates or placeholder text.
-Never mention AI, health scores, or
-monitoring tools in the email."""
+    system_prompt = """You are a senior Executive Account Manager at Relavo. 
+Your goal is to write a highly professional, bespoke, and sophisticated re-engagement email to a client.
+Rules:
+- Write like a human executive, not an AI or a customer support bot.
+- Be nuanced and empathetic.
+- NEVER use generic phrases like "I hope this finds you well" or "Checking in".
+- NEVER mention health scores, AI analysis, or monitoring metrics.
+- Maintain absolute confidentiality of our internal systems.
+- Use the provided context/notes to make it feel extremely personal."""
 
-    user_prompt = f"""Write a re-engagement email.
+    user_prompt = f"""Draft a sophisticated business email to {contact_name} at {client_name}.
+    
+Context:
+- Last spoke: {days_since_contact} days ago.
+- Outstanding matters: {overdue_invoices} overdue invoices.
+- Recent internal notes: {notes_text}
+- Intent: {risk_reason}
+- Desired Tone: {tone} — {tone_guide.get(tone, tone_guide['professional'])}
 
-Client company: {client_name}
-Contact person: {contact_name}
-Days since last contact: {days_since_contact}
-Overdue invoices: {overdue_invoices}
-Health score: {score}/100
-Reason for concern: {risk_reason}
-Recent context: {notes_text}
-Tone: {tone} — {tone_guide.get(tone, tone_guide['professional'])}
-
-Return ONLY valid JSON with exactly these fields:
-{{
-  "subject": "subject line here (max 8 words)",
-  "body": "email body here with paragraphs separated by \\n\\n"
-}}
-
-Email rules:
-- 3 short paragraphs maximum
-- No placeholders like [Your Name]
-- Sign off as: The Relavo Team
-- Maximum 120 words in body
-- First paragraph: natural reconnection
-- Second paragraph: value or open question
-- Third paragraph: clear call to action
-- Never mention churn, health score, or AI
-- Return ONLY the JSON object, nothing else"""
+Requirements:
+- Structure: Start with a personalized hook based on the notes. Briefly address the current situation without being accusatory. End with a soft but clear request for a brief sync.
+- Formatting: Return valid JSON with "subject" and "body" (use \\n\\n for paragraphs).
+- Length: Around 150-240 words. Be detailed, substantive, and eloquent.
+- Sign-off: Use "Best regards, The Relavo Team" (do not use placeholders for your name).
+- Return ONLY the JSON object, nothing else."""
 
     try:
         response = call_groq(

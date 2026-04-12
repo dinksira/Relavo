@@ -178,18 +178,30 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
                  <p style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>{(draft?.body || '').split(/\s+/).filter(Boolean).length} words</p>
-                 <button
-                    onClick={handleCopy}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10,
-                      background: copied ? '#16a34a' : '#3b82f6', color: '#fff', border: 'none',
-                      fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms',
-                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)'
-                    }}
-                 >
-                   {copied ? <Check size={16} /> : <Copy size={16} />}
-                   {copied ? 'Copied! ✓' : 'Copy Email'}
-                 </button>
+                 <div style={{ display: 'flex', gap: 12 }}>
+                    <button
+                        onClick={onClose}
+                        style={{
+                          padding: '10px 20px', borderRadius: 10,
+                          background: 'none', border: '1px solid #e2e8f0',
+                          color: '#64748b', fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms'
+                        }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                        onClick={handleCopy}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10,
+                          background: copied ? '#16a34a' : '#3b82f6', color: '#fff', border: 'none',
+                          fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'all 200ms',
+                          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)'
+                        }}
+                    >
+                      {copied ? <Check size={16} /> : <Copy size={16} />}
+                      {copied ? 'Copied! ✓' : 'Copy Email'}
+                    </button>
+                 </div>
               </div>
             </div>
           )}
