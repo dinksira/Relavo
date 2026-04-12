@@ -98,3 +98,31 @@ exports.sendWeeklyDigest = async (userEmail, userName, atRiskClients) => {
     return { success: false, error: err.message };
   }
 };
+
+/**
+ * Sends a generic email
+ */
+exports.sendEmail = async ({ to, subject, html, text }) => {
+  if (!resend) {
+    throw new Error('Email service not configured. Please add RESEND_API_KEY.');
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Relavo <onboarding@resend.dev>',
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      text
+    });
+
+    if (error) {
+      console.error('Resend Error:', error);
+      throw error;
+    }
+    return data;
+  } catch (err) {
+    console.error('sendEmail Exception:', err);
+    throw err;
+  }
+};

@@ -3,6 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const healthService = require('../services/health.service');
 const aiService = require('../services/ai.service');
+const emailService = require('../services/email.service');
 const supabase = require('../config/supabase');
 
 // Apply authMiddleware to all routes
@@ -201,6 +202,59 @@ router.post('/chat/:clientId', async (req, res) => {
     return ok(res, result, 'Chat response generated');
   } catch (error) {
     console.error('Error in /chat/:clientId:', error.message);
+    return fail(res, 500, error.message);
+  }
+});
+
+/**
+ * POST /api/ai/send-draft
+ * Send the drafted email directly to the client
+ */
+router.post('/send-draft', async (req, res) => {
+  const { clientId, subject, body } = req.body;
+  
+  if (!clientId || !subject || !body) {
+    return fail(res, 400, 'Missing required fields: clientId, subject, or body');
+  }
+
+  try {
+    // 1. Fetch client email
+    const { data: client, error: clientErr } = await supabase
+      .from('clients')
+      .select('email, name')
+      .eq('id', clientId)
+      .single();
+
+    if (clientErr || !client?.email) {
+      throw new Error('Could not find client email. Please ensure the client record has an email address.');
+    }
+
+    // 2. Format Body for HTML
+    const htmlBody = body.replace(/\n/g, '<br/>');
+
+    // 3. Send Email
+    await emailService.sendEmail({
+      to: client.email,
+      subject: subject,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #334155; max-width: 600px;">
+          ${htmlBody}
+        </div>
+      `,
+      text: body
+    });
+
+    // 4. (Optional) Log this as a touchpoint
+    await supabase.from('touchpoints').insert({
+      client_id: clientId,
+      type: 'email',
+      notes: `AI Draft Sent: ${subject}`,
+      sentiment_score: 0.8
+    });
+
+    return ok(res, null, 'Email sent successfully via Relavo');
+  } catch (error) {
+    console.error('Error in /send-draft:', error.message);
     return fail(res, 500, error.message);
   }
 });

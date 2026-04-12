@@ -67,6 +67,9 @@ export const aiAPI = {
   draftEmail: (clientId, tone) => 
     api.post('/ai/draft-email', { clientId, tone }),
 
+  sendDraftEmail: (clientId, subject, body) =>
+    api.post('/ai/send-draft', { clientId, subject, body }),
+
   getBriefing: (clientId) => 
     api.post(`/ai/briefing/${clientId}`),
 
