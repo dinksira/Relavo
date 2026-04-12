@@ -15,7 +15,7 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
     setLoading(true);
     try {
       const res = await aiAPI.draftEmail(client.id, selectedTone);
-      setDraft(res.data || res);
+      setDraft(res.data.data || res.data || res);
     } catch (error) {
       console.error('Error fetching draft:', error);
       setDraft({
