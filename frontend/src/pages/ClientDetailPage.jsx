@@ -181,6 +181,9 @@ const ClientDetailPage = () => {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" icon={Edit} className="!h-[36px] !rounded-[8px]">Edit</Button>
+          <Button variant="outline" size="sm" icon={Mail} onClick={() => setEmailModalOpen(true)} className="!h-[36px] !rounded-[8px]">
+            Draft Email
+          </Button>
           <Button variant="primary" size="sm" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-[36px] !rounded-[8px]">
             Log Interaction
           </Button>

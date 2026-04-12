@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { alertsAPI } from '../services/api';
+import { supabase } from '../services/supabase';
 
 const useAlerts = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAlerts = async () => {
-    setLoading(true);
+    // We don't want to show a loading spinner every time a real-time update happens
+    // but we do want it on initial load.
     try {
       const res = await alertsAPI.getAll();
       setAlerts(Array.isArray(res.data?.data)
@@ -23,6 +25,24 @@ const useAlerts = () => {
 
   useEffect(() => {
     fetchAlerts();
+  }, []);
+
+  // Real-time Alerts Sync
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime:alerts')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'alerts' 
+      }, () => {
+        fetchAlerts();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {

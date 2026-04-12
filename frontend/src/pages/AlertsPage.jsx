@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, RefreshCw, Zap } from 'lucide-react';
+import { Bell, RefreshCw, Zap, Sparkles } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Button from '../components/ui/Button';
+import EmailDraftModal from '../components/clients/EmailDraftModal';
 import useAlerts from '../hooks/useAlerts';
+import { clientsAPI } from '../services/api';
 import { formatDaysAgo } from '../utils/formatters';
 
 const AlertsPage = () => {
   const navigate = useNavigate();
   const { alerts, loading, unreadCount, markRead, dismiss, markAllRead, refreshAlerts } = useAlerts();
   const [filter, setFilter] = useState('all');
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [isFetchingClient, setIsFetchingClient] = useState(false);
 
   const safeAlerts = Array.isArray(alerts) ? alerts : [];
 
   const filtered = safeAlerts.filter(a => {
-    if (filter === 'unread') return !a.is_read;
+    if (filter === 'unread') return !a.read;
     if (filter === 'high' || filter === 'medium' || filter === 'low') return a.severity === filter;
     return true;
   });
 
   const counts = {
     all: safeAlerts.length,
-    unread: safeAlerts.filter(a => !a.is_read).length,
+    unread: safeAlerts.filter(a => !a.read).length,
     high: safeAlerts.filter(a => a.severity === 'high').length,
     medium: safeAlerts.filter(a => a.severity === 'medium').length,
     low: safeAlerts.filter(a => a.severity === 'low').length,
@@ -152,7 +157,25 @@ const AlertsPage = () => {
                   )}
 
                   <div className="mt-3 flex gap-3 items-center">
-                    {!alert.is_read && (
+                    <button
+                      onClick={async () => {
+                        setIsFetchingClient(true);
+                        try {
+                          const res = await clientsAPI.getById(alert.client_id);
+                          setSelectedClient(res.data?.data || res.data);
+                          setEmailModalOpen(true);
+                        } catch (err) {
+                          console.error("Failed to fetch client for email drafter", err);
+                        } finally {
+                          setIsFetchingClient(false);
+                        }
+                      }}
+                      className="text-[13px] font-semibold text-white bg-[#3b82f6] border border-[#2563eb] rounded-[6px] px-3 py-[5px] cursor-pointer hover:bg-[#2563eb] transition-all duration-150 flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Sparkles size={14} />
+                      Take AI Action
+                    </button>
+                    {!alert.read && (
                       <button
                         onClick={() => markRead(alert.id)}
                         className="text-[13px] font-medium text-[#3b82f6] bg-transparent border border-[#bfdbfe] rounded-[6px] px-3 py-[5px] cursor-pointer hover:bg-[#eff6ff] transition-all duration-150"
@@ -173,6 +196,12 @@ const AlertsPage = () => {
           })
         )}
       </div>
+
+      <EmailDraftModal 
+        isOpen={emailModalOpen} 
+        onClose={() => setEmailModalOpen(false)} 
+        client={selectedClient} 
+      />
     </DashboardLayout>
   );
 };
