@@ -1,6 +1,13 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend;
+try {
+  if (process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+} catch (e) {
+  console.error('[Relavo] Failed to initialize Resend:', e.message);
+}
 
 /**
  * Sends a weekly digest email to the user
@@ -8,8 +15,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @param {Array} atRiskClients 
  */
 exports.sendWeeklyDigest = async (userEmail, userName, atRiskClients) => {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not set. Skipping email send.');
+  if (!resend) {
+    console.warn('RESEND_API_KEY not set or invalid. Skipping email send.');
     return;
   }
 
