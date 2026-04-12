@@ -77,12 +77,12 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
     }}>
       <div style={{
-        width: '100%', maxWidth: 860, maxHeight: '85vh', background: '#fff', borderRadius: 16,
+        width: '100%', maxWidth: 780, maxHeight: '75vh', background: '#fff', borderRadius: 16,
         overflow: 'hidden', display: 'flex', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
       }}>
         {/* Left Panel */}
         <div style={{
-          width: '38%', background: '#1b2a3b', color: '#fff', padding: '32px 24px',
+          width: '38%', background: '#1b2a3b', color: '#fff', padding: '24px 20px',
           display: 'flex', flexDirection: 'column', overflowY: 'auto'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32, opacity: 0.8 }}>
@@ -144,7 +144,7 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
         </div>
 
         {/* Right Panel */}
-        <div style={{ width: '62%', background: '#fff', padding: '32px 32px 24px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '62%', background: '#fff', padding: '24px 24px 20px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
           <button
             onClick={onClose}
             style={{ position: 'absolute', top: 24, right: 24, padding: 8, background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
