@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, RotateCw, Copy, Check, Info, Mail, Clock, Send } from 'lucide-react';
 import { aiAPI } from '../../services/api';
 import { getRiskColors, getRiskLabel } from '../../utils/scoreHelpers';
