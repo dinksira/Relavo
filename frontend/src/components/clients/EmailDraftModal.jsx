@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, RotateCw, Copy, Check, Info, Mail } from 'lucide-react';
+import { X, Sparkles, RotateCw, Copy, Check, Info, Mail, Clock } from 'lucide-react';
 import { aiAPI } from '../../services/api';
 import { getRiskColors, getRiskLabel } from '../../utils/scoreHelpers';
 import Button from '../ui/Button';
