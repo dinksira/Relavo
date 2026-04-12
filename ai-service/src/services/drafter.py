@@ -1,4 +1,4 @@
-from src.utils.openrouter_client import call_openrouter
+from src.utils.groq_client import call_groq
 import json
 
 def draft_email(data: dict) -> dict:
@@ -55,11 +55,11 @@ Email rules:
 - Return ONLY the JSON object, nothing else"""
 
     try:
-        response = call_openrouter(
+        response = call_groq(
             prompt=user_prompt,
             system=system_prompt,
-            max_tokens=500,
-            temperature=0.8
+            max_tokens=600,
+            temperature=0.7
         )
 
         # Clean response

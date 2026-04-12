@@ -127,7 +127,7 @@ const LandingPage = () => {
            <FeatureCard 
              icon={MessageCircle} 
              title="AI Insight Generation" 
-             description="Stop reading logs. Our Claude-powered engine translates complex data patterns into 3-sentence plain English summaries."
+             description="Stop reading logs. Our AI-powered engine translates complex data patterns into 3-sentence plain English summaries."
              delay="100ms"
              color="indigo"
              image={cardAi}

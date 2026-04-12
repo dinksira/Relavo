@@ -150,7 +150,7 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                <div style={{ width: 48, height: 48, border: '3px solid #f1f5f9', borderTopColor: '#3b82f6', borderRadius: '50%', marginBottom: 16 }} className="animate-spin" />
                <p style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', margin: '0 0 4px' }}>Drafting your email...</p>
-               <p style={{ fontSize: 14, color: '#64748b' }}>Claude is personalizing based on client history</p>
+               <p style={{ fontSize: 14, color: '#64748b' }}>Groq AI is personalizing based on client history</p>
             </div>
           ) : (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
