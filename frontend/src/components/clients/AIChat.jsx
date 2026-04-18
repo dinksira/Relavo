@@ -57,7 +57,7 @@ export default function AIChat({ clientId, clientName }) {
       </div>
 
       {/* MESSAGES AREA */}
-      <div className="h-[360px] overflow-y-auto p-5 bg-slate-50/50 flex flex-col gap-4 no-scrollbar">
+      <div className="h-[240px] overflow-y-auto p-5 bg-slate-50/50 flex flex-col gap-4 no-scrollbar">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-5">
             <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-4">
