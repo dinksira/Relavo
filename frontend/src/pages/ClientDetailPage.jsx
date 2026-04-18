@@ -332,13 +332,18 @@ const ClientDetailPage = () => {
                    </button>
                 </div>
 
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mb-8 relative">
                   <HealthGauge 
                     score={score} 
                     size={160} 
                     strokeWidth={12}
-                    showLabel={false} 
+                    showLabel={true} 
                   />
+                  {/* Since card is dark, we might need an overlay if the gauge text is dark */}
+                  <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                     <span className="text-[32px] font-black text-white translate-y-2">{score}</span>
+                     <span className="text-[10px] font-black text-white/40 uppercase tracking-widest translate-y-1">Score</span>
+                  </div>
                 </div>
 
                 <div className="space-y-1 mb-8">
@@ -351,9 +356,22 @@ const ClientDetailPage = () => {
                 <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between group-hover:border-white/20 transition-all">
                   <div className="text-left leading-none">
                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Net Sentiment</p>
-                     <p className="text-lg font-black text-emerald-400 m-0">Extremely Positive</p>
+                     <p className={`text-lg font-black m-0 ${
+                       score >= 80 ? 'text-emerald-400' : 
+                       score >= 60 ? 'text-blue-400' : 
+                       score >= 40 ? 'text-amber-400' : 'text-rose-400'
+                     }`}>
+                       {score >= 80 ? 'Optimal' : 
+                        score >= 60 ? 'Positive' : 
+                        score >= 40 ? 'Fair' : 
+                        score >= 20 ? 'Critical' : 'Churn Risk'}
+                     </p>
                   </div>
-                  <TrendingUp className="text-emerald-400" size={24} />
+                  {score >= 50 ? (
+                    <TrendingUp className="text-emerald-400" size={24} />
+                  ) : (
+                    <TrendingDown className="text-rose-400" size={24} />
+                  )}
                 </div>
              </div>
           </div>
