@@ -20,6 +20,15 @@ import SettingsPage from './pages/SettingsPage';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import Toast from './components/ui/Toast';
+import { useLocation } from 'react-router-dom';
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 function App() {
   const setAuth = useAuthStore(state => state.setAuth);
@@ -48,6 +57,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />

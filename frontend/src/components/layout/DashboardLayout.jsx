@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import QuickLogButton from '../ui/QuickLogButton';
@@ -8,6 +9,15 @@ import { Menu, X } from 'lucide-react';
 const DashboardLayout = ({ children, title }) => {
   const [quickLogOpen, setQuickLogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { pathname } = useLocation();
+  const mainRef = useRef(null);
+
+  // Auto-scroll to top on navigation
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo(0, 0);
+    }
+  }, [pathname]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f1f5f9]">
@@ -50,7 +60,7 @@ const DashboardLayout = ({ children, title }) => {
            <TopBar title={title} />
         </div>
 
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 min-h-screen">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 lg:p-8 min-h-screen">
           {children}
         </main>
       </div>
