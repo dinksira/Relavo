@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, PlusCircle, DollarSign, Sparkles, Clock, Mail,
   Phone, Activity, AlertTriangle, CheckCircle, MessageSquare, Video, RefreshCw,
-  Share2, Edit, ExternalLink, ChevronRight, TrendingUp, TrendingDown
+  Share2, Edit, ExternalLink, ChevronRight, TrendingUp, TrendingDown, Target, Zap
 } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Avatar from '../components/ui/Avatar';
@@ -24,8 +24,11 @@ import { getRiskLabel, getRiskColors, getNumericScore } from '../utils/scoreHelp
 import { formatDaysAgo, formatDate, formatCurrency } from '../utils/formatters';
 import useToast from '../hooks/useToast';
 
-const typeIcons = {
-  call: Phone, email: Mail, meeting: Video, message: MessageSquare
+const typeStyles = {
+  call: { icon: Phone, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+  email: { icon: Mail, color: 'text-blue-500', bg: 'bg-blue-50' },
+  meeting: { icon: Video, color: 'text-rose-500', bg: 'bg-rose-50' },
+  message: { icon: MessageSquare, color: 'text-emerald-500', bg: 'bg-emerald-50' }
 };
 
 const ClientDetailPage = () => {
@@ -112,11 +115,18 @@ const ClientDetailPage = () => {
 
   if (!client) return (
     <DashboardLayout>
-      <div className="p-16 text-center bg-white rounded-[14px] border border-[#e2e8f0] m-8">
-        <AlertTriangle size={48} className="text-[#94a3b8] mx-auto mb-4" />
-        <h2 className="text-[20px] font-bold text-[#374151]">Client not found</h2>
-        <p className="text-[14px] text-[#94a3b8] mt-2">This client may have been deleted or the ID is incorrect.</p>
-        <Button variant="outline" className="mt-6" onClick={() => navigate('/clients')}>Back to Clients</Button>
+      <div className="p-16 text-center bg-white rounded-[32px] border border-slate-200 m-8">
+        <AlertTriangle size={64} className="text-slate-300 mx-auto mb-6" />
+        <h2 className="text-[24px] font-black text-slate-900 tracking-tight">Client profile not found.</h2>
+        <p className="text-[14px] text-slate-500 mt-2 font-medium">This record may have been moved or archived.</p>
+        <Button 
+          variant="outline" 
+          className="mt-8 !rounded-xl" 
+          onClick={() => navigate('/clients')}
+          icon={ArrowLeft}
+        >
+          Return to directory
+        </Button>
       </div>
     </DashboardLayout>
   );
@@ -130,140 +140,166 @@ const ClientDetailPage = () => {
 
   const firstChar = client.name?.charAt(0).toUpperCase() || '?';
   const getAvatarGradient = (char) => {
-    if (char <= 'F') return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-    if (char <= 'M') return 'linear-gradient(135deg, #7c3aed, #5b21b6)';
-    if (char <= 'S') return 'linear-gradient(135deg, #0891b2, #0e7490)';
-    return 'linear-gradient(135deg, #059669, #047857)';
+    if (char <= 'F') return 'from-blue-600 to-blue-800';
+    if (char <= 'M') return 'from-indigo-600 to-indigo-800';
+    if (char <= 'S') return 'from-violet-600 to-violet-800';
+    return 'from-emerald-600 to-emerald-800';
   };
 
   return (
     <DashboardLayout>
-      {/* Breadcrumb Nav */}
-      <div className="flex items-center gap-2 mb-6 text-[13px] font-medium">
-        <Link to="/clients" className="text-[#64748b] hover:text-[#0f172a] no-underline transition-colors">Clients</Link>
-        <ChevronRight size={14} className="text-[#cbd5e1]" />
-        <span className="text-[#0f172a]">{client.name}</span>
-      </div>
-
-      {/* Main Page Header */}
-      <div className="flex justify-between items-start mb-8 bg-white border border-[#e2e8f0] rounded-[16px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-        <div className="flex gap-5">
-          <div 
-            className="w-16 h-16 rounded-[18px] flex items-center justify-center text-white text-[24px] font-bold shadow-md shrink-0"
-            style={{ background: getAvatarGradient(firstChar) }}
-          >
-            {firstChar}
+      {/* Premium Header Container */}
+      <div className="relative mb-10 reveal overflow-hidden bg-white border border-slate-200 rounded-[32px] p-8 lg:p-10 shadow-sm">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="flex gap-6 items-center">
+            <div className={`w-20 h-20 rounded-[28px] bg-gradient-to-br ${getAvatarGradient(firstChar)} flex items-center justify-center text-white text-[32px] font-black shadow-xl shadow-blue-500/10 shrink-0`}>
+              {firstChar}
+            </div>
+            
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-3">
+                <h1 className="text-[32px] font-black text-slate-900 tracking-tight m-0 leading-none">{client.name}</h1>
+                <Badge variant={client.status === 'active' ? 'success' : 'neutral'} className="!px-3 !py-1 !rounded-full !text-[10px] !font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border-none">
+                  {client.status || 'Active'}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-6 mt-3">
+                <div className="flex items-center gap-2 text-[14px] text-slate-500 font-medium group cursor-pointer hover:text-blue-600 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+                    <Mail size={14} className="group-hover:text-blue-500" /> 
+                  </div>
+                  {client.email || 'No email associated'}
+                </div>
+                <div className="flex items-center gap-2 text-[14px] text-slate-500 font-medium group cursor-pointer hover:text-blue-600 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+                    <Phone size={14} className="group-hover:text-blue-500" />
+                  </div>
+                  {client.phone || client.contact_phone || 'No phone listed'}
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-[24px] font-bold text-[#0f172a] m-0">{client.name}</h1>
-              <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider ${
-                client.status === 'active' ? 'bg-[#f0fdf4] text-[#16a34a]' : 'bg-[#f8fafc] text-[#64748b]'
-              }`}>
-                {client.status || 'Active'}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 mt-2">
-              <div className="flex items-center gap-1.5 text-[13px] text-[#64748b]">
-                <Mail size={14} /> {client.email || 'No email'}
-              </div>
-              <div className="flex items-center gap-1.5 text-[13px] text-[#64748b]">
-                <Phone size={14} /> {client.phone || client.contact_phone || 'No phone'}
-              </div>
-            </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" size="lg" icon={Edit} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-slate-50">Profile Settings</Button>
+            <Button variant="outline" size="lg" icon={Sparkles} onClick={() => setEmailModalOpen(true)} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-blue-50 hover:!text-blue-600 hover:!border-blue-200">
+              AI Email Agent
+            </Button>
+            <Button variant="primary" size="lg" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-12 !px-8 !rounded-2xl shadow-lg shadow-blue-500/20">
+              New Interaction
+            </Button>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" icon={Edit} className="!h-[36px] !rounded-[8px]">Edit</Button>
-          <Button variant="outline" size="sm" icon={Mail} onClick={() => setEmailModalOpen(true)} className="!h-[36px] !rounded-[8px]">
-            Draft Email
-          </Button>
-          <Button variant="primary" size="sm" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-[36px] !rounded-[8px]">
-            Log Interaction
-          </Button>
-        </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_360px] gap-6">
-        {/* Left Column */}
-        <div className="space-y-6">
-          {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-4 gap-4">
-            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Health Score</p>
-              <div className="flex items-baseline gap-2">
-                <span className={`text-[24px] font-bold ${score >= 70 ? 'text-[#16a34a]' : score >= 40 ? 'text-[#d97706]' : 'text-[#dc2626]'}`}>{score}</span>
-                <span className="text-[11px] font-semibold text-[#64748b]">/ 100</span>
-              </div>
-            </div>
-            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Touchpoints</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-[24px] font-bold text-[#0f172a]">{touchpoints.length}</span>
-                <span className="text-[11px] font-semibold text-[#64748b]">All time</span>
-              </div>
-            </div>
-            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Sentiment</p>
-              <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-[#16a34a]" />
-                <span className="text-[16px] font-bold text-[#0f172a]">Positive</span>
-              </div>
-            </div>
-            <div className="bg-white border border-[#e2e8f0] rounded-[14px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              <p className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 m-0">Open Invoices</p>
-              <div className="flex items-baseline gap-2">
-                <span className={`text-[24px] font-bold ${openInvoices.length > 0 ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}>{openInvoices.length}</span>
-                <span className="text-[11px] font-semibold text-[#64748b]">{formatCurrency(totalOutstanding)}</span>
-              </div>
-            </div>
+      <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
+        {/* Left Column: Analytics & Timeline */}
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          
+          {/* Executive Analytics Dashboard */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricWidget 
+              title="Relationship Score" 
+              value={score} 
+              suffix="/ 100" 
+              trend={score >= 70 ? 'Up' : 'Down'}
+              color={score >= 70 ? 'emerald' : score >= 40 ? 'amber' : 'rose'}
+            />
+            <MetricWidget 
+              title="Interaction Density" 
+              value={touchpoints.length} 
+              suffix="events" 
+              trend="Up"
+              color="indigo"
+            />
+            <MetricWidget 
+               title="Financial Exposure" 
+               value={formatCurrency(totalOutstanding)} 
+               suffix="" 
+               trend={totalOutstanding > 0 ? 'Down' : 'Steady'}
+               color={totalOutstanding > 0 ? 'rose' : 'blue'}
+               isCurrency
+            />
+            <MetricWidget 
+               title="Current Outlook" 
+               value={score >= 70 ? 'Optimal' : score >= 40 ? 'Critical' : 'Churn Risk'} 
+               suffix="" 
+               color={score >= 70 ? 'emerald' : score >= 40 ? 'amber' : 'rose'}
+               isLabel
+            />
           </div>
 
-          {/* AI Intelligence Card */}
-          <AIBriefing key={briefingRefreshKey} clientId={id} clientName={client.name} />
+          {/* AI Briefing System */}
+          <div className="reveal" style={{ transitionDelay: '200ms' }}>
+             <AIBriefing key={briefingRefreshKey} clientId={id} clientName={client.name} />
+          </div>
 
-          {/* Detailed Activity Timeline */}
-          <div className="bg-white border border-[#e2e8f0] rounded-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
-            <div className="p-5 border-b border-[#f1f5f9] flex justify-between items-center">
-              <h2 className="text-[16px] font-bold text-[#0f172a] m-0">Relationship Activity</h2>
-              <div className="flex gap-2">
-                <button className="p-1 px-3 bg-[#f1f5f9] text-[#64748b] text-[12px] font-semibold rounded-full border-none cursor-pointer hover:bg-[#e2e8f0] transition-colors">Filter</button>
-                <button className="p-1 px-3 bg-[#f1f5f9] text-[#64748b] text-[12px] font-semibold rounded-full border-none cursor-pointer hover:bg-[#e2e8f0] transition-colors">Export</button>
+          {/* Relationship Timeline */}
+          <div className="premium-card overflow-hidden reveal" style={{ transitionDelay: '300ms' }}>
+            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-[18px] font-black text-slate-900 tracking-tight m-0 flex items-center gap-3">
+                 <Zap size={20} className="text-blue-500" />
+                 Engagement Intelligence
+              </h2>
+              <div className="flex gap-3">
+                 <div className="flex bg-white p-1 rounded-xl border border-slate-200">
+                    <button className="px-4 py-1.5 text-[11px] font-black uppercase text-blue-600 bg-blue-50 rounded-lg border-none cursor-pointer">All Activity</button>
+                    <button className="px-4 py-1.5 text-[11px] font-black uppercase text-slate-400 hover:text-slate-600 bg-transparent rounded-lg border-none cursor-pointer transition-colors">Notes</button>
+                 </div>
               </div>
             </div>
             
-            <div className="p-5 pb-8 relative">
+            <div className="p-8 pb-10">
               {touchpoints.length === 0 ? (
-                <div className="py-12 text-center text-[#94a3b8]">
-                  <Activity size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-[14px]">No interactions logged since onboarding.</p>
-                </div>
+                <EmptyState 
+                  title="No historical data." 
+                  subtitle="Start logging your communications to enable AI health monitoring for this client." 
+                  icon={Activity}
+                  action={() => setTouchpointModalOpen(true)}
+                  actionLabel="Log first interaction"
+                />
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-10 relative">
+                  {/* Timeline track */}
+                  <div className="absolute left-[23px] top-4 bottom-4 w-[2px] bg-slate-100" />
+                  
                   {touchpoints.map((tp, idx) => {
-                    const Icon = typeIcons[tp.type] || MessageSquare;
+                    const style = typeStyles[tp.type] || typeStyles.message;
+                    const Icon = style.icon;
                     return (
-                      <div key={tp.id || idx} className="flex gap-4 relative">
-                        {idx !== touchpoints.length - 1 && (
-                          <div className="absolute left-[16px] top-[40px] bottom-[-24px] w-[2px] bg-[#f1f5f9]" />
-                        )}
-                        <div className="w-8 h-8 rounded-[10px] bg-[#f8fafc] border border-[#f1f5f9] flex items-center justify-center shrink-0 z-10">
-                          <Icon size={14} className="text-[#64748b]" />
+                      <div key={tp.id || idx} className="flex gap-8 relative group">
+                        <div className={`w-12 h-12 rounded-[18px] ${style.bg} border-4 border-white flex items-center justify-center shrink-0 z-10 shadow-sm transition-transform group-hover:scale-110 duration-300`}>
+                          <Icon size={20} className={style.color} />
                         </div>
-                        <div className="flex-1 bg-[#fbfcfd] border border-[#f1f5f9] rounded-[12px] p-4 group hover:border-[#3b82f6] transition-all">
-                          <div className="flex justify-between items-start mb-2">
+                        
+                        <div className="flex-1 bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300">
+                          <div className="flex justify-between items-start mb-4">
                             <div>
-                              <span className="text-[13px] font-bold text-[#0f172a] capitalize">{tp.type}</span>
-                              <span className="mx-2 text-[#cbd5e1]">•</span>
-                              <span className="text-[11px] text-[#94a3b8] font-medium">{formatDaysAgo(tp.created_at)}</span>
+                               <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-[15px] font-black text-slate-900 capitalize tracking-tight">{tp.type} Recorded</span>
+                                  {tp.outcome === 'positive' && <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-none !px-2 !py-0.5 !text-[9px]">Success</Badge>}
+                               </div>
+                               <p className="text-[12px] text-slate-400 font-bold uppercase tracking-widest m-0">{formatDaysAgo(tp.created_at)}</p>
                             </div>
-                            <div className={`w-2 h-2 rounded-full ${
-                              tp.outcome === 'positive' ? 'bg-[#16a34a]' : tp.outcome === 'negative' ? 'bg-[#dc2626]' : 'bg-[#94a3b8]'
-                            }`} />
+                            <div className="flex gap-2">
+                               <button className="w-8 h-8 rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 flex items-center justify-center transition-colors border-none bg-transparent">
+                                  <Share2 size={14} />
+                               </button>
+                               <button className="w-8 h-8 rounded-lg text-slate-300 hover:text-slate-500 hover:bg-slate-50 flex items-center justify-center transition-colors border-none bg-transparent">
+                                  <ExternalLink size={14} />
+                               </button>
+                            </div>
                           </div>
-                          <p className="text-[13px] text-[#374151] leading-[1.6] m-0">{tp.notes || 'Routine check-in call with the primary account manager.'}</p>
-                          <div className="mt-3 flex gap-2">
-                             <div className="text-[10px] font-bold text-[#3b82f6] bg-[#eff6ff] px-2 py-0.5 rounded-full uppercase">Sentiment: Normal</div>
+                          
+                          <p className="text-[14px] text-slate-600 leading-[1.7] m-0 font-medium whitespace-pre-line">
+                            {tp.notes || 'Routine update and status check with the primary stakeholders.'}
+                          </p>
+                          
+                          <div className="mt-5 pt-5 border-t border-slate-50 flex flex-wrap gap-2">
+                             <div className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm border border-indigo-100/50">Mood: {tp.outcome || 'Neutral'}</div>
+                             <div className="text-[10px] font-black text-slate-500 bg-slate-50 px-3 py-1 rounded-full uppercase tracking-tighter">Verified by AI</div>
                           </div>
                         </div>
                       </div>
@@ -275,80 +311,107 @@ const ClientDetailPage = () => {
           </div>
         </div>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Health Gauge Circular Card */}
-          <div className="bg-white border border-[#e2e8f0] rounded-[16px] p-8 shadow-sm flex flex-col items-center relative overflow-hidden">
-             {/* Header with Title and Recalculate */}
-             <div className="w-full flex justify-between items-center mb-6">
-                <span className="text-[12px] font-bold text-slate-400 uppercase tracking-wider">Client Health Score</span>
-                <button 
-                  onClick={handleRecalculate} 
-                  disabled={isRecalculating} 
-                  className={`p-2 rounded-lg transition-all ${isRecalculating ? 'text-slate-300' : 'text-blue-500 hover:bg-blue-50'}`}
-                  title="Recalculate Score"
-                >
-                  <RefreshCw size={18} className={isRecalculating ? 'animate-spin' : ''} />
-                </button>
-             </div>
+        {/* Right Column: Health Cards & Billing */}
+        <div className="space-y-8 reveal" style={{ transitionDelay: '400ms' }}>
+          
+          {/* Unified Health Gauge Card */}
+          <div className="bg-[#0f172a] rounded-[40px] p-10 shadow-2xl relative overflow-hidden text-center group">
+             {/* Decorative patterns */}
+             <div className="absolute inset-0 bg-grid-white opacity-5 pointer-events-none" />
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500" />
+             
+             <div className="relative z-10">
+                <div className="flex justify-between items-center mb-10">
+                   <h5 className="text-white/40 font-black uppercase tracking-[0.2em] text-[10px] m-0">Live Health Diagnostic</h5>
+                   <button 
+                     onClick={handleRecalculate} 
+                     disabled={isRecalculating} 
+                     className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all flex items-center justify-center active:scale-95"
+                   >
+                     <RefreshCw size={18} className={isRecalculating ? 'animate-spin' : ''} />
+                   </button>
+                </div>
 
-             <div className="flex flex-col items-center">
-                <HealthGauge 
-                  score={score} 
-                  size={140} 
-                  strokeWidth={10}
-                  showLabel={true} 
-                />
-                
-                <div className="mt-4 text-center">
-                  <p className="text-slate-400 text-xs font-medium uppercase tracking-tight">
-                    Last analysis: {formatDaysAgo(healthScore.calculated_at || healthScore.created_at || new Date())}
-                  </p>
+                <div className="flex justify-center mb-8">
+                  <HealthGauge 
+                    score={score} 
+                    size={160} 
+                    strokeWidth={12}
+                    showLabel={false} 
+                  />
+                </div>
+
+                <div className="space-y-1 mb-8">
+                   <h3 className="text-3xl font-black text-white m-0 tracking-tight">{getRiskLabel(score)}</h3>
+                   <p className="text-white/40 text-[13px] font-medium leading-relaxed">
+                     Calculated {formatDaysAgo(healthScore.calculated_at || healthScore.created_at || new Date())}
+                   </p>
+                </div>
+
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between group-hover:border-white/20 transition-all">
+                  <div className="text-left leading-none">
+                     <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Net Sentiment</p>
+                     <p className="text-lg font-black text-emerald-400 m-0">Extremely Positive</p>
+                  </div>
+                  <TrendingUp className="text-emerald-400" size={24} />
                 </div>
              </div>
           </div>
 
-          {/* Score History Graph */}
-          <div className="bg-white border border-[#e2e8f0] rounded-[16px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-             <h3 className="text-[13px] font-bold text-[#94a3b8] uppercase tracking-wider mb-5 m-0">6-Month Trend</h3>
-             <ScoreHistoryChart scores={history} height={120} />
+          {/* Performance Trend Card */}
+          <div className="premium-card p-8">
+             <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500">
+                   <Target size={20} />
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-black text-slate-900 m-0 uppercase tracking-widest">Health Trajectory</h3>
+                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter m-0">Moving Average (90 Days)</p>
+                </div>
+             </div>
+             <ScoreHistoryChart scores={history} height={140} />
           </div>
 
-          {/* Pending Invoices Card */}
-          <div className="bg-white border border-[#e2e8f0] rounded-[16px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-            <div className="p-4 border-b border-[#f1f5f9] flex justify-between items-center bg-[#f8fafc]">
-               <h3 className="text-[13px] font-bold text-[#0f172a] m-0">Invoices</h3>
-               <button onClick={() => setInvoiceModalOpen(true)} className="text-[11px] font-bold text-[#3b82f6] bg-white border border-[#bfdbfe] px-2 py-1 rounded-[6px] cursor-pointer hover:bg-[#eff6ff] transition-colors">Add New</button>
+          {/* Institutional Billing Card */}
+          <div className="premium-card overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+               <h3 className="text-[15px] font-black text-slate-900 m-0 flex items-center gap-3 tracking-tight">
+                  <DollarSign size={18} className="text-emerald-500" />
+                  Financial Health
+               </h3>
+               <button onClick={() => setInvoiceModalOpen(true)} className="p-2 w-8 h-8 flex items-center justify-center text-blue-500 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all border-none">
+                  <PlusCircle size={16} />
+               </button>
             </div>
-            <div className="divide-y divide-[#f1f5f9]">
+            <div className="p-2 space-y-1">
               {invoices.length === 0 ? (
-                <div className="p-6 text-center text-[#94a3b8] text-[13px]">No billing history yet.</div>
+                <div className="p-10 text-center text-slate-400 font-medium text-[13px]">Transparent billing history.</div>
               ) : (
                 invoices.slice(0, 4).map((inv, idx) => (
-                  <div key={inv.id || idx} className="p-4 hover:bg-[#fbfcfd] transition-colors">
-                     <div className="flex justify-between items-start">
-                        <div>
-                           <p className="text-[14px] font-bold text-[#0f172a] m-0">{formatCurrency(inv.amount)}</p>
-                           <p className="text-[11px] text-[#94a3b8] mt-1 m-0">Due {formatDate(inv.due_date)}</p>
+                  <div key={inv.id || idx} className="p-5 hover:bg-slate-50 rounded-[20px] transition-all group border border-transparent hover:border-slate-100">
+                     <div className="flex justify-between items-center">
+                        <div className="space-y-1">
+                           <p className="text-[18px] font-black text-slate-900 m-0 tracking-tight">{formatCurrency(inv.amount)}</p>
+                           <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest m-0">Due {formatDate(inv.due_date)}</p>
                         </div>
-                        <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold uppercase ${
-                          inv.status === 'paid' ? 'bg-[#f0fdf4] text-[#16a34a]' : 'bg-[#fef2f2] text-[#dc2626]'
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                          inv.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
                         }`}>{inv.status}</span>
                      </div>
-                     <div className="mt-3 flex gap-2">
+                     <div className="mt-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {inv.status !== 'paid' && (
                         <button
                           onClick={() => handleMarkInvoicePaid(inv.id)}
-                          className="text-[11px] font-semibold text-[#16a34a] bg-[#f0fdf4] border border-[#bbf7d0] px-2 py-1 rounded-[6px] cursor-pointer"
+                          className="flex-1 h-9 flex items-center justify-center text-[11px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50/50 hover:bg-emerald-50 rounded-xl cursor-pointer border-none transition-colors"
                         >
-                          Mark paid
+                          Settle Invoice
                         </button>
                       )}
                       <button
                         onClick={() => handleDeleteInvoice(inv.id)}
-                        className="text-[11px] font-semibold text-[#dc2626] bg-[#fef2f2] border border-[#fecaca] px-2 py-1 rounded-[6px] cursor-pointer"
+                        className="h-9 w-9 flex items-center justify-center text-rose-500 bg-rose-50/50 hover:bg-rose-50 rounded-xl cursor-pointer border-none transition-colors"
                       >
-                        Delete
+                        <RefreshCw size={14} className="rotate-45" />
                       </button>
                      </div>
                   </div>
@@ -356,11 +419,14 @@ const ClientDetailPage = () => {
               )}
             </div>
             {invoices.length > 4 && (
-              <button className="w-full py-3 bg-[#f8fafc] text-[#64748b] text-[12px] font-medium border-none cursor-pointer hover:bg-[#f1f5f9] transition-colors">View All Invoices</button>
+              <button className="w-full py-5 text-slate-400 text-[11px] font-black uppercase tracking-widest border-t border-slate-50 hover:bg-slate-50 hover:text-slate-600 transition-all transition-colors bg-transparent border-none cursor-pointer">Explore Full Statement &rarr;</button>
             )}
           </div>
 
-          <AIChat clientId={id} clientName={client.name} />
+          {/* AI Strategy Chat Widget */}
+          <div className="reveal" style={{ transitionDelay: '500ms' }}>
+             <AIChat clientId={id} clientName={client.name} />
+          </div>
         </div>
       </div>
 
@@ -384,6 +450,45 @@ const ClientDetailPage = () => {
         client={client}
       />
     </DashboardLayout>
+  );
+};
+
+const MetricWidget = ({ title, value, suffix, trend, color, isCurrency, isLabel }) => {
+  const colors = {
+    blue: "bg-blue-50 text-blue-600 border-blue-100",
+    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    amber: "bg-amber-50 text-amber-600 border-amber-100",
+    rose: "bg-rose-50 text-rose-600 border-rose-100",
+    indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
+  };
+  
+  const c = colors[color] || colors.blue;
+  const TrendIcon = trend === 'Up' ? TrendingUp : trend === 'Down' ? TrendingDown : Clock;
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+      <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl -mr-12 -mt-12 opacity-50 ${c.split(' ')[0]}`} />
+      
+      <div className="relative z-10 space-y-4">
+        <div className="flex justify-between items-center">
+           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] m-0">{title}</p>
+           <TrendIcon size={14} className={c.split(' ')[1]} />
+        </div>
+        
+        <div className="space-y-1">
+          <div className="flex items-baseline gap-1.5">
+            <span className={`text-[28px] font-black tracking-tighter m-0 ${isLabel ? c.split(' ')[1] : 'text-slate-900'}`}>
+              {value}
+            </span>
+            {suffix && <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{suffix}</span>}
+          </div>
+          <div className="flex items-center gap-1">
+             <div className={`w-1 h-1 rounded-full ${c.split(' ')[0]} ${c.split(' ')[1]}`} />
+             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Active Analysis</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

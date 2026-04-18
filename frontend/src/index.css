@@ -30,15 +30,15 @@
   --shadow-elevated: 0 20px 40px -10px rgba(0,0,0,0.12);
 
   /* Sidebar Tokens */
-  --sidebar-bg: #0b1120;
-  --sidebar-active: rgba(255, 255, 255, 0.05);
-  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-bg: #020617;
+  --sidebar-active: rgba(255, 255, 255, 0.08);
+  --sidebar-border: rgba(255, 255, 255, 0.03);
 
   /* Border Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
 }
 
 @tailwind base;
@@ -47,22 +47,22 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-[#f1f5f9] text-[#475569];
+    @apply font-sans antialiased bg-[#f8fafc] text-slate-600;
     font-family: 'Inter', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-[#0f172a] leading-tight;
+    @apply font-black text-slate-900 leading-tight tracking-tight;
   }
 }
 
 @layer components {
   .premium-card {
-    @apply bg-white border border-[#e2e8f0] rounded-[16px] shadow-[var(--shadow-card)] transition-all duration-300;
+    @apply bg-white border border-slate-200 rounded-[32px] shadow-sm transition-all duration-300;
   }
   
   .premium-card:hover {
-    @apply shadow-[var(--shadow-hover)] -translate-y-[2px] border-[#cbd5e1];
+    @apply shadow-xl -translate-y-[2px] border-slate-300;
   }
 
   .mesh-gradient-blue {
@@ -81,35 +81,35 @@
   }
 
   .glass-effect {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
   }
 
   .sidebar-gradient {
-    background: linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
+    background: linear-gradient(180deg, #020617 0%, #0b1120 100%);
   }
 
   .nav-active-glow {
-    @apply relative after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-[3px] after:h-[18px] after:bg-[#3b82f6] after:rounded-r-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)];
+    @apply relative after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-[4px] after:h-[20px] after:bg-blue-600 after:rounded-r-full after:shadow-[0_0_12px_rgba(37,99,235,0.8)];
   }
 
   .btn-base {
-    @apply flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] outline-none;
+    @apply flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.96] outline-none;
   }
   
   .btn-primary {
-    @apply btn-base bg-[#3b82f6] text-white font-semibold rounded-[10px] shadow-[0_4px_12px_rgba(59,130,246,0.25)] hover:bg-[#2563eb] hover:shadow-[0_6px_16px_rgba(59,130,246,0.35)];
+    @apply btn-base bg-blue-600 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-lg shadow-blue-500/20 hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-500/30;
   }
 
   .btn-outline {
-    @apply btn-base bg-white border border-[#e2e8f0] text-[#374151] font-medium rounded-[10px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-[#f8fafc] hover:border-[#cbd5e1] hover:shadow-[0_4px_8px_rgba(0,0,0,0.04)];
+    @apply btn-base bg-white border border-slate-200 text-slate-900 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:shadow-md;
   }
 
   .input-base {
-    @apply w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[10px] px-4 py-2.5 text-[14px] text-[#0f172a] transition-all duration-200 focus:bg-white focus:border-[#3b82f6] focus:ring-[4px] focus:ring-[rgba(59,130,246,0.08)] outline-none;
+    @apply w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-[14px] text-slate-900 transition-all duration-300 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none font-medium;
   }
 
   .status-badge {
-    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider;
+    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest;
   }
 }
 
@@ -197,4 +197,37 @@
 }
 .typing-dot:nth-child(3) { 
   animation: typingDot 1.2s infinite 0.4s; 
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark mode scrollbar */
+.sidebar-gradient::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+.sidebar-gradient::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Advanced Patterns */
+.bg-grid-slate-900 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(15 23 42 / 0.04)'%3E%3Cpath d='M0 .5H31.5V32'/%3E%3C/svg%3E");
+}
+
+.bg-grid-white {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.04)'%3E%3Cpath d='M0 .5H31.5V32'/%3E%3C/svg%3E");
 }

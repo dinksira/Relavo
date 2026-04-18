@@ -2,31 +2,33 @@ import React from 'react';
 
 const LoadingScreen = ({ fullPage = true }) => {
   return (
-    <div className={`flex flex-col items-center justify-center ${fullPage ? 'fixed inset-0 z-[9999] bg-white/80 backdrop-blur-md' : 'w-full h-full min-h-[400px]'}`}>
+    <div className={`flex flex-col items-center justify-center ${fullPage ? 'fixed inset-0 z-[9999] bg-[#f8fafc]/90 backdrop-blur-xl' : 'w-full h-full min-h-[400px]'}`}>
       <style>{`
-        @keyframes logo-pulse {
-          0% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 0px rgba(59, 130, 246, 0)); }
-          50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4)); }
-          100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 0px rgba(59, 130, 246, 0)); }
+        @keyframes float-logo {
+          0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.15)); }
+          50% { transform: translateY(-8px) scale(1.02); filter: drop-shadow(0 25px 40px rgba(37, 99, 235, 0.25)); }
         }
-        @keyframes ring-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes orbit {
+          from { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+          to { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
         }
-        .animate-logo {
-          animation: logo-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .animate-executive-logo {
+          animation: float-logo 4s ease-in-out infinite;
         }
-        .animate-ring {
-          animation: ring-spin 3s linear infinite;
+        .animate-orbit-dot {
+          animation: orbit 3s linear infinite;
         }
       `}</style>
       
-      <div className="relative flex items-center justify-center">
-        {/* Animated Gradient Ring */}
-        <div className="absolute w-24 h-24 rounded-full border-2 border-transparent border-t-blue-500 border-r-blue-200 animate-ring"></div>
+      <div className="relative flex items-center justify-center w-32 h-32">
+        {/* Orbital Path */}
+        <div className="absolute w-20 h-20 rounded-full border border-blue-100/50" />
         
-        {/* Logo Container */}
-        <div className="w-16 h-16 bg-white rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center z-10 animate-logo overflow-hidden">
+        {/* Orbital Dot */}
+        <div className="absolute w-2 h-2 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.8)] animate-orbit-dot" />
+        
+        {/* Elite Logo Container */}
+        <div className="w-16 h-16 bg-white rounded-3xl shadow-2xl flex items-center justify-center z-10 animate-executive-logo border border-slate-50">
           <img 
             src="/favicon.svg" 
             alt="Relavo" 
@@ -35,9 +37,16 @@ const LoadingScreen = ({ fullPage = true }) => {
         </div>
       </div>
       
-      <div className="mt-8 text-center">
-        <h3 className="text-slate-800 font-bold text-lg tracking-tight">Relavo</h3>
-        <p className="text-slate-400 text-sm font-medium animate-pulse mt-1">Analyzing relationship health...</p>
+      <div className="mt-12 text-center reveal">
+        <h3 className="text-slate-900 font-black text-xl tracking-tighter italic m-0">relavo.</h3>
+        <div className="flex items-center gap-2 justify-center mt-2">
+           <div className="flex gap-1">
+             <div className="w-1 h-1 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '0ms' }} />
+             <div className="w-1 h-1 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '150ms' }} />
+             <div className="w-1 h-1 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+           </div>
+           <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] m-0">Analyzing Intelligence Ledger</p>
+        </div>
       </div>
     </div>
   );
