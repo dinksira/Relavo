@@ -138,7 +138,7 @@ const ClientsPage = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
         <div>
           <h1 className="text-[32px] font-black text-slate-900 m-0 tracking-tighter leading-tight italic">
-            Client <span className="text-blue-600 not-italic">Ledger.</span>
+            Client <span className="text-blue-600 not-italic">Directory.</span>
           </h1>
           <p className="text-[15px] text-slate-500 mt-1 m-0 font-medium">Relavo Intelligence is currently auditing <span className="text-slate-900 font-bold">{safeClients.length} accounts</span>.</p>
         </div>
@@ -157,7 +157,7 @@ const ClientsPage = () => {
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search the ledger..."
+            placeholder="Search clients..."
             className="w-full h-12 bg-slate-50/50 border-none rounded-2xl pl-12 pr-4 text-[14px] text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all font-medium"
           />
         </div>
@@ -204,10 +204,10 @@ const ClientsPage = () => {
             <Users size={32} className="text-slate-300" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 m-0 tracking-tight italic">
-            {search ? 'No Matches in Ledger.' : 'The Ledger is empty.'}
+            {search ? 'No Matches Found.' : 'No Clients Onboarded.'}
           </h2>
           <p className="text-slate-500 mt-3 m-0 max-w-[360px] mx-auto font-medium text-[15px]">
-            {search ? 'Relavo Intelligence could not find any matching assets. Try adjusting your parameters.' : 'Onboard your first client to activate the relationship monitoring engine.'}
+            {search ? 'Relavo Intelligence could not find any matching clients. Try adjusting your parameters.' : 'Onboard your first client to activate the relationship monitoring engine.'}
           </p>
           <Button 
             variant="primary" 

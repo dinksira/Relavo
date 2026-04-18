@@ -8,7 +8,7 @@ import { supabase } from '../../services/supabase';
 
 const pageNames = {
   '/dashboard': 'Intelligence Overview',
-  '/clients': 'Relationship Ledger',
+  '/clients': 'Clients',
   '/alerts': 'Real-time Stream',
   '/invoices': 'Asset Billing',
   '/settings': 'System Control',
@@ -81,7 +81,7 @@ const TopBar = ({ isMobile }) => {
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
           <input 
             type="text" 
-            placeholder="Query intelligence ledger..." 
+            placeholder="Query clients..." 
             className="w-[320px] h-[48px] bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 text-[13px] text-slate-900 placeholder-slate-400 focus:border-blue-200 focus:bg-white focus:ring-4 focus:ring-blue-500/5 outline-none transition-all duration-300 font-medium"
             onClick={() => toast.info('Global intelligence search is optimizing.')}
             readOnly

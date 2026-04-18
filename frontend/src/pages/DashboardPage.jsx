@@ -277,7 +277,7 @@ const DashboardPage = () => {
           <div className="flex justify-between items-center px-2">
             <h2 className="text-[18px] font-black text-slate-900 tracking-tight m-0 flex items-center gap-3">
                <Zap size={20} className="text-blue-600" />
-               Relationship Ledger
+               Clients
             </h2>
             <Link to="/clients" className="text-[11px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 transition-colors no-underline">
               Full Directory &rarr;
@@ -289,7 +289,7 @@ const DashboardPage = () => {
               <ListSkeleton />
             ) : sortedByScore.length === 0 ? (
               <EmptyState 
-                title="Your ledger is empty." 
+                title="No clients found." 
                 subtitle="Relavo predicts churn by analyzing client data. Add your first client to activate the intelligence engine." 
                 icon={Users}
                 action={() => setShowAddModal(true)}

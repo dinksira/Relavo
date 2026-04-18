@@ -45,7 +45,7 @@ const LoadingScreen = ({ fullPage = true }) => {
              <div className="w-1 h-1 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '150ms' }} />
              <div className="w-1 h-1 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '300ms' }} />
            </div>
-           <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] m-0">Analyzing Intelligence Ledger</p>
+           <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] m-0">Analyzing client data</p>
         </div>
       </div>
     </div>

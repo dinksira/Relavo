@@ -87,7 +87,7 @@ const Sidebar = ({ onClose }) => {
       <nav className="flex-1 px-4 overflow-y-auto relative z-10 no-scrollbar">
         <SectionLabel text="Intelligence" className="pt-2" />
         <NavItem icon={LayoutDashboard} label="Overview" path="/dashboard" />
-        <NavItem icon={Users} label="Ledger" path="/clients" />
+        <NavItem icon={Users} label="Clients" path="/clients" />
         <NavItem icon={Bell} label="Stream" path="/alerts" badge={unreadCount} />
         
         <SectionLabel text="Enterprise" className="mt-6" />
