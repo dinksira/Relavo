@@ -6,7 +6,7 @@ import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
 import HealthGauge from '../components/clients/HealthGauge';
 import EmptyState from '../components/ui/EmptyState';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import LoadingScreen from '../components/ui/LoadingScreen';
 import Button from '../components/ui/Button';
 import AddClientModal from '../components/clients/AddClientModal';
 import useClients from '../hooks/useClients';
@@ -20,22 +20,26 @@ import useToast from '../hooks/useToast';
 const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, subtitle, valueColor, borderTopColor }) => {
   return (
     <div
-      className="bg-white border border-[#e2e8f0] rounded-[14px] p-[20px_24px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-[1px]"
-      style={borderTopColor ? { borderTop: `3px solid ${borderTopColor}` } : {}}
+      className="bg-white border border-[#e2e8f0] rounded-[18px] p-[24px_28px] shadow-[0_1px_3px_rgba(0,0,0,0.02),0_4px_12px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] hover:-translate-y-[2px] relative overflow-hidden group"
     >
-      <div className="flex justify-between items-start">
+      {borderTopColor && (
+        <div className="absolute top-0 left-0 right-0 h-1" style={{ background: borderTopColor }} />
+      )}
+      <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-[12px] font-medium uppercase text-[#94a3b8] tracking-[0.05em] m-0">{title}</p>
-          <p className="text-[36px] font-bold text-[#0f172a] mt-2 mb-0 leading-none" style={valueColor ? { color: valueColor } : {}}>
-            {value}
-          </p>
-          {subtitle && <p className="text-[13px] text-[#94a3b8] mt-1 m-0">{subtitle}</p>}
+          <p className="text-[11px] font-bold uppercase text-[#94a3b8] tracking-[0.1em] m-0">{title}</p>
+          <div className="flex items-baseline gap-1 mt-3">
+            <p className="text-[32px] font-bold text-[#0f172a] m-0 leading-none" style={valueColor ? { color: valueColor } : {}}>
+              {value}
+            </p>
+          </div>
+          {subtitle && <p className="text-[12px] font-medium text-[#64748b] mt-3 m-0 bg-slate-50 px-2 py-0.5 rounded-full w-fit border border-slate-100">{subtitle}</p>}
         </div>
         <div 
-          className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
+          className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-sm"
           style={{ background: iconBg }}
         >
-          <Icon size={20} color={iconColor} />
+          <Icon size={22} color={iconColor} />
         </div>
       </div>
     </div>
@@ -190,6 +194,8 @@ const DashboardPage = () => {
     }
   };
 
+  if (loading) return <LoadingScreen />;
+
   return (
     <DashboardLayout>
       {/* Greeting and Header Section */}
@@ -281,9 +287,7 @@ const DashboardPage = () => {
 
           <div className="bg-white border border-[#e2e8f0] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             {loading ? (
-              <div className="p-6">
-                <LoadingSkeleton variant="row" count={4} />
-              </div>
+              <LoadingScreen fullPage={false} />
             ) : sortedByScore.length === 0 ? (
               <div className="p-12 text-center">
                 <div className="w-[60px] h-[60px] bg-[#f1f5f9] rounded-[16px] flex items-center justify-center mx-auto mb-4">

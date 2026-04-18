@@ -1,21 +1,20 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Bell, FileText, Settings, LogOut
+  LayoutDashboard, Users, Bell, FileText, Settings, LogOut, X
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useAlerts from '../../hooks/useAlerts';
 import { supabase } from '../../services/supabase';
-import logoPath from '../../assets/relavo-logo.svg';
 
 const NavItem = ({ icon: Icon, label, path, badge }) => (
   <NavLink
     to={path}
     className={({ isActive }) => `
-      flex items-center gap-[10px] px-3 py-[9px] rounded-lg mb-0.5 cursor-pointer transition-all duration-150 ease-in-out group
+      flex items-center gap-[12px] px-3.5 py-[10px] rounded-xl mb-1 cursor-pointer transition-all duration-200 ease-in-out group
       ${isActive 
-        ? 'bg-[rgba(59,130,246,0.2)] text-white font-semibold shadow-[inset_0_0_0_1px_rgba(59,130,246,0.3)]' 
-        : 'bg-transparent text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.8)]'
+        ? 'bg-[rgba(255,255,255,0.08)] text-white font-semibold nav-active-glow shadow-[0_4px_12px_rgba(0,0,0,0.1)]' 
+        : 'bg-transparent text-[rgba(255,255,255,0.45)] hover:bg-[rgba(255,255,255,0.05)] hover:text-white'
       }
     `}
   >
@@ -37,12 +36,12 @@ const NavItem = ({ icon: Icon, label, path, badge }) => (
 );
 
 const SectionLabel = ({ text, className = "" }) => (
-  <p className={`text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)] px-2 py-2 mb-1 ${className}`}>
+  <p className={`text-[10px] font-bold uppercase tracking-[0.12em] text-[rgba(255,255,255,0.25)] px-3 py-2 mb-1 ${className}`}>
     {text}
   </p>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
@@ -59,15 +58,26 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-[240px] h-screen bg-[#0f172a] flex flex-col fixed left-0 shrink-0 z-[40]">
-      {/* Logo Area */}
-      <div className="p-6 pb-5 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-[10px]">
-        <img 
-          src={logoPath} 
-          alt="relavo" 
-          className="h-8 brightness-0 invert" 
-        />
-        <span className="text-white text-[18px] font-bold tracking-[-0.3px]">relavo</span>
+    <div className="w-[280px] lg:w-[260px] h-screen sidebar-gradient border-r border-[rgba(255,255,255,0.03)] flex flex-col fixed lg:static left-0 shrink-0 z-[40]">
+      <div className="p-7 pb-6 flex items-center justify-between">
+        <div className="flex items-center gap-[12px]">
+          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+            <img 
+              src="/favicon.svg" 
+              alt="relavo" 
+              className="h-6 w-6" 
+            />
+          </div>
+          <span className="text-white text-[20px] font-bold tracking-tight">relavo</span>
+        </div>
+        
+        {/* Mobile Close Button */}
+        <button 
+          onClick={onClose}
+          className="lg:hidden p-2 -mr-2 text-white/40 hover:text-white transition-colors border-none bg-transparent"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       {/* Navigation */}

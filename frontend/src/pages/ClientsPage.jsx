@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, Plus, Search, Sparkles } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Button from '../components/ui/Button';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import LoadingScreen from '../components/ui/LoadingScreen';
 import AddClientModal from '../components/clients/AddClientModal';
 import useClients from '../hooks/useClients';
 import { formatDaysAgo } from '../utils/formatters';
@@ -194,11 +194,8 @@ const ClientsPage = () => {
         </div>
       </div>
 
-      {/* Client Cards Grid */}
       {loading ? (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
-          <LoadingSkeleton variant="card" count={6} />
-        </div>
+        <LoadingScreen fullPage={false} />
       ) : filtered.length === 0 ? (
         <div className="p-16 text-center bg-white rounded-[14px] border border-[#e2e8f0]">
           <div className="w-[80px] h-[80px] bg-[#f1f5f9] rounded-[20px] flex items-center justify-center mx-auto mb-5">

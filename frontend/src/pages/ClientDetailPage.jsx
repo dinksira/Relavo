@@ -10,7 +10,7 @@ import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import HealthGauge from '../components/clients/HealthGauge';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import LoadingScreen from '../components/ui/LoadingScreen';
 import EmptyState from '../components/ui/EmptyState';
 import TouchpointModal from '../components/clients/TouchpointModal';
 import InvoiceModal from '../components/clients/InvoiceModal';
@@ -108,13 +108,7 @@ const ClientDetailPage = () => {
     setIsRecalculating(false);
   };
 
-  if (loading) return (
-    <DashboardLayout>
-      <div className="p-8">
-        <LoadingSkeleton variant="detail" count={3} />
-      </div>
-    </DashboardLayout>
-  );
+  if (loading) return <LoadingScreen />;
 
   if (!client) return (
     <DashboardLayout>
