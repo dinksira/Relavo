@@ -4,7 +4,7 @@ import Button from '../ui/Button';
 import useToast from '../../hooks/useToast';
 import { clientsAPI, aiAPI } from '../../services/api';
 import useClients from '../../hooks/useClients';
-import { Search, ChevronDown, Check, Activity, DollarSign } from 'lucide-react';
+import { Search, ChevronDown, Check, Activity, DollarSign, Zap, Target, ShieldCheck } from 'lucide-react';
 
 const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
   const toast = useToast();
@@ -75,36 +75,8 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const pillStyle = (active, activeColor = '#3b82f6') => ({
-    padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-    cursor: 'pointer', border: '1.5px solid',
-    borderColor: active ? activeColor : '#e2e8f0',
-    background: active ? activeColor : '#fff',
-    color: active ? '#fff' : '#64748b',
-    transition: 'all 150ms', fontFamily: 'inherit',
-    flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center'
-  });
-
-  const tabStyle = (active) => ({
-    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-    padding: '10px', fontSize: 13, fontWeight: 800, cursor: 'pointer',
-    borderBottom: '2px solid', 
-    borderColor: active ? '#3b82f6' : 'transparent',
-    color: active ? '#3b82f6' : '#94a3b8',
-    transition: 'all 200ms', background: 'transparent'
-  });
-
-  const inputStyle = {
-    width: '100%', height: 44, padding: '0 12px', border: '1px solid #e2e8f0',
-    borderRadius: 8, fontSize: 14, fontFamily: 'inherit', color: '#0f172a',
-    boxSizing: 'border-box'
-  };
-
-  const labelStyle = { 
-    fontSize: 11, fontWeight: 800, color: '#94a3b8', 
-    textTransform: 'uppercase', marginBottom: 6, display: 'block',
-    letterSpacing: '0.05em'
-  };
+  const inputClass = "w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl px-5 text-[14px] text-slate-900 font-medium focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none";
+  const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 pl-1 mb-2 block";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -116,83 +88,104 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <Modal
-      isOpen={isOpen} onClose={onClose}
-      title="Quick Entry"
-      size="sm"
+      isOpen={isOpen} 
+      onClose={onClose}
+      title="Intelligence Entry"
+      subtitle="Rapid synchronization of relationship data"
+      icon={Zap}
+      footer={
+        <Button 
+          variant="primary" 
+          onClick={handleSubmit} 
+          loading={loading}
+          className="!w-full !h-12 !rounded-2xl !font-black !uppercase !text-[11px] !tracking-widest shadow-xl shadow-blue-500/20"
+        >
+          {activeTab === 'activity' ? 'Commit Activity Log' : 'Synchronize Invoice'}
+        </Button>
+      }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={{ display: 'flex', borderBottom: '1px solid #f1f5f9' }}>
-           <button style={tabStyle(activeTab === 'activity')} onClick={() => setActiveTab('activity')}>
+      <div className="space-y-8">
+        <div className="flex bg-slate-100 p-1 rounded-2xl gap-1">
+           <button 
+             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border-none cursor-pointer ${
+               activeTab === 'activity' ? 'bg-white text-blue-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+             }`}
+             onClick={() => setActiveTab('activity')}
+           >
               <Activity size={14} /> Activity
            </button>
-           <button style={tabStyle(activeTab === 'invoice')} onClick={() => setActiveTab('invoice')}>
+           <button 
+             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border-none cursor-pointer ${
+               activeTab === 'invoice' ? 'bg-white text-blue-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+             }`}
+             onClick={() => setActiveTab('invoice')}
+           >
               <DollarSign size={14} /> Invoice
            </button>
         </div>
 
-        <div style={{ position: 'relative' }} ref={dropdownRef}>
-          <label style={labelStyle}>Client</label>
+        <div className="relative" ref={dropdownRef}>
+          <label className={labelClass}>Target Client</label>
           <div 
             onClick={() => setShowDropdown(!showDropdown)}
-            style={{ 
-              ...inputStyle, display: 'flex', alignItems: 'center', 
-              justifyContent: 'space-between', cursor: 'text'
-            }}
+            className={`${inputClass} flex items-center justify-between cursor-pointer group`}
           >
             {form.clientId ? (
-              <span style={{ fontWeight: 600, color: '#0f172a' }}>{form.clientName}</span>
+              <span className="font-black text-slate-900 italic">{form.clientName}</span>
             ) : (
-              <span style={{ color: '#94a3b8' }}>Select client...</span>
+              <span className="text-slate-400">Select network node...</span>
             )}
-            <ChevronDown size={16} color="#94a3b8" />
+            <ChevronDown size={16} className={`transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`} />
           </div>
 
           {showDropdown && (
-            <div style={{ 
-              position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
-              background: '#fff', borderRadius: 8, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
-              border: '1px solid #e2e8f0', marginTop: 4, maxHeight: 200, overflowY: 'auto'
-            }}>
-              <div style={{ padding: 8, borderBottom: '1px solid #f1f5f9', position: 'sticky', top: 0, background: '#fff' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc', padding: '0 8px', borderRadius: 6 }}>
-                  <Search size={14} color="#94a3b8" />
+            <div className="absolute top-full left-0 right-0 z-[110] bg-white rounded-[24px] shadow-2xl border border-slate-100 mt-2 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+              <div className="p-3 border-b border-slate-50">
+                <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl">
+                  <Search size={14} className="text-slate-400" />
                   <input 
                     autoFocus
                     value={search} onChange={e => setSearch(e.target.value)}
-                    placeholder="Type name..."
-                    style={{ border: 'none', background: 'transparent', height: 32, fontSize: 13, outline: 'none', width: '100%' }}
+                    placeholder="Search directory..."
+                    className="border-none bg-transparent h-8 text-[13px] outline-none w-full font-medium"
                   />
                 </div>
               </div>
-              {filteredClients.map(c => (
-                <div 
-                  key={c.id}
-                  onClick={() => {
-                    setForm(p => ({ ...p, clientId: c.id, clientName: c.name }));
-                    setShowDropdown(false);
-                  }}
-                  style={{ 
-                    padding: '10px 12px', fontSize: 13, color: '#334155', cursor: 'pointer',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                  }}
-                >
-                  <span style={{ fontWeight: form.clientId === c.id ? 700 : 500 }}>{c.name}</span>
-                  {form.clientId === c.id && <Check size={14} color="#3b82f6" />}
-                </div>
-              ))}
+              <div className="max-h-[200px] overflow-y-auto no-scrollbar">
+                {filteredClients.map(c => (
+                  <div 
+                    key={c.id}
+                    onClick={() => {
+                      setForm(p => ({ ...p, clientId: c.id, clientName: c.name }));
+                      setShowDropdown(false);
+                    }}
+                    className="px-6 py-3.5 text-[13px] text-slate-600 cursor-pointer hover:bg-slate-50 flex justify-between items-center transition-colors"
+                  >
+                    <span className={form.clientId === c.id ? 'font-black text-blue-600' : 'font-medium'}>{c.name}</span>
+                    {form.clientId === c.id && <Check size={14} className="text-blue-600" />}
+                  </div>
+                ))}
+                {filteredClients.length === 0 && (
+                  <div className="px-6 py-8 text-center text-slate-400 text-[12px] italic">No matching assets found.</div>
+                )}
+              </div>
             </div>
           )}
         </div>
 
         {activeTab === 'activity' ? (
-          <>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div>
-              <label style={labelStyle}>Contact Method</label>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {['Call', 'Email', 'Meeting', 'Message'].map(type => (
+              <label className={labelClass}>Protocol Method</label>
+              <div className="flex flex-wrap gap-2">
+                {['Call', 'Email', 'Conf', 'Log'].map(type => (
                   <button 
                     key={type}
-                    style={pillStyle(form.type === type.toLowerCase())}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border cursor-pointer ${
+                      form.type === type.toLowerCase() 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20' 
+                        : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'
+                    }`}
                     onClick={() => setForm(p => ({ ...p, type: type.toLowerCase() }))}
                   >
                     {type}
@@ -202,88 +195,79 @@ const QuickLogModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <label style={labelStyle}>Interaction Notes</label>
+              <label className={labelClass}>Analytical Notes</label>
               <textarea 
                 value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-                placeholder="What was discussed?"
-                rows={3}
-                style={{ ...inputStyle, height: 'auto', padding: '12px', resize: 'none' }}
+                placeholder="Key takeaways from this interaction..."
+                className={`${inputClass} !h-28 !py-4 resize-none`}
               />
             </div>
 
             <div>
-              <label style={labelStyle}>Outcome</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button 
-                  style={pillStyle(form.outcome === 'positive', '#16a34a')} 
-                  onClick={() => setForm(p => ({ ...p, outcome: 'positive' }))}
-                >
-                  Positive
-                </button>
-                <button 
-                  style={pillStyle(form.outcome === 'neutral', '#94a3b8')} 
-                  onClick={() => setForm(p => ({ ...p, outcome: 'neutral' }))}
-                >
-                  Neutral
-                </button>
-                <button 
-                  style={pillStyle(form.outcome === 'negative', '#dc2626')} 
-                  onClick={() => setForm(p => ({ ...p, outcome: 'negative' }))}
-                >
-                  Negative
-                </button>
+              <label className={labelClass}>Signal Strength</label>
+              <div className="flex gap-2">
+                {[
+                  { v: 'positive', l: 'Optimal', c: 'emerald' },
+                  { v: 'neutral', l: 'Steady', c: 'slate' },
+                  { v: 'negative', l: 'Critical', c: 'rose' }
+                ].map(opt => (
+                  <button 
+                    key={opt.v}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border cursor-pointer ${
+                      form.outcome === opt.v
+                        ? `bg-${opt.c}-600 text-white border-${opt.c}-600 shadow-lg shadow-${opt.c}-500/20`
+                        : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'
+                    }`}
+                    onClick={() => setForm(p => ({ ...p, outcome: opt.v }))}
+                  >
+                    {opt.l}
+                  </button>
+                ))}
               </div>
             </div>
-          </>
+          </div>
         ) : (
-          <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="grid grid-cols-2 gap-6">
                <div>
-                  <label style={labelStyle}>Amount ($)</label>
+                  <label className={labelClass}>Exposure ($)</label>
                   <input 
                     type="number"
                     value={form.amount} 
                     onChange={e => setForm(p => ({ ...p, amount: e.target.value }))}
                     placeholder="0.00"
-                    style={inputStyle}
+                    className={inputClass}
                   />
                </div>
                <div>
-                  <label style={labelStyle}>Due Date</label>
+                  <label className={labelClass}>Maturity Date</label>
                   <input 
                     type="date"
                     value={form.due_date} 
                     onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))}
-                    style={inputStyle}
+                    className={inputClass}
                   />
                </div>
             </div>
 
             <div>
-               <label style={labelStyle}>Status</label>
-               <div style={{ display: 'flex', gap: 8 }}>
+               <label className={labelClass}>Settlement Status</label>
+               <div className="flex gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
                   {['pending', 'paid', 'overdue'].map(status => (
                     <button 
                       key={status}
-                      style={pillStyle(form.invoice_status === status)}
+                      className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-none cursor-pointer ${
+                        form.invoice_status === status ? 'bg-white text-blue-600 shadow-sm' : 'bg-transparent text-slate-400 hover:text-slate-600'
+                      }`}
                       onClick={() => setForm(p => ({ ...p, invoice_status: status }))}
                     >
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                      {status}
                     </button>
                   ))}
                </div>
             </div>
-          </>
+          </div>
         )}
-
-        <Button 
-          variant="primary" 
-          onClick={handleSubmit} 
-          loading={loading}
-          style={{ width: '100%', height: 48, fontWeight: 900, fontSize: 15, borderRadius: 12, marginTop: 8 }}
-        >
-          {activeTab === 'activity' ? 'Log Activity' : 'Create Invoice'}
-        </Button>
       </div>
     </Modal>
   );

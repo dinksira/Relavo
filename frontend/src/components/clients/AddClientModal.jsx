@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
+import { UserPlus, Building, Mail, Phone, Activity, FileText } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import useToast from '../../hooks/useToast';
+
+const InputGroup = ({ label, icon: Icon, children }) => (
+  <div className="space-y-2">
+    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 pl-1">{label}</label>
+    <div className="relative group">
+      {Icon && (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+          <Icon size={16} />
+        </div>
+      )}
+      {children}
+    </div>
+  </div>
+);
 
 const AddClientModal = ({ isOpen, onClose, onSuccess }) => {
   const toast = useToast();
@@ -17,71 +32,58 @@ const AddClientModal = ({ isOpen, onClose, onSuccess }) => {
     setLoading(true);
     try {
       await onSuccess(form);
-      toast.success('Client added successfully!');
+      toast.success('Registration sequence successful');
       setForm({ name: '', contact_name: '', email: '', phone: '', status: 'active', notes: '' });
       onClose();
     } catch (err) {
-      toast.error(err.message || 'Failed to add client');
+      toast.error(err.message || 'Onboarding interrupted');
     } finally {
       setLoading(false);
     }
   };
 
-  const inputStyle = {
-    width: '100%', height: 40, padding: '0 12px',
-    border: '1px solid #e2e8f0', borderRadius: 8,
-    fontSize: 14, fontFamily: 'inherit', color: '#0f172a',
-    outline: 'none', boxSizing: 'border-box',
-    background: '#fff',
-  };
-
-  const labelStyle = { fontSize: 12, fontWeight: 500, color: '#64748b', marginBottom: 4, display: 'block' };
+  const inputClass = "w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 text-[14px] text-slate-900 font-medium placeholder:text-slate-300 focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none";
 
   return (
     <Modal
-      isOpen={isOpen} onClose={onClose}
-      title="Add new client"
-      subtitle="Start monitoring a new client relationship"
+      isOpen={isOpen} 
+      onClose={onClose}
+      title="Asset Onboarding"
+      subtitle="Register new client node to relavo neural ledger"
+      icon={UserPlus}
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={loading} onClick={handleSubmit}>Add Client</Button>
+          <Button variant="outline" className="!rounded-xl !h-12 !px-6" onClick={onClose}>Abort</Button>
+          <Button variant="primary" className="!rounded-xl !h-12 !px-8" loading={loading} onClick={handleSubmit}>Initialize Account</Button>
         </>
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div>
-          <label style={labelStyle}>Company Name *</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. Acme Corp" style={inputStyle} />
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputGroup label="Company Identity" icon={Building}>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. Nexus Corp" className={inputClass} />
+          </InputGroup>
+          <InputGroup label="Principal Contact" icon={Activity}>
+            <input name="contact_name" value={form.contact_name} onChange={handleChange} placeholder="Executive name" className={inputClass} />
+          </InputGroup>
         </div>
-        <div>
-          <label style={labelStyle}>Contact Name</label>
-          <input name="contact_name" value={form.contact_name} onChange={handleChange} placeholder="Primary contact person" style={inputStyle} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputGroup label="Comm Channel (Email)" icon={Mail}>
+            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="executive@nexus.com" className={inputClass} />
+          </InputGroup>
+          <InputGroup label="Comm Channel (Phone)" icon={Phone}>
+            <input name="phone" value={form.phone} onChange={handleChange} placeholder="+1 000 000 0000" className={inputClass} />
+          </InputGroup>
         </div>
-        <div>
-          <label style={labelStyle}>Email</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="contact@company.com" style={inputStyle} />
-        </div>
-        <div>
-          <label style={labelStyle}>Phone</label>
-          <input name="phone" value={form.phone} onChange={handleChange} placeholder="+1 (555) 000-0000" style={inputStyle} />
-        </div>
-        <div>
-          <label style={labelStyle}>Status</label>
-          <select name="status" value={form.status} onChange={handleChange} style={{ ...inputStyle, cursor: 'pointer' }}>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-          </select>
-        </div>
-        <div>
-          <label style={labelStyle}>Notes</label>
+
+        <InputGroup label="Strategic Notes" icon={FileText}>
           <textarea
             name="notes" value={form.notes} onChange={handleChange}
-            placeholder="Any context about this client..."
-            rows={3}
-            style={{ ...inputStyle, height: 'auto', padding: 12, resize: 'vertical', lineHeight: 1.6 }}
+            placeholder="Additional context and relationship objectives..."
+            className={`${inputClass} !h-32 !py-4 resize-none`}
           />
-        </div>
+        </InputGroup>
       </div>
     </Modal>
   );

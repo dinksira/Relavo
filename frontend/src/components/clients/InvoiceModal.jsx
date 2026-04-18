@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
+import { DollarSign, Hash, Calendar, ShieldCheck, FileText, Landmark } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import useToast from '../../hooks/useToast';
 import { aiAPI } from '../../services/api';
+
+const InputGroup = ({ label, icon: Icon, children }) => (
+  <div className="space-y-2">
+    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 pl-1">{label}</label>
+    <div className="relative group">
+      {Icon && (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+          <Icon size={16} />
+        </div>
+      )}
+      {children}
+    </div>
+  </div>
+);
 
 const InvoiceModal = ({ isOpen, onClose, clientId, clientName, onSuccess }) => {
   const toast = useToast();
@@ -23,11 +38,8 @@ const InvoiceModal = ({ isOpen, onClose, clientId, clientName, onSuccess }) => {
     setLoading(true);
     try {
       await onSuccess({ ...form, amount: parseFloat(form.amount) });
-      
-      // Trigger AI Analysis
       await aiAPI.analyzeClient(clientId);
-      
-      toast.success('Invoice logged! Health score updated.');
+      toast.success('Financial record synchronized');
       setForm({ 
         amount: '', status: 'pending', 
         due_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
@@ -36,118 +48,86 @@ const InvoiceModal = ({ isOpen, onClose, clientId, clientName, onSuccess }) => {
       });
       onClose();
     } catch (err) {
-      toast.error(err.message || 'Failed to add invoice');
+      toast.error(err.message || 'Transaction logging failed');
     } finally { setLoading(false); }
   };
 
-  const inputStyle = {
-    width: '100%', height: 40, padding: '0 12px',
-    border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 14,
-    fontFamily: 'inherit', color: '#0f172a', boxSizing: 'border-box',
-    background: '#fff',
-  };
-
-  const labelStyle = { 
-    fontSize: 11, fontWeight: 700, color: '#94a3b8', 
-    textTransform: 'uppercase', letterSpacing: '0.05em', 
-    marginBottom: 6, display: 'block' 
-  };
+  const inputClass = "w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 text-[14px] text-slate-900 font-medium focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none";
 
   return (
     <Modal
-      isOpen={isOpen} onClose={onClose}
-      title="Add Invoice"
-      size="md"
+      isOpen={isOpen} 
+      onClose={onClose}
+      title="Financial Auditing"
+      subtitle={`Asset billing management for ${clientName}`}
+      icon={Landmark}
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={loading} onClick={handleSubmit}>Create Invoice</Button>
+          <Button variant="outline" className="!rounded-xl !h-12 !px-6" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" className="!rounded-xl !h-12 !px-8" loading={loading} onClick={handleSubmit}>Initialize Invoice</Button>
         </>
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {clientName && (
-           <div style={{ padding: '8px 12px', background: '#eff6ff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
-             <p style={{ fontSize: 13, color: '#1d4ed8', margin: 0, fontWeight: 500 }}>
-               Invoice for <strong>{clientName}</strong>
-             </p>
-           </div>
-        )}
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div>
-            <label style={labelStyle}>Amount (USD) *</label>
-            <div style={{ position: 'relative' }}>
-              <span style={{
-                position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                color: '#64748b', fontSize: 14, fontWeight: 600
-              }}>$</span>
-              <input type="number" value={form.amount}
-                onChange={e => setForm(p => ({ ...p, amount: e.target.value }))}
-                placeholder="0.00"
-                style={{ ...inputStyle, paddingLeft: 28 }}
-              />
-            </div>
-          </div>
-          <div>
-            <label style={labelStyle}>Invoice Number *</label>
+      <div className="space-y-8">
+        <div className="grid grid-cols-2 gap-6">
+          <InputGroup label="Exposure (USD)" icon={DollarSign}>
+            <input type="number" value={form.amount}
+              onChange={e => setForm(p => ({ ...p, amount: e.target.value }))}
+              placeholder="0.00"
+              className={inputClass}
+            />
+          </InputGroup>
+          <InputGroup label="Control Number" icon={Hash}>
             <input type="text" value={form.invoice_number}
               onChange={e => setForm(p => ({ ...p, invoice_number: e.target.value }))}
-              placeholder="INV-0001"
-              style={inputStyle}
+              placeholder="INV-XXXX"
+              className={inputClass}
             />
-          </div>
+          </InputGroup>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div>
-            <label style={labelStyle}>Issue Date</label>
+        <div className="grid grid-cols-2 gap-6">
+          <InputGroup label="Issuance Date" icon={Calendar}>
             <input type="date" value={form.issued_at}
               onChange={e => setForm(p => ({ ...p, issued_at: e.target.value }))}
-              style={inputStyle}
+              className={inputClass}
             />
-          </div>
-          <div>
-            <label style={labelStyle}>Due Date</label>
+          </InputGroup>
+          <InputGroup label="Maturity Date" icon={Calendar}>
             <input type="date" value={form.due_date}
               onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))}
-              style={inputStyle}
+              className={inputClass}
             />
-          </div>
+          </InputGroup>
         </div>
 
-        <div>
-          <label style={labelStyle}>Payment Status</label>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <InputGroup label="Institutional Status" icon={ShieldCheck}>
+          <div className="flex gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
             {['pending', 'paid', 'overdue'].map(s => (
               <button
                 key={s}
                 onClick={() => setForm(p => ({ ...p, status: s }))}
-                style={{
-                  flex: 1, padding: '10px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-                  textTransform: 'capitalize', cursor: 'pointer', border: '2px solid',
-                  borderColor: form.status === s ? '#3b82f6' : '#f1f5f9',
-                  background: form.status === s ? '#eff6ff' : '#f1f5f9',
-                  color: form.status === s ? '#3b82f6' : '#64748b',
-                  fontFamily: 'inherit', transition: 'all 150ms'
-                }}
+                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer border-none ${
+                  form.status === s 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'bg-transparent text-slate-400 hover:text-slate-600'
+                }`}
               >
                 {s}
               </button>
             ))}
           </div>
-        </div>
+        </InputGroup>
 
-        <div>
-          <label style={labelStyle}>Internal Notes</label>
+        <InputGroup label="Transaction Reference" icon={FileText}>
           <input 
             type="text" 
             value={form.notes} 
             onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-            placeholder="Add a reference..."
-            style={inputStyle}
+            placeholder="Add internal billing audit notes..."
+            className={inputClass}
           />
-        </div>
+        </InputGroup>
       </div>
     </Modal>
   );
