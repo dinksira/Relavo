@@ -50,25 +50,27 @@ export default function AIChat({ clientId, clientName }) {
       {/* HEADER */}
       <div className="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-500" />
-          <h2 className="text-sm font-semibold text-slate-900">Ask AI about {clientName}</h2>
+          <img src="/favicon.svg" alt="Relavo" className="w-4 h-4" />
+          <h2 className="text-[12px] font-black uppercase tracking-widest text-slate-900">Intelligence Node</h2>
         </div>
-        <span className="text-[11px] text-slate-400 font-medium">Powered by Groq · Llama 3.3</span>
+        <span className="text-[10px] text-blue-600 font-black uppercase tracking-[0.2em]">relavo</span>
       </div>
 
       {/* MESSAGES AREA */}
-      <div className="h-[360px] overflow-y-auto p-5 bg-slate-50/50 flex flex-col gap-4">
+      <div className="h-[360px] overflow-y-auto p-5 bg-slate-50/50 flex flex-col gap-4 no-scrollbar">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-5">
-            <MessageSquare className="w-9 h-9 text-slate-300 mb-3" />
-            <h3 className="text-sm text-slate-500 mb-6">Ask anything about {clientName}</h3>
+            <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-4">
+               <img src="/favicon.svg" alt="Relavo" className="w-7 h-7" />
+            </div>
+            <h3 className="text-sm font-black text-slate-900 tracking-tight mb-6 italic">Querying {clientName} Intelligence...</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-md">
+            <div className="grid grid-cols-1 gap-2 w-full max-w-md">
               {suggestions.map((text, i) => (
                 <button
                   key={i}
                   onClick={() => sendMessage(text)}
-                  className="text-[13px] text-slate-700 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-left hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm"
+                  className="text-[11px] font-black uppercase tracking-widest text-slate-500 bg-white border border-slate-100 rounded-2xl px-5 py-3 text-left hover:bg-blue-50 hover:border-blue-100 hover:text-blue-600 transition-all shadow-sm"
                 >
                   {text}
                 </button>
@@ -81,16 +83,20 @@ export default function AIChat({ clientId, clientName }) {
               key={index} 
               className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
-              <div className={`flex gap-2.5 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-1 sm:mt-0 ${msg.role === 'user' ? 'bg-blue-100' : 'bg-blue-50'}`}>
-                  {msg.role === 'user' ? <User className="w-3.5 h-3.5 text-blue-600" /> : <Sparkles className="w-3.5 h-3.5 text-blue-500" />}
+              <div className={`flex gap-3 max-w-[90%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${msg.role === 'user' ? 'bg-slate-900' : 'bg-white border border-slate-100'}`}>
+                  {msg.role === 'user' ? (
+                     <User className="w-3.5 h-3.5 text-white" />
+                  ) : (
+                     <img src="/favicon.svg" alt="Relavo" className="w-4 h-4" />
+                  )}
                 </div>
                 
                 <div className="flex flex-col">
-                  <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                  <div className={`px-5 py-3.5 rounded-[22px] text-[13px] leading-relaxed shadow-sm font-medium ${
                     msg.role === 'user' 
-                      ? 'bg-[#3b82f6] text-white rounded-tr-none' 
-                      : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'
+                      ? 'bg-blue-600 text-white rounded-tr-none' 
+                      : 'bg-white border border-slate-100 text-slate-900 rounded-tl-none'
                   }`} style={msg.role === 'user' ? { color: 'white' } : {}}>
                     {msg.role === 'assistant' ? (
                       <div 
@@ -105,7 +111,7 @@ export default function AIChat({ clientId, clientName }) {
                     )}
                   </div>
                   {msg.timestamp && (
-                    <span className={`text-[10px] text-slate-400 mt-1.5 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                    <span className={`text-[9px] font-black uppercase tracking-widest text-slate-400 mt-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
@@ -116,14 +122,14 @@ export default function AIChat({ clientId, clientName }) {
         )}
 
         {chatLoading && (
-          <div className="flex items-start gap-2.5 max-w-[85%]">
-            <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+          <div className="flex items-start gap-3 max-w-[85%]">
+            <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+               <img src="/favicon.svg" alt="Relavo" className="w-4 h-4 animate-pulse" />
             </div>
-            <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
+            <div className="bg-white border border-slate-100 px-5 py-3.5 rounded-[22px] rounded-tl-none shadow-sm flex items-center gap-1.5">
+              <div className="typing-dot bg-blue-500"></div>
+              <div className="typing-dot bg-blue-500"></div>
+              <div className="typing-dot bg-blue-500"></div>
             </div>
           </div>
         )}
