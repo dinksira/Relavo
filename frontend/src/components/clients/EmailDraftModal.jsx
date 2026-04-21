@@ -146,14 +146,7 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
         </div>
 
         {/* WORKSPACE AREA */}
-        <div className="flex-1 bg-white p-12 flex flex-col relative">
-           <button
-             onClick={onClose}
-             className="absolute top-10 right-10 p-2 rounded-xl text-slate-300 hover:text-slate-900 hover:bg-slate-100 transition-all border-none bg-transparent cursor-pointer"
-           >
-             <X size={20} />
-           </button>
-
+        <div className="flex-1 bg-white p-12 flex flex-col relative h-full">
            <div className="flex justify-between items-center mb-10">
               <div className="flex items-center gap-3">
                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -161,13 +154,21 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
                  </div>
                  <h3 className="text-[18px] font-black text-slate-900 m-0 tracking-tight italic">AI Correspondence Draft.</h3>
               </div>
-              <button
-                onClick={() => fetchDraft(tone)}
-                disabled={loading || sending}
-                className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-all border-none bg-transparent cursor-pointer disabled:opacity-50"
-              >
-                <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Regenerate
-              </button>
+              <div className="flex items-center gap-6">
+                 <button
+                   onClick={() => fetchDraft(tone)}
+                   disabled={loading || sending}
+                   className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-all border-none bg-transparent cursor-pointer disabled:opacity-50"
+                 >
+                   <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Regenerate
+                 </button>
+                 <button
+                   onClick={onClose}
+                   className="p-2 rounded-xl text-slate-300 hover:text-slate-900 hover:bg-slate-100 transition-all border-none bg-transparent cursor-pointer"
+                 >
+                   <X size={20} />
+                 </button>
+              </div>
            </div>
 
            {loading ? (
@@ -208,26 +209,27 @@ const EmailDraftModal = ({ isOpen, onClose, client }) => {
                    </div>
                    
                    <div className="flex items-center gap-3">
-                      <Button
-                        onClick={handleCopy}
-                        disabled={sending || sent}
-                        variant="outline"
-                        className={`!h-12 !px-6 !rounded-2xl transition-all ${copied ? '!border-emerald-600 !bg-emerald-50 !text-emerald-700' : ''}`}
-                      >
-                        {copied ? <Check size={16} /> : <Copy size={16} />}
-                        <span className="!font-black !uppercase !text-[11px] !tracking-widest ml-2">{copied ? 'Analyzed & Copied' : 'Copy Draft'}</span>
-                      </Button>
-                      
-                      <Button
-                        onClick={handleSend}
-                        disabled={loading || sending || sent}
-                        variant="primary"
-                        className={`!h-12 !px-10 !rounded-2xl shadow-xl shadow-blue-500/20 transition-all ${sent ? '!bg-emerald-600' : ''}`}
-                      >
-                        {sending ? <RotateCw size={16} className="animate-spin" /> : (sent ? <Check size={16} /> : <Send size={16} />)}
-                        <span className="!font-black !uppercase !text-[11px] !tracking-widest ml-2">{sending ? 'Processing...' : (sent ? 'Transmission Complete' : 'Execute Send')}</span>
-                      </Button>
-                   </div>
+                       <Button
+                         onClick={handleCopy}
+                         disabled={sending || sent}
+                         variant="outline"
+                         icon={copied ? Check : Copy}
+                         className={`!h-12 !px-6 !rounded-2xl transition-all ${copied ? '!border-emerald-600 !bg-emerald-50 !text-emerald-700' : ''}`}
+                       >
+                         {copied ? 'Analyzed & Copied' : 'Copy Draft'}
+                       </Button>
+                       
+                       <Button
+                         onClick={handleSend}
+                         disabled={loading || sending || sent}
+                         variant={sent ? 'success' : 'primary'}
+                         icon={sending ? null : (sent ? Check : Send)}
+                         loading={sending}
+                         className={`!h-12 !px-10 !rounded-2xl shadow-xl shadow-blue-500/20 transition-all`}
+                       >
+                         {sent ? 'Transmission Complete' : 'Execute Send'}
+                       </Button>
+                    </div>
                 </div>
              </div>
            )}
