@@ -81,6 +81,9 @@ export const aiAPI = {
       message, 
       conversationHistory 
     }),
+  
+  interpretCommand: (query, contextClients) =>
+    api.post('/ai/interpret', { query, context_clients: contextClients }),
 };
 
 export default api;

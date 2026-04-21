@@ -22,6 +22,16 @@ class AIController {
       res.status(500).json({ error: 'Failed to generate AI email draft' });
     }
   }
+
+  async interpretCommand(req, res) {
+    try {
+      const { query, context_clients } = req.body;
+      const result = await aiService.interpret({ query, context_clients });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to interpret AI command' });
+    }
+  }
 }
 
 module.exports = new AIController();

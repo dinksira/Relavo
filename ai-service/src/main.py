@@ -86,6 +86,10 @@ class ChatRequest(BaseModel):
     conversation_history: Optional[List[ChatMessage]] = []
     client_context: Optional[dict] = {}
 
+class InterpretRequest(BaseModel):
+    query: str
+    context_clients: List[dict] = []
+
 # ENDPOINTS
 
 @app.get("/health")
@@ -203,3 +207,49 @@ Rules:
     except Exception as e:
         print(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/interpret")
+def interpret_command(req: InterpretRequest):
+    try:
+        from groq import Groq
+        import json
+        groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        
+        clients_str = "\n".join([f"- {c['name']} (ID: {c['id']})" for c in req.context_clients[:20]])
+        
+        system_prompt = f"""You are the Relavo Command Interpreter.
+Analyze the user's natural language query and map it to a specific system action.
+
+AVAILABLE CLIENTS:
+{clients_str}
+
+AVAILABLE ACTIONS:
+- navigate_to: "dashboard", "clients", "alerts", "settings", "invoices"
+- open_client: needs client_id
+- draft_email: needs client_id
+- get_briefing: needs client_id
+- log_touchpoint: needs client_id
+- search: generic fallback
+
+RULES:
+- Return ONLY valid JSON.
+- If a client is mentioned, find the closest ID from the list.
+- If no specific action matches, use "search".
+- Keep "params" specific to the action requirement."""
+
+        user_prompt = f"Query: \"{req.query}\""
+        
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1
+        )
+        
+        return json.loads(response.choices[0].message.content)
+    except Exception as e:
+        print(f"Interpret error: {e}")
+        return {"action": "search", "params": {"query": req.query}}

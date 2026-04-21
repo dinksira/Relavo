@@ -60,10 +60,21 @@ const chat = async (data) => {
   }
 };
 
+const interpret = async (data) => {
+  try {
+    const response = await aiInstance.post('/interpret', data);
+    return response.data;
+  } catch (error) {
+    console.error('AI Service Error (interpret):', error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   analyzeClient,
   getInsight,
   draftEmail,
   getBriefing,
-  chat
+  chat,
+  interpret
 };

@@ -259,4 +259,19 @@ router.post('/send-draft', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/ai/interpret
+ * Use AI to interpret natural language commands
+ */
+router.post('/interpret', async (req, res) => {
+  try {
+    const { query, context_clients } = req.body;
+    const result = await aiService.interpret({ query, context_clients });
+    return ok(res, result, 'Command interpreted');
+  } catch (error) {
+    console.error('Error in /interpret:', error.message);
+    return fail(res, 500, error.message);
+  }
+});
+
 module.exports = router;
