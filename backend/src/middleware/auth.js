@@ -11,6 +11,7 @@ const authMiddleware = async (req, res, next) => {
     const { data: { user }, error } = await supabase.auth.getUser(token);
 
     if (error || !user) {
+      console.warn(`[Auth] Unauthorized attempt. Error: ${error?.message || 'User not found'}`);
       return res.status(401).json({ error: "Unauthorized" });
     }
 

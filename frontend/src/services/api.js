@@ -20,7 +20,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      // Only redirect if we're not already on a login/auth page to avoid loops
+      if (!['/login', '/register', '/'].includes(window.location.pathname)) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
