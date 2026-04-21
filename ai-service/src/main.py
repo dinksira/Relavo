@@ -229,6 +229,8 @@ AVAILABLE ACTIONS:
 - draft_email: params: {{"client_id": "UUID"}}
 - get_briefing: params: {{"client_id": "UUID"}}
 - log_touchpoint: params: {{"client_id": "UUID"}}
+- show_invoices: params: {{"client_id": "UUID"}}
+- recalculate_score: params: {{"client_id": "UUID"}}
 - search: generic fallback
 
 OUTPUT FORMAT (JSON ONLY):

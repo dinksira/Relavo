@@ -82,6 +82,19 @@ const CommandHub = () => {
           navigate(`/clients/${params.client_id}`);
           setOpen(false);
           setTimeout(() => window.dispatchEvent(new CustomEvent('relavo:touchpoint:open')), 500);
+        } else if (action === 'show_invoices' && params.client_id) {
+          navigate(`/clients/${params.client_id}`);
+          setOpen(false);
+          // Potential event to scroll to invoices
+          setTimeout(() => {
+             const el = document.getElementById('billing-section');
+             if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 600);
+        } else if (action === 'recalculate_score' && params.client_id) {
+          navigate(`/clients/${params.client_id}`);
+          setOpen(false);
+          // Trigger recalculation event
+          setTimeout(() => window.dispatchEvent(new CustomEvent('relavo:score:recalculate')), 500);
         } else {
           // Fallback to searching if AI isn't sure
           console.warn('AI Brain returned ambiguous action:', action);

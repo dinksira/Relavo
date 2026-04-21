@@ -86,15 +86,18 @@ const ClientDetailPage = () => {
       const element = document.getElementById('ai-briefing-section');
       if (element) element.scrollIntoView({ behavior: 'smooth' });
     };
+    const handleRecalculateScore = () => handleRecalculate();
 
     window.addEventListener('relavo:draft:open', handleDraftOpen);
     window.addEventListener('relavo:touchpoint:open', handleTouchpointOpen);
     window.addEventListener('relavo:briefing:open', handleBriefingOpen);
+    window.addEventListener('relavo:score:recalculate', handleRecalculateScore);
 
     return () => {
       window.removeEventListener('relavo:draft:open', handleDraftOpen);
       window.removeEventListener('relavo:touchpoint:open', handleTouchpointOpen);
       window.removeEventListener('relavo:briefing:open', handleBriefingOpen);
+      window.removeEventListener('relavo:score:recalculate', handleRecalculateScore);
     };
   }, []);
 
@@ -410,7 +413,7 @@ const ClientDetailPage = () => {
           </div>
 
           {/* Institutional Billing Card */}
-          <div className="premium-card overflow-hidden">
+          <div id="billing-section" className="premium-card overflow-hidden">
             <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                <h3 className="text-[15px] font-black text-slate-900 m-0 flex items-center gap-3 tracking-tight">
                   <DollarSign size={18} className="text-emerald-500" />
