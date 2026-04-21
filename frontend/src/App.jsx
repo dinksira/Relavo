@@ -20,6 +20,7 @@ import SettingsPage from './pages/SettingsPage';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import Toast from './components/ui/Toast';
+import CommandHub from './components/ui/CommandHub';
 import { useLocation } from 'react-router-dom';
 
 const ScrollToTop = () => {
@@ -76,6 +77,9 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Global intelligence hub */}
+      <CommandHub />
 
       {/* Global toast notifications */}
       <Toast />

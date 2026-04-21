@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Search, Settings, LogOut, ChevronDown, LayoutDashboard, Command } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+import useCommandStore from '../../store/useCommandStore';
 import useAlerts from '../../hooks/useAlerts';
 import useToast from '../../hooks/useToast';
 import { supabase } from '../../services/supabase';
@@ -20,6 +21,7 @@ const TopBar = ({ isMobile }) => {
   const toast = useToast();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
+  const setCommandOpen = useCommandStore(s => s.setOpen);
   const { unreadCount } = useAlerts();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -81,9 +83,9 @@ const TopBar = ({ isMobile }) => {
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
           <input 
             type="text" 
-            placeholder="Query clients..." 
-            className="w-[320px] h-[48px] bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 text-[13px] text-slate-900 placeholder-slate-400 focus:border-blue-200 focus:bg-white focus:ring-4 focus:ring-blue-500/5 outline-none transition-all duration-300 font-medium"
-            onClick={() => toast.info('Global intelligence search is optimizing.')}
+            placeholder="Query intelligence..." 
+            className="w-[320px] h-[48px] bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 text-[13px] text-slate-900 placeholder-slate-400 focus:border-blue-200 focus:bg-white focus:ring-4 focus:ring-blue-500/5 outline-none transition-all duration-300 font-medium cursor-pointer"
+            onClick={() => setCommandOpen(true)}
             readOnly
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1">
