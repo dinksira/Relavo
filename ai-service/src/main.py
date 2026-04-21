@@ -231,10 +231,17 @@ AVAILABLE ACTIONS:
 - log_touchpoint: needs client_id
 - search: generic fallback
 
+OUTPUT FORMAT (JSON):
+{
+  "action": "open_client" | "navigate_to" | "draft_email" | "get_briefing" | "log_touchpoint" | "search",
+  "params": { ... },
+  "response": "Short natural language answer if it was a question, otherwise empty string"
+}
+
 RULES:
 - Return ONLY valid JSON.
+- If the user asks a question (e.g. 'is there a client named X?'), find the client and set "response": "Yes, I found Midroc under ID ####."
 - If a client is mentioned, find the closest ID from the list.
-- If no specific action matches, use "search".
 - Keep "params" specific to the action requirement."""
 
         user_prompt = f"Query: \"{req.query}\""

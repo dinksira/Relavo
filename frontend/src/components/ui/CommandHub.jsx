@@ -12,6 +12,7 @@ const CommandHub = () => {
   const { clients, loading: clientsLoading } = useClients();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isThinking, setIsThinking] = useState(false);
+  const [aiResponse, setAiResponse] = useState(null);
   const inputRef = useRef(null);
 
   const staticActions = [
@@ -36,6 +37,7 @@ const CommandHub = () => {
     if (isOpen) {
       setSelectedIndex(0);
       setQuery('');
+      setAiResponse(null);
       setTimeout(() => inputRef.current?.focus(), 100);
       document.body.style.overflow = 'hidden';
     } else {
@@ -48,11 +50,16 @@ const CommandHub = () => {
       if (!currentQuery.trim() || isThinking) return;
       
       setIsThinking(true);
+      setAiResponse(null);
       try {
         const res = await aiAPI.interpretCommand(currentQuery, (clients || []).map(c => ({ id: c.id, name: c.name })));
-        const { action, params } = res.data?.data || res.data || {};
+        const { action, params, response } = res.data?.data || res.data || {};
         
         console.log('AI Logic Decoupled:', action, params);
+
+        if (response) {
+          setAiResponse(response);
+        }
 
         if (action === 'navigate_to') {
           navigate(`/${params.target}`);
@@ -169,6 +176,21 @@ const CommandHub = () => {
         </div>
 
         <div className="max-h-[480px] overflow-y-auto p-3 no-scrollbar relative">
+           {/* AI RESPONSE BUBBLE */}
+           {aiResponse && (
+             <div className="mb-4 px-4 py-6 bg-blue-600/10 border border-blue-500/20 rounded-[24px] animate-in slide-in-from-top-2 duration-300">
+                <div className="flex gap-4 items-start">
+                   <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/20">
+                      <Sparkles size={18} />
+                   </div>
+                   <div>
+                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1">AI Intelligence Insight</p>
+                      <p className="text-[16px] font-medium text-white leading-relaxed italic m-0">"{aiResponse}"</p>
+                   </div>
+                </div>
+             </div>
+           )}
+
            {/* AI BRAIN SUGGESTION BOX */}
            {query.trim() && (
              <div className="mb-4">
