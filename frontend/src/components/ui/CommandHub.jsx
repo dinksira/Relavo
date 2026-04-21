@@ -5,9 +5,11 @@ import useCommandStore from '../../store/useCommandStore';
 import { clientsAPI, aiAPI } from '../../services/api';
 import { getNumericScore } from '../../utils/scoreHelpers';
 import useClients from '../../hooks/useClients';
+import useToast from '../../hooks/useToast';
 
 const CommandHub = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { isOpen, setOpen, query, setQuery } = useCommandStore();
   const { clients, loading: clientsLoading } = useClients();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -82,10 +84,12 @@ const CommandHub = () => {
           setTimeout(() => window.dispatchEvent(new CustomEvent('relavo:touchpoint:open')), 500);
         } else {
           // Fallback to searching if AI isn't sure
-          console.warn('AI Brain returned ambiguous action');
+          console.warn('AI Brain returned ambiguous action:', action);
+          if (!response) toast.info('AI is refining your request based on current intelligence.');
         }
       } catch (err) {
         console.error('AI Command Interpretation Error:', err);
+        toast.error('Intelligence Engine timed out. Please try again.');
       } finally {
         setIsThinking(false);
       }

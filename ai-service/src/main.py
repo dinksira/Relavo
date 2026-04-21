@@ -218,45 +218,46 @@ def interpret_command(req: InterpretRequest):
         clients_str = "\n".join([f"- {c['name']} (ID: {c['id']})" for c in req.context_clients[:20]])
         
         system_prompt = f"""You are the Relavo Command Interpreter.
-Analyze the user's natural language query and map it to a specific system action.
+Analyze the user's query and map it to a system action OR answer it directly.
 
 AVAILABLE CLIENTS:
-{clients_str}
+{clients_str or "No clients found in directory."}
 
 AVAILABLE ACTIONS:
-- navigate_to: "dashboard", "clients", "alerts", "settings", "invoices"
-- open_client: needs client_id
-- draft_email: needs client_id
-- get_briefing: needs client_id
-- log_touchpoint: needs client_id
+- navigate_to: params: {{"target": "dashboard" | "clients" | "alerts" | "settings" | "invoices"}}
+- open_client: params: {{"client_id": "UUID"}}
+- draft_email: params: {{"client_id": "UUID"}}
+- get_briefing: params: {{"client_id": "UUID"}}
+- log_touchpoint: params: {{"client_id": "UUID"}}
 - search: generic fallback
 
-OUTPUT FORMAT (JSON):
-{
-  "action": "open_client" | "navigate_to" | "draft_email" | "get_briefing" | "log_touchpoint" | "search",
-  "params": { ... },
-  "response": "Short natural language answer if it was a question, otherwise empty string"
-}
+OUTPUT FORMAT (JSON ONLY):
+{{
+  "action": "action_name",
+  "params": {{}},
+  "response": "Your natural language response here."
+}}
 
 RULES:
-- Return ONLY valid JSON.
-- If the user asks a question (e.g. 'is there a client named X?'), find the client and set "response": "Yes, I found Midroc under ID ####."
-- If a client is mentioned, find the closest ID from the list.
-- Keep "params" specific to the action requirement."""
+1. If the user asks a question (is there, do we have, who is), answer it in the 'response' field.
+2. If they mention a client, always try to find the ID from the list.
+3. Be concise. Return only the JSON."""
 
-        user_prompt = f"Query: \"{req.query}\""
+        print(f"[Interpret] Query: {req.query}")
         
         response = groq_client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": f"User Query: {req.query}"}
             ],
             response_format={"type": "json_object"},
-            temperature=0.1
+            temperature=0.0
         )
         
-        return json.loads(response.choices[0].message.content)
+        result = json.loads(response.choices[0].message.content)
+        print(f"[Interpret] Result: {result.get('action')} - {result.get('response')}")
+        return result
     except Exception as e:
         print(f"Interpret error: {e}")
         return {"action": "search", "params": {"query": req.query}}
