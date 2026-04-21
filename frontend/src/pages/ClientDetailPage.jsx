@@ -79,6 +79,25 @@ const ClientDetailPage = () => {
     return () => window.removeEventListener('relavo:quicklog:success', handleQuickLogSuccess);
   }, [id, refreshAllData]);
 
+  useEffect(() => {
+    const handleDraftOpen = () => setEmailModalOpen(true);
+    const handleTouchpointOpen = () => setTouchpointModalOpen(true);
+    const handleBriefingOpen = () => {
+      const element = document.getElementById('ai-briefing-section');
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.addEventListener('relavo:draft:open', handleDraftOpen);
+    window.addEventListener('relavo:touchpoint:open', handleTouchpointOpen);
+    window.addEventListener('relavo:briefing:open', handleBriefingOpen);
+
+    return () => {
+      window.removeEventListener('relavo:draft:open', handleDraftOpen);
+      window.removeEventListener('relavo:touchpoint:open', handleTouchpointOpen);
+      window.removeEventListener('relavo:briefing:open', handleBriefingOpen);
+    };
+  }, []);
+
   const handleAddTouchpoint = async (data) => {
     await clientsAPI.logTouchpoint(id, data);
     await refreshAllData();
@@ -232,7 +251,7 @@ const ClientDetailPage = () => {
           </div>
 
           {/* AI Briefing System */}
-          <div className="reveal" style={{ transitionDelay: '200ms' }}>
+          <div id="ai-briefing-section" className="reveal" style={{ transitionDelay: '200ms' }}>
              <AIBriefing key={briefingRefreshKey} clientId={id} clientName={client.name} />
           </div>
 

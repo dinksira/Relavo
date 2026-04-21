@@ -68,6 +68,7 @@ const CommandHub = () => {
         } else if (action === 'get_briefing' && params.client_id) {
           navigate(`/clients/${params.client_id}`);
           setOpen(false);
+          setTimeout(() => window.dispatchEvent(new CustomEvent('relavo:briefing:open')), 500);
         } else if (action === 'log_touchpoint' && params.client_id) {
           navigate(`/clients/${params.client_id}`);
           setOpen(false);
