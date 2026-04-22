@@ -14,6 +14,8 @@ import {
   Plus
 } from 'lucide-react';
 import Logo from './Logo';
+import TeamPresence from './team/TeamPresence';
+import useTeamStore from '../store/teamStore';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -125,6 +127,9 @@ const Layout = ({ children }) => {
            </div>
 
            <div className="flex items-center gap-6">
+              {/* Team Presence Avatars */}
+              <TeamPresence compact />
+
               <button className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-navy text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-navy/20 transition-all active:scale-95">
                  <Plus size={14} /> Quick Entry
               </button>

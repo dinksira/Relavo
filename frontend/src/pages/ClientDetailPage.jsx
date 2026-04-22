@@ -23,6 +23,8 @@ import { clientsAPI, aiAPI, invoicesAPI } from '../services/api';
 import { getRiskLabel, getRiskColors, getNumericScore } from '../utils/scoreHelpers';
 import { formatDaysAgo, formatDate, formatCurrency } from '../utils/formatters';
 import useToast from '../hooks/useToast';
+import TeamComments from '../components/team/TeamComments';
+import TeamPresence from '../components/team/TeamPresence';
 
 const typeStyles = {
   call: { icon: Phone, color: 'text-indigo-500', bg: 'bg-indigo-50' },
@@ -466,6 +468,11 @@ const ClientDetailPage = () => {
           {/* AI Strategy Chat Widget */}
           <div className="reveal" style={{ transitionDelay: '500ms' }}>
              <AIChat clientId={id} clientName={client.name} />
+          </div>
+
+          {/* Team Discussion Thread */}
+          <div className="reveal" style={{ transitionDelay: '600ms' }}>
+            <TeamComments clientId={id} />
           </div>
         </div>
       </div>

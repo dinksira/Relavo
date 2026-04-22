@@ -16,6 +16,8 @@ import { getRiskLabel, getNumericScore } from '../utils/scoreHelpers';
 import { formatDaysAgo } from '../utils/formatters';
 import { aiAPI } from '../services/api';
 import useToast from '../hooks/useToast';
+import ActivityFeed from '../components/team/ActivityFeed';
+import useTeamStore from '../store/teamStore';
 
 const MetricWidget = ({ title, value, suffix, trend, color, icon: Icon, loading }) => {
   if (loading) return <CardSkeleton />;
@@ -320,6 +322,19 @@ const DashboardPage = () => {
             </Link>
           </div>
           <AlertsPanel alerts={alerts} onDismiss={dismiss} />
+
+          {/* Team Activity Feed — only visible in team mode */}
+          {useTeamStore.getState().isTeamMode && (
+            <div className="mt-8 space-y-4">
+              <div className="flex justify-between items-center px-2">
+                <h2 className="text-[18px] font-black text-slate-900 tracking-tight m-0 flex items-center gap-3">
+                  <Users size={20} className="text-violet-500" />
+                  Team Pulse
+                </h2>
+              </div>
+              <ActivityFeed limit={8} />
+            </div>
+          )}
         </div>
       </div>
 

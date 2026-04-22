@@ -28,6 +28,7 @@ app.use('/api/clients', require('./routes/clients.routes'));
 app.use('/api/invoices', require('./routes/invoices.routes'));
 app.use('/api/alerts',  require('./routes/alerts.routes'));
 app.use('/api/ai',      require('./routes/ai.routes'));
+app.use('/api/team',    require('./routes/team.routes'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'relavo-api' }));
 

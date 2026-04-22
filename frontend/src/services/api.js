@@ -86,4 +86,16 @@ export const aiAPI = {
     api.post('/ai/interpret', { query, context_clients: contextClients }),
 };
 
+export const teamAPI = {
+  getTeam: () => api.get('/team'),
+  createTeam: (name) => api.post('/team/create', { name }),
+  inviteMember: (email, role) => api.post('/team/invite', { email, role }),
+  getMembers: () => api.get('/team/members'),
+  updateRole: (memberId, role) => api.put(`/team/members/${memberId}/role`, { role }),
+  removeMember: (memberId) => api.delete(`/team/members/${memberId}`),
+  getActivity: () => api.get('/team/activity'),
+  getComments: (clientId) => api.get(`/team/comments/${clientId}`),
+  addComment: (clientId, content, mentions) => api.post(`/team/comments/${clientId}`, { content, mentions }),
+};
+
 export default api;

@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './services/supabase';
 import useAuthStore from './store/authStore';
+import useTeamStore from './store/teamStore';
+import { teamAPI } from './services/api';
 
 // Auth pages (do NOT modify)
 import LandingPage from './pages/LandingPage';
@@ -31,12 +33,30 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Fetch team data silently after auth
+const loadTeamData = async () => {
+  try {
+    const { data } = await teamAPI.getTeam();
+    const teamData = data?.data || null;
+    useTeamStore.getState().setTeam(teamData);
+    if (teamData?.agency) {
+      useAuthStore.getState().setAgency(teamData.agency.id, teamData.userRole);
+    }
+  } catch (err) {
+    // Silently fail — user may not be in a team yet
+    console.debug('[Team] No team data:', err?.message);
+  }
+};
+
 function App() {
   const setAuth = useAuthStore(state => state.setAuth);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setAuth(session.user, session.access_token);
+      if (session) {
+        setAuth(session.user, session.access_token);
+        loadTeamData();
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -49,6 +69,7 @@ function App() {
             full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
             avatar_url: session.user.user_metadata?.avatar_url || ''
           }, { onConflict: 'id' });
+          loadTeamData();
         }
       }
     });

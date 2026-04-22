@@ -6,6 +6,7 @@ import useCommandStore from '../../store/useCommandStore';
 import useAlerts from '../../hooks/useAlerts';
 import useToast from '../../hooks/useToast';
 import { supabase } from '../../services/supabase';
+import TeamPresence from '../team/TeamPresence';
 
 const pageNames = {
   '/dashboard': 'Intelligence Overview',
@@ -93,6 +94,9 @@ const TopBar = ({ isMobile }) => {
              <kbd className="h-5 px-1.5 rounded-md bg-white border border-slate-200 text-[10px] font-black text-slate-400 flex items-center justify-center">K</kbd>
           </div>
         </div>
+
+        {/* Team Presence */}
+        <TeamPresence compact />
 
         {/* System Alerts */}
         <div className="relative">

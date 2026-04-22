@@ -8,13 +8,28 @@ router.use(authMiddleware);
 const ok = (res, data, message) => res.json({ success: true, data, message });
 const fail = (res, code, message, data = null) => res.status(code).json({ success: false, data, message });
 
-// GET /api/clients
+// GET /api/clients — Personal + Agency clients
 router.get('/', async (req, res) => {
   try {
-    const { data: clients, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('user_id', req.user.id);
+    // Check if user belongs to an agency
+    const { data: membership } = await supabase
+      .from('agency_members')
+      .select('agency_id')
+      .eq('user_id', req.user.id)
+      .limit(1)
+      .single();
+
+    let query = supabase.from('clients').select('*');
+
+    if (membership?.agency_id) {
+      // Fetch all agency clients (shared workspace)
+      query = query.or(`user_id.eq.${req.user.id},agency_id.eq.${membership.agency_id}`);
+    } else {
+      // Solo mode — original behavior
+      query = query.eq('user_id', req.user.id);
+    }
+
+    const { data: clients, error } = await query;
 
     if (error) return fail(res, 400, error.message);
     return ok(res, clients, 'Clients fetched');
@@ -54,6 +69,28 @@ router.post('/', async (req, res) => {
     setTimeout(() => {
       healthService.calculateAndSaveScore(client.id, req.user.id);
     }, 1000);
+
+    // Log activity for team feed (non-blocking)
+    const { data: membership } = await supabase
+      .from('agency_members')
+      .select('agency_id')
+      .eq('user_id', req.user.id)
+      .limit(1)
+      .single();
+
+    if (membership?.agency_id) {
+      // Also set agency_id on the new client
+      await supabase.from('clients').update({ agency_id: membership.agency_id }).eq('id', client.id);
+      
+      supabase.from('activity_log').insert({
+        agency_id: membership.agency_id,
+        user_id: req.user.id,
+        action: 'client_added',
+        entity_type: 'client',
+        entity_id: client.id,
+        metadata: { client_name: name }
+      }).then(() => {}).catch(err => console.error('Activity log error:', err));
+    }
 
     return res.status(201).json({ success: true, data: client, message: 'Client created' });
   } catch (err) {
@@ -206,6 +243,19 @@ router.post('/:id/touchpoints', async (req, res) => {
     setTimeout(() => {
       healthService.calculateAndSaveScore(id, req.user.id);
     }, 500);
+
+    // Log activity for team feed (non-blocking)
+    const { data: clientData } = await supabase.from('clients').select('name, agency_id').eq('id', id).single();
+    if (clientData?.agency_id) {
+      supabase.from('activity_log').insert({
+        agency_id: clientData.agency_id,
+        user_id: req.user.id,
+        action: 'touchpoint_logged',
+        entity_type: 'touchpoint',
+        entity_id: touchpoint.id,
+        metadata: { client_name: clientData.name, touchpoint_type: type, outcome }
+      }).then(() => {}).catch(err => console.error('Activity log error:', err));
+    }
 
     return res.status(201).json({ success: true, data: touchpoint, message: 'Touchpoint logged' });
   } catch (err) {

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Bell, Shield, CreditCard, Trash2, Camera, Zap, Check, Save } from 'lucide-react';
+import { User, Bell, Shield, CreditCard, Trash2, Camera, Zap, Check, Save, Users2 } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Button from '../components/ui/Button';
+import TeamSettingsPanel from '../components/team/TeamSettingsPanel';
 import useAuthStore from '../store/authStore';
 import useToast from '../hooks/useToast';
 import { supabase } from '../services/supabase';
@@ -51,6 +52,7 @@ const SettingsPage = () => {
 
   const tabs = [
     { key: 'Profile', icon: User, label: 'Profile' },
+    { key: 'Team', icon: Users2, label: 'Team' },
     { key: 'Notifications', icon: Bell, label: 'Notifications' },
     { key: 'Analysis', icon: Zap, label: 'Alert Thresholds' },
     { key: 'Security', icon: Shield, label: 'Security' },
@@ -150,6 +152,10 @@ const SettingsPage = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+            {tab === 'Team' && (
+              <TeamSettingsPanel />
             )}
 
             {tab === 'Notifications' && (
