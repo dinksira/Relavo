@@ -23,13 +23,17 @@ const getUserAgency = async (userId) => {
   return { ...data.agencies, userRole: data.role };
 };
 
-// ============================================================
 // GET /api/team — Current user's agency + members
-// ============================================================
 router.get('/', async (req, res) => {
   try {
     const agency = await getUserAgency(req.user.id);
+    
     if (!agency) {
+      // Direct check: list memberships to see if they exist but are hidden by RLS
+      const { data: check } = await supabase.from('agency_members').select('id').eq('user_id', req.user.id);
+      if (check && check.length > 0) {
+        console.warn(`[Team] User ${req.user.id} has ${check.length} memberships but getUserAgency returned null (RLS issue likely)`);
+      }
       return ok(res, null, 'User is not part of any team');
     }
 
@@ -38,12 +42,15 @@ router.get('/', async (req, res) => {
       .from('agency_members')
       .select(`
         id, role, joined_at,
-        profiles:user_id(id, full_name, email, avatar_url)
+        profiles(id, full_name, email, avatar_url)
       `)
       .eq('agency_id', agency.id)
       .order('joined_at', { ascending: true });
 
-    if (error) return fail(res, 400, error.message);
+    if (error) {
+      console.error('[Team] Get members error:', error);
+      return fail(res, 400, error.message);
+    }
 
     return ok(res, {
       agency: {
