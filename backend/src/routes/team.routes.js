@@ -434,4 +434,45 @@ router.post('/comments/:clientId', async (req, res) => {
   }
 });
 
+// ============================================================
+// DELETE /api/team/leave — Leave the current agency
+// ============================================================
+router.delete('/leave', async (req, res) => {
+  try {
+    const agency = await getUserAgency(req.user.id);
+    if (!agency) return fail(res, 404, 'You are not in a team');
+
+    if (agency.userRole === 'owner') {
+      return fail(res, 403, 'Owners cannot leave the workspace. Transfer ownership or delete the team instead.');
+    }
+
+    const { error } = await supabase
+      .from('agency_members')
+      .delete()
+      .eq('agency_id', agency.id)
+      .eq('user_id', req.user.id);
+
+    if (error) return fail(res, 400, error.message);
+
+    // Update profile
+    await supabase
+      .from('profiles')
+      .update({ agency_id: null, role: 'owner' })
+      .eq('id', req.user.id);
+
+    // Log activity
+    await supabase.from('activity_log').insert({
+      agency_id: agency.id,
+      user_id: req.user.id,
+      action: 'member_left',
+      metadata: { user_name: req.user.email }
+    });
+
+    return ok(res, null, 'You have left the team workspace');
+  } catch (err) {
+    console.error('Leave Team Error:', err);
+    return fail(res, 500, 'Internal server error');
+  }
+});
+
 module.exports = router;

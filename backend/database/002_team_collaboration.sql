@@ -103,6 +103,16 @@ CREATE POLICY "Members can view team" ON public.agency_members
     agency_id IN (SELECT agency_id FROM public.agency_members WHERE user_id = auth.uid())
   );
 
+-- Agency Members: Users can always see their own row
+CREATE POLICY "Users can view own membership" ON public.agency_members
+  FOR SELECT USING (user_id = auth.uid());
+
+-- Agency Members: Owners can add themselves to agencies they own
+CREATE POLICY "Owners can join their agencies" ON public.agency_members
+  FOR INSERT WITH CHECK (
+    agency_id IN (SELECT id FROM public.agencies WHERE owner_id = auth.uid())
+  );
+
 -- Agency Members: Admins/owners can manage
 CREATE POLICY "Admins can manage members" ON public.agency_members
   FOR ALL USING (

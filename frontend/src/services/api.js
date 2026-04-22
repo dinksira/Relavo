@@ -93,6 +93,7 @@ export const teamAPI = {
   getMembers: () => api.get('/team/members'),
   updateRole: (memberId, role) => api.put(`/team/members/${memberId}/role`, { role }),
   removeMember: (memberId) => api.delete(`/team/members/${memberId}`),
+  leaveTeam: () => api.delete('/team/leave'),
   getActivity: () => api.get('/team/activity'),
   getComments: (clientId) => api.get(`/team/comments/${clientId}`),
   addComment: (clientId, content, mentions) => api.post(`/team/comments/${clientId}`, { content, mentions }),

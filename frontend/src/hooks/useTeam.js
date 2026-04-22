@@ -89,6 +89,21 @@ const useTeam = () => {
     }
   };
 
+  // Leave current team
+  const leaveTeam = async () => {
+    try {
+      const { data } = await teamAPI.leaveTeam();
+      if (data?.success) {
+        reset(); // Clear team state locally
+        toast.success('You have left the team workspace');
+        return true;
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to leave team');
+      return false;
+    }
+  };
+
   return {
     agency,
     members,
@@ -102,6 +117,7 @@ const useTeam = () => {
     inviteMember,
     updateRole,
     removeMember,
+    leaveTeam,
   };
 };
 

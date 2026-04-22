@@ -21,7 +21,7 @@ const roleColors = {
 
 const TeamSettingsPanel = () => {
   const user = useAuthStore(s => s.user);
-  const { agency, members, userRole, isTeamMode, loading, fetchTeam, createTeam, inviteMember, updateRole, removeMember } = useTeam();
+  const { agency, members, userRole, isTeamMode, loading, fetchTeam, createTeam, inviteMember, updateRole, removeMember, leaveTeam } = useTeam();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -179,6 +179,30 @@ const TeamSettingsPanel = () => {
           );
         })}
       </div>
+
+      {/* Danger Zone: Leave Team */}
+      {userRole !== 'owner' && (
+        <div className="mt-12 pt-8 border-t border-rose-50 animate-in fade-in duration-500">
+           <div className="bg-rose-50/50 rounded-2xl p-6 border border-rose-100/50">
+              <div className="flex justify-between items-center gap-4">
+                 <div className="space-y-1">
+                    <p className="text-[13px] font-bold text-rose-600">Danger Zone</p>
+                    <p className="text-[11px] text-slate-500 font-medium">Leave this workspace. You will lose access to shared clients and team activity.</p>
+                 </div>
+                 <button
+                   onClick={() => {
+                     if (window.confirm('Are you sure you want to leave this workspace?')) {
+                       leaveTeam();
+                     }
+                   }}
+                   className="px-5 py-2.5 bg-white border border-rose-200 text-rose-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all border-none cursor-pointer shadow-sm active:scale-95"
+                 >
+                    Leave Team
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
 
       <InviteMemberModal
         isOpen={showInviteModal}
