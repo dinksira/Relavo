@@ -82,16 +82,16 @@ const TeamPresence = ({ compact = false }) => {
 
               {/* Hover tooltip */}
               <div className="
-                absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5
+                absolute top-full left-1/2 -translate-x-1/2 mt-2.5
                 bg-slate-900 text-white text-[10px] font-bold
                 px-3 py-1.5 rounded-lg whitespace-nowrap
                 opacity-0 group-hover:opacity-100
                 pointer-events-none transition-opacity duration-200
-                shadow-xl
+                shadow-xl z-[100]
               ">
                 {name}
                 <span className="text-slate-400 ml-1.5 capitalize">• {member.role}</span>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 rotate-45" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 -mb-1 w-2 h-2 bg-slate-900 rotate-45" />
               </div>
             </div>
           );

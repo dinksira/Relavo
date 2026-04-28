@@ -26,14 +26,49 @@ const getUserAgency = async (userId) => {
 // GET /api/team — Current user's agency + members
 router.get('/', async (req, res) => {
   try {
+    // 1. AUTO-JOIN CHECK: Check if this email has any pending invitations
+    const userEmail = req.user.email;
+    const { data: pendingInvites } = await supabase
+      .from('team_invitations')
+      .select('*')
+      .eq('email', userEmail)
+      .eq('status', 'pending');
+
+    if (pendingInvites && pendingInvites.length > 0) {
+      console.log(`[Team] Found ${pendingInvites.length} pending invites for ${userEmail}. Auto-joining...`);
+      for (const invite of pendingInvites) {
+        // Add to agency_members
+        await supabase.from('agency_members').insert({
+          agency_id: invite.agency_id,
+          user_id: req.user.id,
+          role: invite.role,
+          invited_by: invite.invited_by
+        });
+
+        // Update profile
+        await supabase.from('profiles').update({ 
+          agency_id: invite.agency_id, 
+          role: invite.role 
+        }).eq('id', req.user.id);
+
+        // Mark invite as accepted
+        await supabase.from('team_invitations')
+          .update({ status: 'accepted' })
+          .eq('id', invite.id);
+
+        // Log activity
+        await supabase.from('activity_log').insert({
+          agency_id: invite.agency_id,
+          user_id: req.user.id,
+          action: 'member_joined',
+          metadata: { method: 'invite_auto_accept' }
+        });
+      }
+    }
+
     const agency = await getUserAgency(req.user.id);
     
     if (!agency) {
-      // Direct check: list memberships to see if they exist but are hidden by RLS
-      const { data: check } = await supabase.from('agency_members').select('id').eq('user_id', req.user.id);
-      if (check && check.length > 0) {
-        console.warn(`[Team] User ${req.user.id} has ${check.length} memberships but getUserAgency returned null (RLS issue likely)`);
-      }
       return ok(res, null, 'User is not part of any team');
     }
 
@@ -48,6 +83,13 @@ router.get('/', async (req, res) => {
       console.error('[Team] Get members error:', membersError);
       return fail(res, 400, `Database error (members): ${membersError.message}`);
     }
+
+    // NEW: Fetch pending invitations for this agency
+    const { data: invitations } = await supabase
+      .from('team_invitations')
+      .select('id, email, role, created_at')
+      .eq('agency_id', agency.id)
+      .eq('status', 'pending');
 
     // Fetch profiles for these members
     const userIds = (members || []).map(m => m.user_id);
@@ -76,7 +118,8 @@ router.get('/', async (req, res) => {
         owner_id: agency.owner_id,
       },
       userRole: agency.userRole,
-      members: membersWithProfiles
+      members: membersWithProfiles,
+      invitations: invitations || [] // Include pending invites in response
     }, 'Team fetched');
   } catch (err) {
     console.error('Get Team Error:', err);
@@ -188,7 +231,35 @@ router.post('/invite', async (req, res) => {
       .single();
 
     if (profileError || !targetProfile) {
-      return fail(res, 404, 'No registered user found with that email. They must sign up first.');
+      // User not found — create a pending invitation instead
+      const { data: invitation, error: invError } = await supabase
+        .from('team_invitations')
+        .upsert({
+          agency_id: agency.id,
+          email: email,
+          role: role,
+          invited_by: req.user.id,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (invError) return fail(res, 400, invError.message);
+
+      // Log activity
+      await supabase.from('activity_log').insert({
+        agency_id: agency.id,
+        user_id: req.user.id,
+        action: 'member_invited_external',
+        entity_type: 'invitation',
+        metadata: { invited_email: email, role }
+      });
+
+      return res.status(201).json({
+        success: true,
+        data: { invitation, isExternal: true },
+        message: `Invitation sent to ${email}. They'll join as soon as they sign up!`
+      });
     }
 
     // Check if already a member

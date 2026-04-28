@@ -21,7 +21,10 @@ const roleColors = {
 
 const TeamSettingsPanel = () => {
   const user = useAuthStore(s => s.user);
-  const { agency, members, userRole, isTeamMode, loading, fetchTeam, createTeam, inviteMember, updateRole, removeMember, leaveTeam } = useTeam();
+  const { 
+    agency, members, invitations, userRole, isTeamMode, loading, 
+    fetchTeam, createTeam, inviteMember, updateRole, removeMember, leaveTeam 
+  } = useTeam();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -67,7 +70,8 @@ const TeamSettingsPanel = () => {
               </div>
               <h4 className="text-[22px] font-black m-0 tracking-tight">Launch Your Workspace</h4>
               <p className="text-white/50 text-[14px] m-0 font-medium max-w-[400px] leading-relaxed">
-                Create a team workspace to share clients, activity, and AI insights with your colleagues. All your existing clients will be automatically shared.
+                Create a team workspace to share clients, activity, and AI insights with your colleagues. 
+                <span className="text-blue-400 font-bold block mt-2">Inviting teammates becomes available immediately after you launch your workspace.</span>
               </p>
             </div>
 
@@ -133,51 +137,67 @@ const TeamSettingsPanel = () => {
         </p>
 
         {members.map(member => {
-          const u = member.user || {};
-          const name = u.full_name || u.email || 'Unknown';
-          const initial = name.charAt(0).toUpperCase();
-          const RoleIcon = roleIcons[member.role] || Users;
-          const isCurrentUser = u.id === user?.id;
-
+          // ... (existing member map logic)
           return (
-            <div key={member.id} className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-2xl group hover:border-slate-200 hover:shadow-sm transition-all">
-              {/* Avatar */}
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-[12px] font-black shadow-sm shrink-0">
-                {u.avatar_url ? (
-                  <img src={u.avatar_url} alt={name} className="w-full h-full rounded-xl object-cover" />
-                ) : initial}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-bold text-slate-900 truncate">{name}</span>
-                  {isCurrentUser && (
-                    <span className="text-[9px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-100">You</span>
-                  )}
+             <div key={member.id} className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-2xl group hover:border-slate-200 hover:shadow-sm transition-all">
+                {/* ... existing member card ... */}
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-[12px] font-black shadow-sm shrink-0">
+                  {member.user?.avatar_url ? (
+                    <img src={member.user.avatar_url} alt={member.user.full_name} className="w-full h-full rounded-xl object-cover" />
+                  ) : (member.user?.full_name || member.user?.email || 'U').charAt(0).toUpperCase()}
                 </div>
-                <span className="text-[12px] text-slate-400 font-medium truncate block">{u.email}</span>
-              </div>
-
-              {/* Role Badge */}
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${roleColors[member.role]}`}>
-                <RoleIcon size={12} />
-                {member.role}
-              </div>
-
-              {/* Actions */}
-              {isAdmin && !isCurrentUser && member.role !== 'owner' && (
-                <button
-                  onClick={() => removeMember(member.id)}
-                  className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 border-none cursor-pointer bg-transparent"
-                  title="Remove member"
-                >
-                  <Trash2 size={14} />
-                </button>
-              )}
-            </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-bold text-slate-900 truncate">{member.user?.full_name || member.user?.email}</span>
+                    {member.user?.id === user?.id && (
+                      <span className="text-[9px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-100">You</span>
+                    )}
+                  </div>
+                  <span className="text-[12px] text-slate-400 font-medium truncate block">{member.user?.email}</span>
+                </div>
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${roleColors[member.role]}`}>
+                  {React.createElement(roleIcons[member.role] || Users, { size: 12 })}
+                  {member.role}
+                </div>
+                {isAdmin && member.user?.id !== user?.id && member.role !== 'owner' && (
+                  <button onClick={() => removeMember(member.id)} className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 border-none cursor-pointer bg-transparent"><Trash2 size={14} /></button>
+                )}
+             </div>
           );
         })}
+
+        {/* Pending Invitations Section */}
+        {invitations && invitations.length > 0 && (
+          <div className="mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] px-1 mb-3 flex items-center gap-2">
+              Pending Invitations
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+            </p>
+            <div className="space-y-2 opacity-75 hover:opacity-100 transition-opacity">
+              {invitations.map((inv) => (
+                <div key={inv.id} className="flex items-center justify-between p-4 bg-white border border-dashed border-slate-200 rounded-2xl group transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-slate-300 shrink-0">
+                      {inv.email.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="text-[14px] font-bold text-slate-400 flex items-center gap-2">
+                        {inv.email}
+                        <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded-md">Pending</span>
+                      </div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 mt-0.5">Waiting for signup</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-slate-50 text-slate-400 rounded-lg italic border border-slate-100">
+                      {inv.role}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Danger Zone: Leave Team */}

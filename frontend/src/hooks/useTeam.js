@@ -6,8 +6,8 @@ import useToast from './useToast';
 const useTeam = () => {
   const toast = useToast();
   const {
-    agency, members, userRole, activities, isTeamMode, loading,
-    setTeam, setMembers, setActivities, addMember, removeMember: removeFromStore,
+    agency, members, invitations, userRole, activities, isTeamMode, loading,
+    setTeam, setMembers, setActivities, addMember, addInvitation, removeMember: removeFromStore,
     setLoading, reset
   } = useTeamStore();
 
@@ -55,8 +55,14 @@ const useTeam = () => {
     try {
       const { data } = await teamAPI.inviteMember(email, role);
       if (data?.success) {
-        addMember(data.data);
-        toast.success(data.message || 'Member invited!');
+        if (data.data.invitation) {
+          // This was an external invite
+          addInvitation(data.data.invitation);
+        } else {
+          // This was an existing user
+          addMember(data.data);
+        }
+        toast.success(data.message || 'Invitation sent!');
         return data.data;
       }
     } catch (err) {
