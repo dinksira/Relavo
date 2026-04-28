@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: relavo-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: AI_SERVICE_URL
+        sync: false
