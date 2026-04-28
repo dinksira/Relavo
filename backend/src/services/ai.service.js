@@ -4,7 +4,7 @@ const AI_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 const aiInstance = axios.create({
   baseURL: AI_URL.endsWith('/') ? AI_URL.slice(0, -1) : AI_URL,
-  timeout: 60000
+  timeout: 90000
 });
 
 /**

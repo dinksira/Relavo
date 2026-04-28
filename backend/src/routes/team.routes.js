@@ -37,20 +37,29 @@ router.get('/', async (req, res) => {
       return ok(res, null, 'User is not part of any team');
     }
 
-    // Fetch all members with profiles
-    const { data: members, error } = await supabase
+    // Fetch all members (Direct fetch to avoid join errors)
+    const { data: members, error: membersError } = await supabase
       .from('agency_members')
-      .select(`
-        id, role, joined_at, user_id,
-        profiles:user_id(id, full_name, email, avatar_url)
-      `)
+      .select('id, role, joined_at, user_id')
       .eq('agency_id', agency.id)
       .order('joined_at', { ascending: true });
 
-    if (error) {
-      console.error('[Team] Get members error:', error);
-      return fail(res, 400, error.message);
+    if (membersError) {
+      console.error('[Team] Get members error:', membersError);
+      return fail(res, 400, membersError.message);
     }
+
+    // Fetch profiles for these members
+    const userIds = members.map(m => m.user_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, avatar_url')
+      .in('id', userIds);
+
+    const membersWithProfiles = members.map(m => ({
+      ...m,
+      user: profiles?.find(p => p.id === m.user_id) || { id: m.user_id, email: 'Unknown Member' }
+    }));
 
     return ok(res, {
       agency: {
@@ -61,12 +70,7 @@ router.get('/', async (req, res) => {
         owner_id: agency.owner_id,
       },
       userRole: agency.userRole,
-      members: (members || []).map(m => ({
-        id: m.id,
-        role: m.role,
-        joined_at: m.joined_at,
-        user: m.profiles
-      }))
+      members: membersWithProfiles
     }, 'Team fetched');
   } catch (err) {
     console.error('Get Team Error:', err);
