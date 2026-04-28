@@ -7,7 +7,7 @@ if (!resend) {
   console.warn('[Email] RESEND_API_KEY is missing. Emails will not be sent.');
 }
 
-const FROM_EMAIL = 'onboarding@resend.dev'; // Use raw email for higher delivery success in sandbox
+const FROM_EMAIL = 'no-reply@relavo.xyz'; // Your official domain
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://relavo.xyz';
 
 /**
