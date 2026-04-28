@@ -1,6 +1,12 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend only if API key exists to prevent startup crash
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+if (!resend) {
+  console.warn('[Email] RESEND_API_KEY is missing. Emails will not be sent.');
+}
+
 const FROM_EMAIL = 'Relavo <onboarding@resend.dev>'; // Default Resend test domain
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://relavo.xyz';
 
@@ -9,6 +15,12 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://relavo.xyz';
  */
 const sendTeamInvitation = async ({ email, agencyName, inviterName, role, token }) => {
   console.log(`[Email] Attempting to send invite to: ${email}`);
+  
+  if (!resend) {
+    console.error('[Email] Cannot send: Resend is not initialized (missing API key)');
+    return { success: false, error: 'Email service not configured' };
+  }
+
   try {
     const inviteLink = `${FRONTEND_URL}/signup?invite=${token}&email=${encodeURIComponent(email)}`;
     
