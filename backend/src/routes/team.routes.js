@@ -19,7 +19,7 @@ const getUserAgency = async (userId) => {
     .limit(1)
     .single();
 
-  if (error || !data) return null;
+  if (error || !data || !data.agencies) return null;
   return { ...data.agencies, userRole: data.role };
 };
 

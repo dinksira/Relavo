@@ -129,20 +129,27 @@ ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 -- These policies protect against anon/authenticated direct access.
 
 -- agencies: members can read their own agency
+-- We use a direct join or check to avoid recursion
 CREATE POLICY "Agency members can view their agency" ON public.agencies
   FOR SELECT USING (
-    id IN (
-      SELECT agency_id FROM public.agency_members
-      WHERE user_id = auth.uid()
+    EXISTS (
+      SELECT 1 FROM public.agency_members
+      WHERE agency_id = public.agencies.id
+      AND user_id = auth.uid()
     )
   );
 
--- agency_members: members can see co-members in their agency
-CREATE POLICY "Members can view their team" ON public.agency_members
+-- agency_members: 
+-- 1. Users can always see their own memberships
+-- 2. Users can see co-members of agencies they belong to
+CREATE POLICY "Users can view own membership" ON public.agency_members
+  FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Members can view co-members" ON public.agency_members
   FOR SELECT USING (
     agency_id IN (
-      SELECT agency_id FROM public.agency_members
-      WHERE user_id = auth.uid()
+      SELECT am.agency_id FROM public.agency_members am
+      WHERE am.user_id = auth.uid()
     )
   );
 
