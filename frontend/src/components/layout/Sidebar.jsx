@@ -1,15 +1,16 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Bell, FileText, Settings, LogOut, X, Shield, Activity
+  LayoutDashboard, Users, Bell, FileText, Settings, LogOut, X, Shield, Activity, Users2
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useAlerts from '../../hooks/useAlerts';
 import { supabase } from '../../services/supabase';
 
-const NavItem = ({ icon: Icon, label, path, badge }) => (
+const NavItem = ({ icon: Icon, label, path, badge, state }) => (
   <NavLink
     to={path}
+    state={state}
     className={({ isActive }) => `
       flex items-center gap-3 px-4 py-3 rounded-2xl mb-1 cursor-pointer transition-all duration-300 group relative
       ${isActive 
@@ -91,6 +92,7 @@ const Sidebar = ({ onClose }) => {
         <NavItem icon={Bell} label="Stream" path="/alerts" badge={unreadCount} />
         
         <SectionLabel text="Enterprise" className="mt-6" />
+        <NavItem icon={Users2} label="Team" path="/settings" state={{ tab: 'Team' }} />
         <NavItem icon={FileText} label="Billing" path="/invoices" />
         <NavItem icon={Settings} label="System" path="/settings" />
         
