@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
       .from('agency_members')
       .select(`
         id, role, joined_at,
-        profiles(id, full_name, email, avatar_url)
+        profiles:user_id(id, full_name, email, avatar_url)
       `)
       .eq('agency_id', agency.id)
       .order('joined_at', { ascending: true });
