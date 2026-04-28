@@ -244,7 +244,7 @@ router.post('/invite', async (req, res) => {
           role: role,
           invited_by: req.user.id,
           status: 'pending'
-        })
+        }, { onConflict: 'agency_id,email' })
         .select()
         .single();
 
