@@ -7,7 +7,7 @@ if (!resend) {
   console.warn('[Email] RESEND_API_KEY is missing. Emails will not be sent.');
 }
 
-const FROM_EMAIL = 'Relavo <onboarding@resend.dev>'; // Default Resend test domain
+const FROM_EMAIL = 'onboarding@resend.dev'; // Use raw email for higher delivery success in sandbox
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://relavo.xyz';
 
 /**
@@ -23,6 +23,7 @@ const sendTeamInvitation = async ({ email, agencyName, inviterName, role, token 
 
   try {
     const inviteLink = `${FRONTEND_URL}/signup?invite=${token}&email=${encodeURIComponent(email)}`;
+    console.log(`[Email] Generated link: ${inviteLink}`);
     
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
