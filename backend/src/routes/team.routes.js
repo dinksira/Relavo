@@ -439,17 +439,33 @@ router.get('/activity', async (req, res) => {
 
     const { data: activities, error } = await supabase
       .from('activity_log')
-      .select(`
-        id, action, entity_type, entity_id, metadata, created_at,
-        profiles:user_id(id, full_name, email, avatar_url)
-      `)
+      .select('id, action, entity_type, entity_id, metadata, created_at, user_id')
       .eq('agency_id', agency.id)
       .order('created_at', { ascending: false })
       .limit(50);
 
-    if (error) return fail(res, 400, error.message);
+    if (error) {
+      console.error('[Activity] Fetch error:', error);
+      return fail(res, 400, error.message);
+    }
 
-    return ok(res, activities || [], 'Activity feed fetched');
+    if (!activities || activities.length === 0) {
+      return ok(res, [], 'No activity found');
+    }
+
+    // Hydrate with profiles
+    const userIds = [...new Set(activities.map(a => a.user_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, avatar_url')
+      .in('id', userIds);
+
+    const enrichedActivities = activities.map(a => ({
+      ...a,
+      profiles: profiles?.find(p => p.id === a.user_id) || { id: a.user_id, full_name: 'Unknown User' }
+    }));
+
+    return ok(res, enrichedActivities, 'Activity feed fetched');
   } catch (err) {
     console.error('Get Activity Error:', err);
     return fail(res, 500, 'Internal server error');
