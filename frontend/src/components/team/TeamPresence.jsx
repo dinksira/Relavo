@@ -1,11 +1,27 @@
 import React from 'react';
-import { Users } from 'lucide-react';
+import { Users, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import useTeamStore from '../../store/teamStore';
 
 const TeamPresence = ({ compact = false }) => {
   const { members, isTeamMode, agency } = useTeamStore();
 
-  if (!isTeamMode || !members.length) return null;
+  if (!isTeamMode) {
+    return (
+      <Link 
+        to="/settings" 
+        state={{ tab: 'Team' }}
+        className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl hover:bg-blue-50 hover:border-blue-100 transition-all group no-underline"
+      >
+        <div className="w-6 h-6 rounded-lg bg-slate-200 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+          <Users size={12} className="text-slate-500 group-hover:text-white transition-colors" />
+        </div>
+        <span className="text-[10px] font-black text-slate-400 group-hover:text-blue-600 uppercase tracking-widest transition-colors">Setup Team</span>
+      </Link>
+    );
+  }
+
+  if (!members.length) return null;
 
   const visibleMembers = compact ? members.slice(0, 4) : members.slice(0, 6);
   const extraCount = members.length - visibleMembers.length;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { User, Bell, Shield, CreditCard, Trash2, Camera, Zap, Check, Save, Users2 } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Button from '../components/ui/Button';
@@ -9,8 +10,9 @@ import { supabase } from '../services/supabase';
 
 const SettingsPage = () => {
   const toast = useToast();
+  const location = useLocation();
   const { user } = useAuthStore();
-  const [tab, setTab] = useState('Profile');
+  const [tab, setTab] = useState(location.state?.tab || 'Profile');
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
   const [bio, setBio] = useState(user?.user_metadata?.bio || '');
   const [saving, setSaving] = useState(false);
