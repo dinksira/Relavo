@@ -46,20 +46,26 @@ router.get('/', async (req, res) => {
 
     if (membersError) {
       console.error('[Team] Get members error:', membersError);
-      return fail(res, 400, membersError.message);
+      return fail(res, 400, `Database error (members): ${membersError.message}`);
     }
 
     // Fetch profiles for these members
-    const userIds = members.map(m => m.user_id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, full_name, email, avatar_url')
-      .in('id', userIds);
+    const userIds = (members || []).map(m => m.user_id);
+    let membersWithProfiles = (members || []).map(m => ({ ...m, user: { id: m.user_id, email: 'Loading...' } }));
 
-    const membersWithProfiles = members.map(m => ({
-      ...m,
-      user: profiles?.find(p => p.id === m.user_id) || { id: m.user_id, email: 'Unknown Member' }
-    }));
+    if (userIds.length > 0) {
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds);
+      
+      if (!profileError && profiles) {
+        membersWithProfiles = members.map(m => ({
+          ...m,
+          user: profiles.find(p => p.id === m.user_id) || { id: m.user_id, email: 'Unknown Member' }
+        }));
+      }
+    }
 
     return ok(res, {
       agency: {
