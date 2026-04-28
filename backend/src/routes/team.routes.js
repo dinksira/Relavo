@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
     const { data: members, error } = await supabase
       .from('agency_members')
       .select(`
-        id, role, joined_at,
+        id, role, joined_at, user_id,
         profiles:user_id(id, full_name, email, avatar_url)
       `)
       .eq('agency_id', agency.id)
