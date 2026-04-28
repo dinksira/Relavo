@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const authMiddleware = require('../middleware/auth');
+const emailService = require('../services/email.service');
 
 router.use(authMiddleware);
 
@@ -230,9 +231,12 @@ router.post('/invite', async (req, res) => {
       .eq('email', email)
       .single();
 
+    let member = null;
+    let invitation = null;
+
     if (profileError || !targetProfile) {
-      // User not found — create a pending invitation instead
-      const { data: invitation, error: invError } = await supabase
+      // Path A: User doesn't exist yet
+      const { data: inv, error: invError } = await supabase
         .from('team_invitations')
         .upsert({
           agency_id: agency.id,
@@ -245,73 +249,68 @@ router.post('/invite', async (req, res) => {
         .single();
 
       if (invError) return fail(res, 400, invError.message);
+      invitation = inv;
+    } else {
+      // Path B: User already exists
+      const { data: existingMember } = await supabase
+        .from('agency_members')
+        .select('id')
+        .eq('agency_id', agency.id)
+        .eq('user_id', targetProfile.id)
+        .single();
 
-      // Log activity
-      await supabase.from('activity_log').insert({
-        agency_id: agency.id,
-        user_id: req.user.id,
-        action: 'member_invited_external',
-        entity_type: 'invitation',
-        metadata: { invited_email: email, role }
-      });
+      if (existingMember) return fail(res, 409, 'This user is already a team member');
 
-      return res.status(201).json({
-        success: true,
-        data: { invitation, isExternal: true },
-        message: `Invitation sent to ${email}. They'll join as soon as they sign up!`
-      });
+      const { data: mem, error: insertError } = await supabase
+        .from('agency_members')
+        .insert({
+          agency_id: agency.id,
+          user_id: targetProfile.id,
+          role: role,
+          invited_by: req.user.id
+        })
+        .select()
+        .single();
+
+      if (insertError) return fail(res, 400, insertError.message);
+      member = mem;
+
+      // Update their profile and migrate clients
+      await supabase.from('profiles').update({ agency_id: agency.id, role }).eq('id', targetProfile.id);
+      await supabase.from('clients').update({ agency_id: agency.id }).eq('user_id', targetProfile.id).is('agency_id', null);
     }
 
-    // Check if already a member
-    const { data: existingMember } = await supabase
-      .from('agency_members')
-      .select('id')
-      .eq('agency_id', agency.id)
-      .eq('user_id', targetProfile.id)
-      .single();
-
-    if (existingMember) return fail(res, 409, 'This user is already a team member');
-
-    // Add member
-    const { data: member, error: insertError } = await supabase
-      .from('agency_members')
-      .insert({
-        agency_id: agency.id,
-        user_id: targetProfile.id,
-        role: role,
-        invited_by: req.user.id
-      })
-      .select()
-      .single();
-
-    if (insertError) return fail(res, 400, insertError.message);
-
-    // Update their profile
-    await supabase
-      .from('profiles')
-      .update({ agency_id: agency.id, role: role })
-      .eq('id', targetProfile.id);
-
-    // Migrate their personal clients to the agency too
-    await supabase
-      .from('clients')
-      .update({ agency_id: agency.id })
-      .eq('user_id', targetProfile.id)
-      .is('agency_id', null);
-
-    // Log activity
+    // 3. LOG ACTIVITY
     await supabase.from('activity_log').insert({
       agency_id: agency.id,
       user_id: req.user.id,
-      action: 'member_invited',
-      entity_type: 'team',
-      metadata: { invited_email: email, invited_name: targetProfile.full_name, role }
+      action: targetProfile ? 'member_invited' : 'member_invited_external',
+      metadata: { invited_email: email, role }
     });
+
+    // 4. SEND EMAIL (Async)
+    try {
+      const { data: inviter } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', req.user.id)
+        .single();
+      
+      emailService.sendTeamInvitation({
+        email,
+        agencyName: agency.name,
+        inviterName: inviter?.full_name || req.user.email,
+        role,
+        token: invitation?.token || 'join'
+      }).catch(e => console.error('[Email] Failed to send:', e));
+    } catch (err) {
+      console.error('[Email] Metadata error:', err);
+    }
 
     return res.status(201).json({
       success: true,
-      data: { ...member, user: targetProfile },
-      message: `${targetProfile.full_name || email} has been added to the team!`
+      data: { member, invitation, isExternal: !targetProfile },
+      message: `Invitation sent to ${email}!`
     });
   } catch (err) {
     console.error('Invite Member Error:', err);
