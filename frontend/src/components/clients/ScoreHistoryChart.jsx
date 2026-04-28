@@ -6,10 +6,7 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer, 
-  ReferenceLine,
-  Defs,
-  LinearGradient,
-  Stop
+  ReferenceLine
 } from 'recharts';
 import { formatDate } from '../../utils/formatters';
 

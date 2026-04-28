@@ -126,7 +126,27 @@ router.post('/create', async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      data: agency,
+      data: {
+        agency: {
+          id: agency.id,
+          name: agency.name,
+          slug: agency.slug,
+          logo_url: agency.logo_url,
+          owner_id: agency.owner_id,
+        },
+        userRole: 'owner',
+        members: [{
+          id: 'temp-id', // Will be refreshed on next fetch
+          role: 'owner',
+          joined_at: new Date().toISOString(),
+          user: {
+            id: req.user.id,
+            full_name: req.user.user_metadata?.full_name || req.user.email,
+            email: req.user.email,
+            avatar_url: req.user.user_metadata?.avatar_url
+          }
+        }]
+      },
       message: 'Team workspace created! Your existing clients have been migrated.'
     });
   } catch (err) {

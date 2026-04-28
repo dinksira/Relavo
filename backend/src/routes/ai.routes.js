@@ -5,6 +5,7 @@ const healthService = require('../services/health.service');
 const aiService = require('../services/ai.service');
 const emailService = require('../services/email.service');
 const supabase = require('../config/supabase');
+const { verifyClientAccess } = require('../utils/auth.utils');
 
 // Apply authMiddleware to all routes
 router.use(authMiddleware);
@@ -20,6 +21,10 @@ router.post('/analyze/:clientId', async (req, res) => {
   console.log(`Analyzing client: ${clientId}`);
   
   try {
+    // Verify access
+    const { client, error: accessError } = await verifyClientAccess(clientId, req.user.id);
+    if (accessError || !client) return fail(res, 403, 'Access denied');
+
     const result = await healthService.calculateAndSaveScore(clientId);
     return ok(res, result, 'Client analyzed');
   } catch (error) {
@@ -50,12 +55,9 @@ router.post('/draft-email', async (req, res) => {
   const { clientId, tone = "professional" } = req.body;
   
   try {
-    // 1. Fetch client info
-    const { data: client, error: clientErr } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', clientId)
-      .single();
+    // 1. Verify access and fetch client info
+    const { client, error: clientErr } = await verifyClientAccess(clientId, req.user.id);
+    if (clientErr || !client) return fail(res, 403, 'Access denied');
     if (clientErr) throw clientErr;
 
     // 2. Latest health score
@@ -112,6 +114,10 @@ router.post('/briefing/:clientId', async (req, res) => {
   const { clientId } = req.params;
   
   try {
+    // 0. Verify access
+    const { client: clientData, error: accessError } = await verifyClientAccess(clientId, req.user.id);
+    if (accessError || !clientData) return fail(res, 403, 'Access denied');
+
     const [clientRes, healthRes, touchpointsRes, invoicesRes] = await Promise.all([
       supabase.from('clients').select('*').eq('id', clientId).single(),
       supabase.from('health_scores').select('*').eq('client_id', clientId).order('calculated_at', { ascending: false }).limit(7),
@@ -169,6 +175,10 @@ router.post('/chat/:clientId', async (req, res) => {
   const { message, conversationHistory = [] } = req.body;
   
   try {
+    // 0. Verify access
+    const { client: clientData, error: accessError } = await verifyClientAccess(clientId, req.user.id);
+    if (accessError || !clientData) return fail(res, 403, 'Access denied');
+
     const [clientRes, healthRes, touchpointsRes] = await Promise.all([
       supabase.from('clients').select('*').eq('id', clientId).single(),
       supabase.from('health_scores').select('*').eq('client_id', clientId).order('calculated_at', { ascending: false }).limit(1),
@@ -218,12 +228,9 @@ router.post('/send-draft', async (req, res) => {
   }
 
   try {
-    // 1. Fetch client email
-    const { data: client, error: clientErr } = await supabase
-      .from('clients')
-      .select('email, name')
-      .eq('id', clientId)
-      .single();
+    // 1. Verify access and fetch client email
+    const { client, error: clientErr } = await verifyClientAccess(clientId, req.user.id);
+    if (clientErr || !client) return fail(res, 403, 'Access denied');
 
     if (clientErr || !client?.email) {
       throw new Error('Could not find client email. Please ensure the client record has an email address.');

@@ -3,10 +3,14 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const authMiddleware = require('../middleware/auth');
 const healthService = require('../services/health.service');
+const { verifyClientAccess } = require('../utils/auth.utils');
 
 router.use(authMiddleware);
 const ok = (res, data, message) => res.json({ success: true, data, message });
 const fail = (res, code, message, data = null) => res.status(code).json({ success: false, data, message });
+
+// Shared helper: verify user can access a client (own OR via agency)
+// REMOVED LOCAL DEFINITION - NOW USING SHARED UTILITY FROM ../utils/auth.utils
 
 // GET /api/clients — Personal + Agency clients
 router.get('/', async (req, res) => {
@@ -44,10 +48,26 @@ router.post('/', async (req, res) => {
   try {
     const { name, contact_name, email, phone, notes } = req.body;
     
-    // Insert client
+    // Check if user belongs to an agency
+    const { data: membership } = await supabase
+      .from('agency_members')
+      .select('agency_id')
+      .eq('user_id', req.user.id)
+      .limit(1)
+      .single();
+
+    // Insert client with agency_id if exists
     const { data: client, error: clientError } = await supabase
       .from('clients')
-      .insert([{ name, contact_name, email, phone, notes, user_id: req.user.id }])
+      .insert([{ 
+        name, 
+        contact_name, 
+        email, 
+        phone, 
+        notes, 
+        user_id: req.user.id,
+        agency_id: membership?.agency_id || null
+      }])
       .select()
       .single();
 
@@ -71,17 +91,7 @@ router.post('/', async (req, res) => {
     }, 1000);
 
     // Log activity for team feed (non-blocking)
-    const { data: membership } = await supabase
-      .from('agency_members')
-      .select('agency_id')
-      .eq('user_id', req.user.id)
-      .limit(1)
-      .single();
-
     if (membership?.agency_id) {
-      // Also set agency_id on the new client
-      await supabase.from('clients').update({ agency_id: membership.agency_id }).eq('id', client.id);
-      
       supabase.from('activity_log').insert({
         agency_id: membership.agency_id,
         user_id: req.user.id,
@@ -104,13 +114,8 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Fetch client and verify ownership
-    const { data: client, error: clientError } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', id)
-      .eq('user_id', req.user.id)
-      .single();
+    // Verify access (own or agency)
+    const { client, error: clientError } = await verifyClientAccess(id, req.user.id);
 
     if (clientError || !client) {
       return fail(res, 403, 'Access denied');
@@ -157,14 +162,8 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    // Verify ownership
-    const { data: client, error: verifyError } = await supabase
-      .from('clients')
-      .select('id')
-      .eq('id', id)
-      .eq('user_id', req.user.id)
-      .single();
-
+    // Verify access (own or agency)
+    const { client, error: verifyError } = await verifyClientAccess(id, req.user.id);
     if (verifyError || !client) return fail(res, 403, 'Access denied');
 
     const { data: updatedClient, error } = await supabase
@@ -187,14 +186,8 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Verify ownership
-    const { data: client, error: verifyError } = await supabase
-      .from('clients')
-      .select('id')
-      .eq('id', id)
-      .eq('user_id', req.user.id)
-      .single();
-
+    // Verify access (own or agency)
+    const { client, error: verifyError } = await verifyClientAccess(id, req.user.id);
     if (verifyError || !client) return fail(res, 403, 'Access denied');
 
     // Soft delete: set status = churned
@@ -216,6 +209,10 @@ router.post('/:id/touchpoints', async (req, res) => {
   try {
     const { id } = req.params;
     const { type, notes, outcome, logged_at, duration, follow_up_needed, follow_up_date } = req.body;
+
+    // Verify access
+    const { client: clientAccess, error: accessError } = await verifyClientAccess(id, req.user.id);
+    if (accessError || !clientAccess) return fail(res, 403, 'Access denied');
 
     // Pack extra fields into notes to avoid schema errors
     let combinedNotes = notes || '';
@@ -270,6 +267,10 @@ router.post('/:id/invoices', async (req, res) => {
     const { id } = req.params;
     const { amount, status, due_date, invoice_number, issued_at, notes } = req.body;
 
+    // Verify access
+    const { client: clientAccess, error: accessError } = await verifyClientAccess(id, req.user.id);
+    if (accessError || !clientAccess) return fail(res, 403, 'Access denied');
+
     // Map fields to available columns in DB schema
     const { data: invoice, error } = await supabase
       .from('invoices')
@@ -294,6 +295,19 @@ router.post('/:id/invoices', async (req, res) => {
     setTimeout(() => {
       healthService.calculateAndSaveScore(id, req.user.id);
     }, 500);
+
+    // Log activity for team feed (non-blocking)
+    const { data: clientData } = await supabase.from('clients').select('name, agency_id').eq('id', id).single();
+    if (clientData?.agency_id) {
+      supabase.from('activity_log').insert({
+        agency_id: clientData.agency_id,
+        user_id: req.user.id,
+        action: 'invoice_created',
+        entity_type: 'invoice',
+        entity_id: invoice.id,
+        metadata: { client_name: clientData.name, amount: amount, status: status }
+      }).then(() => {}).catch(err => console.error('Activity log error:', err));
+    }
 
     return res.status(201).json({ success: true, data: invoice, message: 'Invoice created' });
   } catch (err) {

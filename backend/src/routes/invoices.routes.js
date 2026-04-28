@@ -3,6 +3,7 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const authMiddleware = require('../middleware/auth');
 const healthService = require('../services/health.service');
+const { verifyClientAccess } = require('../utils/auth.utils');
 
 router.use(authMiddleware);
 
@@ -10,31 +11,26 @@ const ok = (res, data, message) => res.json({ success: true, data, message });
 const fail = (res, code, message) => res.status(code).json({ success: false, data: null, message });
 
 const getOwnedClient = async (clientId, userId) => {
-  const { data, error } = await supabase
-    .from('clients')
-    .select('id')
-    .eq('id', clientId)
-    .eq('user_id', userId)
-    .single();
-
-  return { data, error };
+  const { client, error } = await verifyClientAccess(clientId, userId);
+  return { data: client, error };
 };
 
 const getOwnedInvoice = async (invoiceId, userId) => {
-  const { data, error } = await supabase
+  // 1. Fetch invoice to get client_id
+  const { data: invoice, error: invErr } = await supabase
     .from('invoices')
-    .select(`
-      id,
-      client_id,
-      clients!inner (
-        user_id
-      )
-    `)
+    .select('id, client_id')
     .eq('id', invoiceId)
-    .eq('clients.user_id', userId)
     .single();
+  
+  if (invErr || !invoice) return { data: null, error: invErr };
 
-  return { data, error };
+  // 2. Verify access to that client
+  const { client, error: accessErr } = await verifyClientAccess(invoice.client_id, userId);
+  
+  if (accessErr || !client) return { data: null, error: accessErr };
+
+  return { data: invoice, error: null };
 };
 
 // POST /api/invoices

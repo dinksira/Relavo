@@ -206,14 +206,17 @@ const ClientDetailPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" size="lg" icon={Edit} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-slate-50">Profile Settings</Button>
-            <Button variant="outline" size="lg" icon={Sparkles} onClick={() => setEmailModalOpen(true)} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-blue-50 hover:!text-blue-600 hover:!border-blue-200">
-              AI Email Agent
-            </Button>
-            <Button variant="primary" size="lg" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-12 !px-8 !rounded-2xl shadow-lg shadow-blue-500/20">
-              New Interaction
-            </Button>
+          <div className="flex items-center gap-5">
+            <TeamPresence compact />
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" size="lg" icon={Edit} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-slate-50">Profile Settings</Button>
+              <Button variant="outline" size="lg" icon={Sparkles} onClick={() => setEmailModalOpen(true)} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-blue-50 hover:!text-blue-600 hover:!border-blue-200">
+                AI Email Agent
+              </Button>
+              <Button variant="primary" size="lg" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-12 !px-8 !rounded-2xl shadow-lg shadow-blue-500/20">
+                New Interaction
+              </Button>
+            </div>
           </div>
         </div>
       </div>

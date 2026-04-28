@@ -169,6 +169,7 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const user = useAuthStore(s => s.user);
+  const isTeamMode = useTeamStore(s => s.isTeamMode);
   const { clients, loading, addClient, analyzeClient, refreshClients, healthyCount, warningCount, atRiskCount, sortedByScore } = useClients();
   const { alerts, dismiss } = useAlerts();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -324,7 +325,7 @@ const DashboardPage = () => {
           <AlertsPanel alerts={alerts} onDismiss={dismiss} />
 
           {/* Team Activity Feed — only visible in team mode */}
-          {useTeamStore.getState().isTeamMode && (
+          {isTeamMode && (
             <div className="mt-8 space-y-4">
               <div className="flex justify-between items-center px-2">
                 <h2 className="text-[18px] font-black text-slate-900 tracking-tight m-0 flex items-center gap-3">
