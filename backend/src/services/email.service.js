@@ -8,6 +8,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://relavo.xyz';
  * Send a team invitation email
  */
 const sendTeamInvitation = async ({ email, agencyName, inviterName, role, token }) => {
+  console.log(`[Email] Attempting to send invite to: ${email}`);
   try {
     const inviteLink = `${FRONTEND_URL}/signup?invite=${token}&email=${encodeURIComponent(email)}`;
     
@@ -36,13 +37,14 @@ const sendTeamInvitation = async ({ email, agencyName, inviterName, role, token 
     });
 
     if (error) {
-      console.error('Resend Error:', error);
+      console.error('[Email] Resend API Error:', error);
       return { success: false, error };
     }
 
+    console.log(`[Email] Successfully sent invite to ${email}. ID: ${data?.id}`);
     return { success: true, data };
   } catch (err) {
-    console.error('Email Service Exception:', err);
+    console.error('[Email] Exception:', err);
     return { success: false, error: err.message };
   }
 };
