@@ -117,8 +117,12 @@ const TopBar = ({ isMobile }) => {
             onClick={() => setUserMenuOpen(!userMenuOpen)}
             className={`flex items-center gap-4 p-1.5 pr-4 rounded-[20px] transition-all duration-300 border ${userMenuOpen ? 'bg-white border-blue-100 shadow-xl shadow-blue-500/5' : 'bg-transparent border-transparent hover:bg-slate-50'}`}
           >
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white text-[13px] font-black flex items-center justify-center shadow-xl shadow-blue-500/20">
-              {firstChar}
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white text-[13px] font-black flex items-center justify-center shadow-xl shadow-blue-500/20 overflow-hidden">
+              {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt={name} className="w-full h-full object-cover" />
+              ) : (
+                firstChar
+              )}
             </div>
             <div className="text-left hidden xl:block">
               <p className="text-[13px] font-black text-slate-900 m-0 leading-none tracking-tight">{name.split(' ')[0]}</p>

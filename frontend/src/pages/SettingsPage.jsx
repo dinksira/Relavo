@@ -63,17 +63,24 @@ const SettingsPage = () => {
       });
       if (authError) throw authError;
 
-      // 2. Update Profiles Table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          full_name: fullName,
-          avatar_url: avatarUrl,
-          bio: bio,
-          updated_at: new Date().toISOString()
-        });
-      if (profileError) throw profileError;
+      // 2. Update Profiles Table (Optional / Secondary)
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            full_name: fullName,
+            avatar_url: avatarUrl,
+            bio: bio,
+            updated_at: new Date().toISOString()
+          });
+        if (profileError) {
+          console.warn('Profile table update failed (ignoring):', profileError.message);
+          // Don't throw here, the Auth update was successful
+        }
+      } catch (profileErr) {
+        console.error('Secondary profile update error:', profileErr);
+      }
 
       toast.success('Settings updated successfully!');
     } catch (err) { 
