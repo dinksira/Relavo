@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { User, Mail, Lock, ArrowRight, Zap, Target, Rocket } from 'lucide-react';
-import bgVideo from '../assets/BGAUTH.mp4';
+import LazyVideo from '../components/ui/LazyVideo';
 import { authAPI } from '../services/api';
 import { supabase } from '../services/supabase';
 import useAuthStore from '../store/authStore';
+
+const AUTH_VIDEO_URL = "https://res.cloudinary.com/dpiaomto6/video/upload/q_auto,f_auto,so_0,w_1280/v1777448222/BGAUTH_ncn5f9.mp4";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -60,15 +62,12 @@ const Register = () => {
       {/* Left side: Visual/Marketing */}
       <div className="hidden lg:flex flex-1 bg-navy relative overflow-hidden items-center justify-center p-20">
          <div className="absolute inset-0 z-0">
-            <video 
-               autoPlay 
-               loop 
-               muted 
-               playsInline
-               className="w-full h-full object-cover opacity-60 scale-x-[-1]"
-            >
-               <source src={bgVideo} type="video/mp4" />
-            </video>
+            <LazyVideo 
+               src={AUTH_VIDEO_URL} 
+               opacity="opacity-60"
+               mixBlendMode="normal"
+               className="scale-x-[-1]"
+            />
             <div className="absolute inset-0 bg-gradient-to-bl from-navy via-navy/60 to-transparent" />
          </div>
 

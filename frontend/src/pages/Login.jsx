@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { Mail, Lock, ArrowRight, Sparkles, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import bgVideo from '../assets/BGAUTH.mp4';
+import LazyVideo from '../components/ui/LazyVideo';
 import { authAPI } from '../services/api';
 import { supabase } from '../services/supabase';
 import useAuthStore from '../store/authStore';
+
+const AUTH_VIDEO_URL = "https://res.cloudinary.com/dpiaomto6/video/upload/q_auto,f_auto,so_0,w_1280/v1777448222/BGAUTH_ncn5f9.mp4";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -50,6 +52,11 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6 relative overflow-hidden bg-grid-white">
+      <LazyVideo 
+        src={AUTH_VIDEO_URL} 
+        opacity="opacity-30"
+        mixBlendMode="overlay"
+      />
       {/* Decorative Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full animate-pulse-soft" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full animate-pulse-soft" style={{ animationDelay: '2s' }} />

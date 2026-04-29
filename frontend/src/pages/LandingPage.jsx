@@ -12,21 +12,29 @@ import {
   Star,
   Cpu,
   Lock,
-  PieChart
+  PieChart,
+  Sparkles
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import useRevealOnScroll from '../hooks/useRevealOnScroll';
+import LazyVideo from '../components/ui/LazyVideo';
 
-import heroVideo from '../assets/Blue_Abstract.mp4';
-import relationshipVideo from '../assets/Relationship.mp4';
+import heroPoster from '../assets/images/hero.png';
 
-// HD Card Images (Placeholders or actual assets)
+// HD Card Images
 import cardHealth from '../assets/images/card-health.png';
 import cardAi from '../assets/images/card-ai.png';
 import cardTeam from '../assets/images/card-team.png';
 import cardPulse from '../assets/images/card-pulse.png';
 import cardDashboard from '../assets/images/card-dashboard.png';
 import cardIntegrations from '../assets/images/card-integrations.png';
+
+// OPTIMIZATION: Using external CDN URLs for instant streaming.
+// Transformations: q_auto (quality), f_auto (format/WebM), so_0 (instant start)
+const VIDEO_URLS = {
+  hero: "https://res.cloudinary.com/dpiaomto6/video/upload/q_auto,f_auto,so_0,w_1280/v1777448248/Blue_Abstract_u13zgp.mp4",
+  relationship: "https://res.cloudinary.com/dpiaomto6/video/upload/q_auto,f_auto,so_0,w_800/v1777448242/Relationship_uvkkjq.mp4",
+};
 
 const LandingPage = () => {
   useRevealOnScroll();
@@ -70,12 +78,10 @@ const LandingPage = () => {
         onMouseLeave={() => setRotation({ x: 0, y: 0 })}
         className="relative min-h-screen flex items-center justify-center pt-24 px-6 overflow-hidden"
       >
-        <div className="absolute inset-0 z-0">
-          <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40 mix-blend-screen">
-            <source src={heroVideo} type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/50 via-transparent to-[#020617]" />
-        </div>
+        <LazyVideo 
+          src={VIDEO_URLS.hero} 
+          overlayClassName="bg-gradient-to-b from-[#020617]/50 via-transparent to-[#020617]"
+        />
 
         <div 
           className="max-w-[1240px] mx-auto text-center relative z-10 transition-transform duration-200 ease-out"
@@ -157,10 +163,12 @@ const LandingPage = () => {
             <div className="relative reveal" style={{ transitionDelay: '200ms' }}>
                <div className="absolute -inset-4 bg-blue-500/20 blur-[100px] rounded-full" />
                <div className="relative bg-slate-900 border border-white/10 rounded-[48px] overflow-hidden shadow-2xl aspect-[4/5] lg:rotate-3 hover:rotate-0 transition-all duration-700">
-                  <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-                     <source src={relationshipVideo} type="video/mp4" />
-                  </video>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                  <LazyVideo 
+                    src={VIDEO_URLS.relationship} 
+                    opacity="opacity-100"
+                    mixBlendMode="normal"
+                    overlayClassName="bg-gradient-to-t from-slate-950 via-transparent to-transparent"
+                  />
                   <div className="absolute bottom-10 left-10 right-10 p-10 bg-white/5 backdrop-blur-3xl rounded-[32px] border border-white/10 space-y-4">
                      <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">

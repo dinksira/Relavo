@@ -173,32 +173,32 @@ const ClientDetailPage = () => {
   return (
     <DashboardLayout>
       {/* Premium Header Container */}
-      <div className="relative mb-10 reveal overflow-hidden bg-white border border-slate-200 rounded-[32px] p-8 lg:p-10 shadow-sm">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+      <div className="relative mb-10 reveal overflow-hidden bg-white border-2 border-slate-100 rounded-[40px] p-10 lg:p-12 shadow-sm group">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-50/50 blur-[100px] -mr-40 -mt-40 pointer-events-none group-hover:bg-blue-100/50 transition-colors duration-1000" />
         
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="flex gap-6 items-center">
-            <div className={`w-20 h-20 rounded-[28px] bg-gradient-to-br ${getAvatarGradient(firstChar)} flex items-center justify-center text-white text-[32px] font-black shadow-xl shadow-blue-500/10 shrink-0`}>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+          <div className="flex gap-8 items-center">
+            <div className={`w-24 h-24 rounded-[32px] bg-gradient-to-br ${getAvatarGradient(firstChar)} flex items-center justify-center text-white text-[36px] font-black shadow-2xl group-hover:rotate-6 transition-transform duration-500 shrink-0`}>
               {firstChar}
             </div>
             
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-3">
-                <h1 className="text-[32px] font-black text-slate-900 tracking-tight m-0 leading-none">{client.name}</h1>
-                <Badge variant={client.status === 'active' ? 'success' : 'neutral'} className="!px-3 !py-1 !rounded-full !text-[10px] !font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border-none">
+            <div className="space-y-2">
+              <div className="flex items-center gap-4">
+                <h1 className="text-[42px] font-black text-slate-900 tracking-tighter m-0 leading-none italic">{client.name}</h1>
+                <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic shadow-sm border ${client.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                   {client.status || 'Active'}
-                </Badge>
+                </div>
               </div>
-              <div className="flex items-center gap-6 mt-3">
-                <div className="flex items-center gap-2 text-[14px] text-slate-500 font-medium group cursor-pointer hover:text-blue-600 transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                    <Mail size={14} className="group-hover:text-blue-500" /> 
+              <div className="flex items-center gap-8 mt-4">
+                <div className="flex items-center gap-3 text-[15px] text-slate-500 font-bold group/link cursor-pointer hover:text-blue-600 transition-colors italic">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover/link:bg-blue-50 transition-colors border border-slate-100">
+                    <Mail size={16} className="group-hover/link:text-blue-500" /> 
                   </div>
                   {client.email || 'No email associated'}
                 </div>
-                <div className="flex items-center gap-2 text-[14px] text-slate-500 font-medium group cursor-pointer hover:text-blue-600 transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                    <Phone size={14} className="group-hover:text-blue-500" />
+                <div className="flex items-center gap-3 text-[15px] text-slate-500 font-bold group/link cursor-pointer hover:text-blue-600 transition-colors italic">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover/link:bg-blue-50 transition-colors border border-slate-100">
+                    <Phone size={16} className="group-hover/link:text-blue-500" />
                   </div>
                   {client.phone || client.contact_phone || 'No phone listed'}
                 </div>
@@ -206,27 +206,27 @@ const ClientDetailPage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-6">
             <TeamPresence compact />
-            <div className="flex flex-wrap gap-3">
-              <Button variant="outline" size="lg" icon={Edit} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-slate-50">Profile Settings</Button>
-              <Button variant="outline" size="lg" icon={Sparkles} onClick={() => setEmailModalOpen(true)} className="!h-12 !px-6 !rounded-2xl !bg-white hover:!bg-blue-50 hover:!text-blue-600 hover:!border-blue-200">
-                AI Email Agent
+            <div className="flex flex-wrap gap-4">
+              <Button variant="outline" size="lg" icon={Edit} className="!h-14 !px-8 !rounded-2xl !bg-white hover:!bg-slate-50 !font-black !uppercase !text-[11px] !tracking-[0.2em] border-2">Profile</Button>
+              <Button variant="outline" size="lg" icon={Sparkles} onClick={() => setEmailModalOpen(true)} className="!h-14 !px-8 !rounded-2xl !bg-white hover:!bg-blue-50 hover:!text-blue-600 hover:!border-blue-200 !font-black !uppercase !text-[11px] !tracking-[0.2em] border-2">
+                AI Agent
               </Button>
-              <Button variant="primary" size="lg" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-12 !px-8 !rounded-2xl shadow-lg shadow-blue-500/20">
-                New Interaction
+              <Button variant="primary" size="lg" icon={PlusCircle} onClick={() => setTouchpointModalOpen(true)} className="!h-14 !px-10 !rounded-2xl shadow-2xl shadow-blue-500/20 !font-black !uppercase !text-[11px] !tracking-[0.2em]">
+                New Event
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
+      <div className="grid lg:grid-cols-[1fr_420px] gap-10 items-start">
         {/* Left Column: Analytics & Timeline */}
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
           
           {/* Executive Analytics Dashboard */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricWidget 
               title="Relationship Score" 
               value={score} 
