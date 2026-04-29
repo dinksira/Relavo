@@ -9,6 +9,7 @@ import { Menu, X } from 'lucide-react';
 const DashboardLayout = ({ children, title }) => {
   const [quickLogOpen, setQuickLogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { pathname } = useLocation();
   const mainRef = useRef(null);
 
@@ -32,10 +33,15 @@ const DashboardLayout = ({ children, title }) => {
       {/* Sidebar - Desktop Always Visible, Mobile Drawer */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-[50] lg:z-auto
-        transition-transform duration-300 ease-in-out lg:translate-x-0
+        transition-all duration-300 ease-in-out lg:translate-x-0
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${isCollapsed ? 'w-[280px] lg:w-[80px]' : 'w-[280px] lg:w-[260px]'}
       `}>
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        <Sidebar 
+          onClose={() => setIsSidebarOpen(false)} 
+          isCollapsed={isCollapsed}
+          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        />
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
