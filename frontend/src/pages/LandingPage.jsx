@@ -71,53 +71,56 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Extreme Hero Section */}
+      {/* Refined Hero Section */}
       <header 
         ref={heroRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setRotation({ x: 0, y: 0 })}
-        className="relative min-h-screen flex items-center justify-center pt-24 px-6 overflow-hidden"
+        className="relative min-h-screen flex items-center pt-32 px-6 overflow-hidden"
       >
         <LazyVideo 
           src={VIDEO_URLS.hero} 
-          overlayClassName="bg-gradient-to-b from-[#020617]/50 via-transparent to-[#020617]"
+          overlayClassName="bg-gradient-to-r from-[#020617] via-[#020617]/80 to-transparent"
         />
 
-        <div 
-          className="max-w-[1240px] mx-auto text-center relative z-10 transition-transform duration-200 ease-out"
-          style={{ transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` }}
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-12 reveal">
-            <Sparkles size={12} />
-            The Intelligence Layer for Modern Agencies
-          </div>
-          
-          <h1 className="text-6xl md:text-[120px] font-black text-white mb-12 tracking-tighter leading-[0.85] reveal">
-            Predict Churn. <br />
-            Defend <span className="text-blue-500 italic">Revenue.</span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-slate-400 max-w-[700px] mx-auto mb-16 font-medium leading-relaxed reveal" style={{ transitionDelay: '100ms' }}>
-            Relavo monitors 12+ health signals to detect at-risk clients before they churn. <span className="text-white">Join 200+ elite agencies</span> running on predictive intelligence.
-          </p>
+        <div className="max-w-[1240px] mx-auto w-full relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+          <div 
+            className="text-left transition-transform duration-200 ease-out"
+            style={{ transform: `perspective(1000px) rotateX(${rotation.x * 0.5}deg) rotateY(${rotation.y * 0.5}deg)` }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-10 reveal">
+              <Sparkles size={12} />
+              The Intelligence Layer for Modern Agencies
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 tracking-tight leading-[1.1] reveal">
+              Predict Churn. <br />
+              Defend <span className="text-blue-500">Revenue.</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-slate-400 max-w-[540px] mb-12 font-medium leading-relaxed reveal" style={{ transitionDelay: '100ms' }}>
+              Relavo monitors 12+ health signals to detect at-risk clients before they churn. <span className="text-white">Join 200+ elite agencies</span> running on predictive intelligence.
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 reveal" style={{ transitionDelay: '200ms' }}>
-            <Link to="/login" className="bg-blue-600 hover:bg-blue-500 text-white rounded-[24px] px-12 py-6 font-black text-xl shadow-2xl shadow-blue-500/30 flex items-center gap-4 transition-all hover:scale-[1.05] active:scale-95">
-              Request Portal Access <ArrowRight size={24} />
-            </Link>
+            <div className="flex flex-col sm:flex-row items-start justify-start gap-6 reveal" style={{ transitionDelay: '200ms' }}>
+              <Link to="/login" className="bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-10 py-5 font-bold text-lg shadow-2xl shadow-blue-500/20 flex items-center gap-3 transition-all hover:translate-y-[-2px] active:scale-95">
+                Request Portal Access <ArrowRight size={20} />
+              </Link>
+            </div>
+            
+            {/* Minimal Social Proof */}
+            <div className="mt-20 reveal opacity-30" style={{ transitionDelay: '300ms' }}>
+               <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-8">Trusted by global leaders</p>
+               <div className="flex flex-wrap gap-12 grayscale invert">
+                  <div className="text-lg font-black tracking-widest">DELTA</div>
+                  <div className="text-lg font-black tracking-widest">NEXUS</div>
+                  <div className="text-lg font-black tracking-widest">QUANTUM</div>
+               </div>
+            </div>
           </div>
-          
-          {/* Social Proof */}
-          <div className="mt-32 reveal opacity-40" style={{ transitionDelay: '300ms' }}>
-             <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-12">Trusted by scaling agencies globally</p>
-             <div className="flex flex-wrap justify-center items-center gap-20 grayscale invert">
-                <div className="text-2xl font-black">DELTA</div>
-                <div className="text-2xl font-black">NEXUS</div>
-                <div className="text-2xl font-black">QUANTUM</div>
-                <div className="text-2xl font-black">ORBIT</div>
-                <div className="text-2xl font-black">VORTEX</div>
-             </div>
-          </div>
+
+          {/* Right side remains empty or for future visual depth */}
+          <div className="hidden lg:block h-[600px]" />
         </div>
       </header>
 
