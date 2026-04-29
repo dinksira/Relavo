@@ -74,12 +74,11 @@ const Sidebar = ({ onClose, isCollapsed, onToggleCollapse }) => {
       
       <div className={`p-6 pb-10 flex items-center justify-between relative z-10 ${isCollapsed ? 'flex-col gap-6' : ''}`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40 group overflow-hidden shrink-0">
-             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          <div className="w-10 h-10 flex items-center justify-center shrink-0">
             <img 
               src="/favicon.svg" 
               alt="relavo" 
-              className="h-6 w-6 brightness-0 invert" 
+              className="h-7 w-7" 
             />
           </div>
           {!isCollapsed && (
