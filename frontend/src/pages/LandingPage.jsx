@@ -93,18 +93,18 @@ const LandingPage = () => {
               The Intelligence Layer for Modern Agencies
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 tracking-tight leading-[1.1] reveal">
-              Predict Churn. <br />
-              Defend <span className="text-blue-500">Revenue.</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-8 tracking-tight leading-[1.2] reveal">
+              Understand your <br />
+              client relationships.
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-400 max-w-[540px] mb-12 font-medium leading-relaxed reveal" style={{ transitionDelay: '100ms' }}>
-              Relavo monitors 12+ health signals to detect at-risk clients before they churn. <span className="text-white">Join 200+ elite agencies</span> running on predictive intelligence.
+            <p className="text-lg text-slate-400 max-w-[540px] mb-12 font-normal leading-relaxed reveal" style={{ transitionDelay: '100ms' }}>
+              Relavo provides the intelligence layer for your agency. We analyze communication patterns, payment velocity, and client sentiment to identify at-risk accounts before they churn.
             </p>
 
             <div className="flex flex-col sm:flex-row items-start justify-start gap-6 reveal" style={{ transitionDelay: '200ms' }}>
-              <Link to="/login" className="bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-10 py-5 font-bold text-lg shadow-2xl shadow-blue-500/20 flex items-center gap-3 transition-all hover:translate-y-[-2px] active:scale-95">
-                Request Portal Access <ArrowRight size={20} />
+              <Link to="/login" className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-8 py-4 font-semibold text-base shadow-lg shadow-blue-500/10 flex items-center gap-3 transition-all hover:translate-y-[-1px] active:scale-95">
+                Access your dashboard <ArrowRight size={18} />
               </Link>
             </div>
             
