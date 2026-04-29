@@ -163,8 +163,7 @@ def get_briefing(req: BriefingRequest):
 @app.post("/chat")
 def chat(req: ChatRequest):
     try:
-        from groq import Groq
-        groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        from src.utils.groq_client import call_groq
         
         ctx = req.client_context or {}
         system_message_content = f"""You are an AI assistant for Relavo specialized in {req.client_name}.
@@ -182,26 +181,15 @@ Rules:
 - Be conversational and direct.
 - Never make up data not in context."""
 
-        messages = [{"role": "system", "content": system_message_content}]
-        
-        # Add history (last 10)
-        history_list = req.conversation_history or []
-        history = history_list[-10:]
-        for msg in history:
-            messages.append({"role": msg.role, "content": msg.content})
-            
-        # Add current message
-        messages.append({"role": "user", "content": req.message})
-        
-        response = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=messages,
+        response = call_groq(
+            prompt=req.message,
+            system=system_message_content,
             max_tokens=300,
             temperature=0.7
         )
         
         return {
-            "response": response.choices[0].message.content,
+            "response": response,
             "role": "assistant"
         }
     except Exception as e:
@@ -211,9 +199,8 @@ Rules:
 @app.post("/interpret")
 def interpret_command(req: InterpretRequest):
     try:
-        from groq import Groq
+        from src.utils.groq_client import call_groq
         import json
-        groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         
         clients_str = "\n".join([f"- {c['name']} (ID: {c['id']})" for c in req.context_clients[:20]])
         
@@ -245,20 +232,22 @@ RULES:
 2. If they mention a client, always try to find the ID from the list.
 3. Be concise. Return only the JSON."""
 
-        print(f"[Interpret] Query: {req.query}")
-        
-        response = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"User Query: {req.query}"}
-            ],
-            response_format={"type": "json_object"},
+        response = call_groq(
+            prompt=f"User Query: {req.query}",
+            system=system_prompt,
+            max_tokens=300,
             temperature=0.0
         )
         
-        result = json.loads(response.choices[0].message.content)
-        print(f"[Interpret] Result: {result.get('action')} - {result.get('response')}")
+        # OpenRouter/Groq might return markdown, clean it
+        clean_response = response.strip()
+        if clean_response.startswith("```"):
+            clean_response = clean_response.split("```")[1]
+            if clean_response.startswith("json"):
+                clean_response = clean_response[4:]
+        clean_response = clean_response.strip()
+
+        result = json.loads(clean_response)
         return result
     except Exception as e:
         print(f"Interpret error: {e}")
