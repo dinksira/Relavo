@@ -12,8 +12,23 @@ from src.services.drafter import draft_email
 from src.services.briefing import generate_briefing
 
 load_dotenv()
+import traceback
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Relavo AI Service", version="1.0.0")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logger.error(f"GLOBAL ERROR: {exc}")
+    logger.error(traceback.format_exc())
+    return {
+        "success": False,
+        "detail": str(exc),
+        "traceback": traceback.format_exc() if os.getenv("DEBUG") == "true" else None
+    }
 
 app.add_middleware(
     CORSMiddleware,

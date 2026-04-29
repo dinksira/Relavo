@@ -30,7 +30,13 @@ BEGIN
     END IF;
 END $$;
 
--- 3. Enable RLS
+-- 3. Ensure clients table has user_id and other missing columns
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'clients' AND column_name = 'user_id') THEN
+        ALTER TABLE public.clients ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+    END IF;
+END $$;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- 4. Policies
