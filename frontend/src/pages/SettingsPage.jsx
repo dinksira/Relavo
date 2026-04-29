@@ -94,15 +94,48 @@ const SettingsPage = () => {
     document.getElementById('avatar-upload').click();
   };
 
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 400;
+          const MAX_HEIGHT = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Use low quality for base64 to ensure it fits in metadata
+          const compressed = canvas.toDataURL('image/jpeg', 0.6);
+          resolve(compressed);
+        };
+      };
+    });
+  };
+
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Check file size (limit to 2MB for demo/base64 safety)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image must be less than 2MB');
-      return;
-    }
 
     setSaving(true);
     try {
@@ -123,17 +156,13 @@ const SettingsPage = () => {
           .getPublicUrl(filePath);
         publicUrl = urlData.publicUrl;
       } else {
-        // Fallback to Base64 if storage fails (e.g. bucket doesn't exist)
-        console.warn('Storage upload failed, falling back to Base64:', uploadError.message);
-        publicUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
+        // Fallback to Compressed Base64 if storage fails
+        console.warn('Storage upload failed, falling back to Compressed Base64:', uploadError.message);
+        publicUrl = await compressImage(file);
       }
 
       setAvatarUrl(publicUrl);
-      toast.success('Image selected! Click "Save Changes" to persist.');
+      toast.success('Image optimized! Click "Save Changes" to persist.');
     } catch (err) {
       toast.error('Failed to process image: ' + err.message);
     } finally {
