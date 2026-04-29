@@ -314,7 +314,7 @@ const LandingPage = () => {
 const PremiumFeatureCard = ({ icon: Icon, title, desc, img }) => (
   <div className="group relative bg-white/5 border border-white/10 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all duration-500 flex flex-col h-full">
      <div className="h-64 relative overflow-hidden shrink-0">
-        <img src={img} alt={title} className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
+        <img src={img} alt={title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#03081a] via-transparent to-transparent" />
      </div>
      <div className="p-10 space-y-4 flex-1 flex flex-col justify-between relative z-10">
