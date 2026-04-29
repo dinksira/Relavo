@@ -7,7 +7,10 @@ load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
+
+if not OPENROUTER_API_KEY:
+    print("WARNING: OPENROUTER_API_KEY is not set. AI Briefings will fail.")
 
 def call_openrouter(
     prompt: str,

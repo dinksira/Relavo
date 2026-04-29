@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { User, Bell, Shield, CreditCard, Trash2, Camera, Zap, Check, Save, Users2 } from 'lucide-react';
+import { User, Bell, Shield, CreditCard, Trash2, Camera, Zap, Check, Save, Users2, Info } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Button from '../components/ui/Button';
 import TeamSettingsPanel from '../components/team/TeamSettingsPanel';
@@ -14,6 +14,7 @@ const SettingsPage = () => {
   const { user } = useAuthStore();
   const [tab, setTab] = useState(location.state?.tab || 'Profile');
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || '');
   const [bio, setBio] = useState(user?.user_metadata?.bio || '');
   const [saving, setSaving] = useState(false);
   
@@ -25,26 +26,68 @@ const SettingsPage = () => {
     atRisk: 40, needsAttention: 70
   });
 
+  // Load profile data from database on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (data && !error) {
+        if (data.full_name) setFullName(data.full_name);
+        if (data.avatar_url) setAvatarUrl(data.avatar_url);
+        if (data.bio) setBio(data.bio);
+      }
+    };
+    fetchProfile();
+  }, [user]);
+
   const name = fullName || user?.email?.split('@')[0] || 'User';
   const firstChar = name?.charAt(0).toUpperCase() || '?';
 
   const handleSaveAll = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({ 
+      // 1. Update Auth Metadata
+      const { error: authError } = await supabase.auth.updateUser({ 
         data: { 
           full_name: fullName,
+          avatar_url: avatarUrl,
           bio: bio,
           notifications: notifications,
           thresholds: thresholds
         } 
       });
-      if (error) throw error;
+      if (authError) throw authError;
+
+      // 2. Update Profiles Table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          full_name: fullName,
+          avatar_url: avatarUrl,
+          bio: bio,
+          updated_at: new Date().toISOString()
+        });
+      if (profileError) throw profileError;
+
       toast.success('Settings updated successfully!');
     } catch (err) { 
       toast.error('Failed to save settings: ' + err.message); 
     } finally { 
       setSaving(false); 
+    }
+  };
+
+  const handlePhotoUpload = () => {
+    // In a real app, this would open a file picker and upload to Supabase Storage
+    const url = prompt("Enter the URL for your profile image:", avatarUrl);
+    if (url !== null) {
+      setAvatarUrl(url);
     }
   };
 
@@ -106,10 +149,17 @@ const SettingsPage = () => {
               <div className="max-w-[600px] animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-center gap-8 mb-10">
                   <div className="relative group">
-                    <div className="w-24 h-24 rounded-[28px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[32px] font-bold shadow-xl shadow-blue-200">
-                      {firstChar}
+                    <div className="w-24 h-24 rounded-[28px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[32px] font-bold shadow-xl shadow-blue-200 overflow-hidden">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                      ) : (
+                        firstChar
+                      )}
                     </div>
-                    <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-xl shadow-lg border border-slate-100 flex items-center justify-center text-slate-600 hover:text-blue-600 transition-colors border-none cursor-pointer">
+                    <button 
+                      onClick={handlePhotoUpload}
+                      className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-xl shadow-lg border border-slate-100 flex items-center justify-center text-slate-600 hover:text-blue-600 transition-colors border-none cursor-pointer"
+                    >
                       <Camera size={16} />
                     </button>
                   </div>
@@ -131,6 +181,17 @@ const SettingsPage = () => {
                       placeholder="e.g. Alex Rivera"
                       className="input-base"
                     />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-2.5 block px-1">Avatar URL</label>
+                    <input 
+                      value={avatarUrl} 
+                      onChange={e => setAvatarUrl(e.target.value)} 
+                      placeholder="https://example.com/photo.jpg"
+                      className="input-base"
+                    />
+                    <p className="text-[12px] text-slate-400 mt-2 px-1">Direct link to an image file.</p>
                   </div>
                   
                   <div>
