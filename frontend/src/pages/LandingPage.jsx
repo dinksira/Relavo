@@ -242,28 +242,28 @@ const LandingPage = () => {
          </div>
       </section>
 
-      {/* The Blueprint CTA */}
-      <section id="blueprint" className="py-40 px-6">
-         <div className="max-w-[1240px] mx-auto bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[64px] p-12 lg:p-32 relative overflow-hidden text-center reveal">
-            <div className="absolute inset-0 bg-grid-white opacity-10" />
-            <div className="absolute -top-32 -left-32 w-96 h-96 bg-white/20 blur-[120px] rounded-full" />
+      {/* The Blueprint CTA - Refined & Minimized */}
+      <section id="blueprint" className="py-32 px-6">
+         <div className="max-w-[1100px] mx-auto bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[48px] p-12 lg:p-20 relative overflow-hidden text-center reveal">
+            <div className="absolute inset-0 bg-grid-white opacity-[0.05]" />
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-white/10 blur-[100px] rounded-full" />
             
-            <div className="relative z-10 space-y-12">
-               <h2 className="text-5xl md:text-9xl font-black text-white tracking-tighter leading-[0.85]">
-                 Defend <br /> Your Agency.
+            <div className="relative z-10 space-y-10">
+               <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight leading-[1.1]">
+                 Defend Your Agency.
                </h2>
-               <p className="text-2xl text-white/70 max-w-[600px] mx-auto font-medium">
+               <p className="text-xl text-white/70 max-w-[500px] mx-auto font-normal leading-relaxed">
                  Stop guessing. Start knowing. Relavo is your defensive layer against the silent churn killing your growth.
                </p>
-               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <Link to="/login" className="bg-white text-navy px-12 py-6 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-2xl">
+               <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4">
+                  <Link to="/login" className="bg-slate-950 text-white px-10 py-4 rounded-2xl font-bold text-base hover:bg-black transition-all shadow-2xl hover:translate-y-[-2px]">
                     Get Early Access
                   </Link>
-                  <button className="bg-transparent text-white border-2 border-white/20 px-12 py-6 rounded-3xl font-black text-xl hover:bg-white/10 transition-all">
+                  <button className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-2xl font-bold text-base hover:bg-white/20 transition-all">
                     Book the Demo
                   </button>
                </div>
-               <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40">Protecting $4M+ in annual recurring revenue</p>
+               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 pt-4">Protecting $4M+ in annual recurring revenue</p>
             </div>
          </div>
       </section>
