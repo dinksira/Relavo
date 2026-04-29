@@ -61,7 +61,7 @@ const TopBar = ({ isMobile }) => {
   }
 
   return (
-    <header className="h-[80px] bg-white/70 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-12 sticky top-0 z-[10]">
+    <header className="h-[80px] bg-white/70 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-12 sticky top-0 z-[40]">
       {/* Left Side — Executive Breadcrumb */}
       <div className="flex items-center gap-3 group cursor-default">
         <div className="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:bg-white group-hover:border-blue-100 transition-all duration-300">
@@ -130,10 +130,10 @@ const TopBar = ({ isMobile }) => {
           {userMenuOpen && (
             <>
               <div 
-                className="fixed inset-0 z-[19]" 
+                className="fixed inset-0 z-[99]" 
                 onClick={() => setUserMenuOpen(false)} 
               />
-              <div className="absolute top-[calc(100%+12px)] right-0 min-w-[260px] bg-white border border-slate-100 rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.12)] p-2 z-[20] animate-in fade-in zoom-in-95 duration-300">
+              <div className="absolute top-[calc(100%+12px)] right-0 min-w-[260px] bg-white border border-slate-100 rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.12)] p-2 z-[100] animate-in fade-in zoom-in-95 duration-300">
                 <div className="px-5 py-4 border-b border-slate-50 mb-1">
                   <p className="text-[15px] font-black text-slate-900 m-0 truncate tracking-tight">{name}</p>
                   <p className="text-[11px] text-slate-400 m-0 truncate font-medium">{email}</p>
@@ -151,7 +151,7 @@ const TopBar = ({ isMobile }) => {
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-4 py-3 text-[12px] text-rose-500 font-black uppercase tracking-widest rounded-2xl hover:bg-rose-50 transition-all border-none bg-transparent cursor-pointer"
                   >
-                    <LogOut size={16} /> De-authenticate
+                    <LogOut size={16} /> Logout
                   </button>
                 </div>
               </div>
