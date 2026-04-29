@@ -12,8 +12,7 @@ import {
   Star,
   Cpu,
   Lock,
-  PieChart,
-  Sparkles
+  PieChart
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import useRevealOnScroll from '../hooks/useRevealOnScroll';
