@@ -474,7 +474,7 @@ const ClientDetailPage = () => {
           </div>
 
           {/* Team Discussion Thread */}
-          <div className="reveal" style={{ transitionDelay: '600ms' }}>
+          <div className="reveal mb-12" style={{ transitionDelay: '600ms' }}>
             <TeamComments clientId={id} />
           </div>
         </div>
