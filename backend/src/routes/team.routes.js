@@ -484,16 +484,32 @@ router.get('/comments/:clientId', async (req, res) => {
 
     const { data: comments, error } = await supabase
       .from('comments')
-      .select(`
-        id, content, mentions, created_at, updated_at,
-        profiles:user_id(id, full_name, email, avatar_url)
-      `)
+      .select('id, content, mentions, created_at, updated_at, user_id')
       .eq('client_id', clientId)
       .eq('agency_id', agency.id)
       .order('created_at', { ascending: true });
 
     if (error) return fail(res, 400, error.message);
-    return ok(res, comments || [], 'Comments fetched');
+
+    // Hydrate comments with profiles
+    const userIds = [...new Set((comments || []).map(c => c.user_id))];
+    let commentsWithProfiles = comments || [];
+
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds);
+      
+      if (profiles) {
+        commentsWithProfiles = comments.map(c => ({
+          ...c,
+          profiles: profiles.find(p => p.id === c.user_id) || { id: c.user_id, full_name: 'Unknown User' }
+        }));
+      }
+    }
+
+    return ok(res, commentsWithProfiles, 'Comments fetched');
   } catch (err) {
     console.error('Get Comments Error:', err);
     return fail(res, 500, 'Internal server error');
@@ -529,13 +545,22 @@ router.post('/comments/:clientId', async (req, res) => {
         content: content.trim(),
         mentions
       })
-      .select(`
-        id, content, mentions, created_at, updated_at,
-        profiles:user_id(id, full_name, email, avatar_url)
-      `)
+      .select('id, content, mentions, created_at, updated_at, user_id')
       .single();
 
     if (error) return fail(res, 400, error.message);
+
+    // Hydrate with current user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, avatar_url')
+      .eq('id', req.user.id)
+      .single();
+
+    const commentWithProfile = {
+      ...comment,
+      profiles: profile || { id: req.user.id, full_name: 'You' }
+    };
 
     // Log activity
     await supabase.from('activity_log').insert({
@@ -550,7 +575,7 @@ router.post('/comments/:clientId', async (req, res) => {
       }
     });
 
-    return res.status(201).json({ success: true, data: comment, message: 'Comment added' });
+    return res.status(201).json({ success: true, data: commentWithProfile, message: 'Comment added' });
   } catch (err) {
     console.error('Add Comment Error:', err);
     return fail(res, 500, 'Internal server error');
