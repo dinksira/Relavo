@@ -84,10 +84,53 @@ const SettingsPage = () => {
   };
 
   const handlePhotoUpload = () => {
-    // In a real app, this would open a file picker and upload to Supabase Storage
-    const url = prompt("Enter the URL for your profile image:", avatarUrl);
-    if (url !== null) {
-      setAvatarUrl(url);
+    document.getElementById('avatar-upload').click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (limit to 2MB for demo/base64 safety)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // 1. Try to upload to Supabase Storage if bucket 'avatars' exists
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `public/${fileName}`;
+
+      let publicUrl = '';
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+        publicUrl = urlData.publicUrl;
+      } else {
+        // Fallback to Base64 if storage fails (e.g. bucket doesn't exist)
+        console.warn('Storage upload failed, falling back to Base64:', uploadError.message);
+        publicUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      setAvatarUrl(publicUrl);
+      toast.success('Image selected! Click "Save Changes" to persist.');
+    } catch (err) {
+      toast.error('Failed to process image: ' + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -147,6 +190,13 @@ const SettingsPage = () => {
           <div className="p-10">
             {tab === 'Profile' && (
               <div className="max-w-[600px] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <input 
+                  type="file" 
+                  id="avatar-upload" 
+                  hidden 
+                  accept="image/*" 
+                  onChange={handleFileChange} 
+                />
                 <div className="flex items-center gap-8 mb-10">
                   <div className="relative group">
                     <div className="w-24 h-24 rounded-[28px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[32px] font-bold shadow-xl shadow-blue-200 overflow-hidden">
