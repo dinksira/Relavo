@@ -43,7 +43,16 @@ const Register = () => {
     setLoading(true);
     setError(null);
     try {
+      // 1. Backend creates user + agency
       const { data } = await authAPI.register(formData.email, formData.password, formData.name, formData.agency);
+
+      // 2. Also sign in on the frontend Supabase client so it has a valid session
+      //    (without this, the frontend SDK has no session and API calls get 401'd)
+      await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+
       setAuth(data.user, data.token);
       navigate('/dashboard');
     } catch (err) {
