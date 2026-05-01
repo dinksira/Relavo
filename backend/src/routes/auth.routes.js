@@ -6,7 +6,7 @@ const authMiddleware = require('../middleware/auth');
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, agency } = req.body;
     
     if (!email || !password || !name) {
       return res.status(400).json({ error: "Email, password, and name are required" });
@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
          id: user.id,
          full_name: name,
          email: email,
-         company_name: '' // Can be updated later in Settings
+         company_name: agency || ''
       });
 
     if (profileError) {
@@ -49,7 +49,40 @@ router.post('/register', async (req, res) => {
        // We don't fail registration if profile creation fails, but it's good to log
     }
 
-    res.status(201).json({ user, token: session.access_token });
+    // 4. Auto-create agency workspace if agency name was provided
+    let agencyData = null;
+    if (agency && agency.trim()) {
+      try {
+        const slug = agency.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+        const { data: newAgency, error: agencyError } = await supabase
+          .from('agencies')
+          .insert({ name: agency.trim(), slug, owner_id: user.id })
+          .select()
+          .single();
+
+        if (agencyError) {
+          console.error('Agency creation error:', agencyError);
+        } else {
+          agencyData = newAgency;
+
+          // Add user as owner member
+          await supabase
+            .from('agency_members')
+            .insert({ agency_id: newAgency.id, user_id: user.id, role: 'owner' });
+
+          // Update profile with agency_id
+          await supabase
+            .from('profiles')
+            .update({ agency_id: newAgency.id, role: 'owner' })
+            .eq('id', user.id);
+        }
+      } catch (agencyErr) {
+        console.error('Agency setup error (non-fatal):', agencyErr);
+      }
+    }
+
+    res.status(201).json({ user, token: session.access_token, agency: agencyData });
   } catch (err) {
     console.error('Register Error:', err);
     res.status(500).json({ error: "Internal server error" });

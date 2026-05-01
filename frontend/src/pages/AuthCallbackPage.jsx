@@ -33,6 +33,45 @@ export default function AuthCallbackPage() {
             console.warn('Profile upsert failed:', profileErr);
           }
 
+          // Check if user already has an agency
+          try {
+            const { data: membership } = await supabase
+              .from('agency_members')
+              .select('agency_id')
+              .eq('user_id', session.user.id)
+              .limit(1)
+              .single();
+
+            if (!membership) {
+              // New OAuth user — auto-create a default agency workspace
+              const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email;
+              const agencyName = `${userName}'s Agency`;
+              const slug = agencyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+              const { data: newAgency, error: agencyError } = await supabase
+                .from('agencies')
+                .insert({ name: agencyName, slug, owner_id: session.user.id })
+                .select()
+                .single();
+
+              if (!agencyError && newAgency) {
+                await supabase
+                  .from('agency_members')
+                  .insert({ agency_id: newAgency.id, user_id: session.user.id, role: 'owner' });
+
+                await supabase
+                  .from('profiles')
+                  .update({ agency_id: newAgency.id, role: 'owner' })
+                  .eq('id', session.user.id);
+
+                console.log('[Auth] Auto-created agency for new OAuth user:', newAgency.name);
+              }
+            }
+          } catch (agencyCheckErr) {
+            // Non-fatal — user will land on dashboard without team (can create later)
+            console.warn('Agency auto-setup check:', agencyCheckErr?.message);
+          }
+
           setAuth(session.user, session.access_token);
           navigate('/dashboard', { replace: true });
           return;

@@ -43,7 +43,7 @@ const Register = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await authAPI.register(formData.email, formData.password, formData.name);
+      const { data } = await authAPI.register(formData.email, formData.password, formData.name, formData.agency);
       setAuth(data.user, data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -60,7 +60,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-white flex overflow-hidden">
       {/* Left side: Visual/Marketing */}
-      <div className="hidden lg:flex flex-1 bg-navy relative overflow-hidden items-center justify-center p-20">
+      <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-20">
          <div className="absolute inset-0 z-0">
             <LazyVideo 
                src={AUTH_VIDEO_URL} 
@@ -68,7 +68,7 @@ const Register = () => {
                mixBlendMode="normal"
                className="scale-x-[-1]"
             />
-            <div className="absolute inset-0 bg-gradient-to-bl from-navy via-navy/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-bl from-slate-900 via-slate-900/60 to-transparent" />
          </div>
 
          <div className="relative z-10 max-w-[500px] w-full">
@@ -80,7 +80,7 @@ const Register = () => {
                <div className="space-y-6">
                   <h2 className="text-5xl font-black text-white leading-[1.1] tracking-tight">
                     Scale your agency <br />
-                    <span className="text-blue">without</span> the <br />
+                    <span className="text-blue-500">without</span> the <br />
                     churn anxiety.
                   </h2>
                   <p className="text-xl text-white/60 font-medium leading-relaxed">
@@ -90,12 +90,12 @@ const Register = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl space-y-2">
-                     <Zap className="text-blue" size={24} />
+                     <Zap className="text-blue-500" size={24} />
                      <p className="text-xs font-black text-white/40 uppercase tracking-widest">Rapid Launch</p>
                      <p className="text-lg font-bold text-white tracking-tight">5 Min Setup</p>
                   </div>
                   <div className="p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl space-y-2">
-                     <Target className="text-blue" size={24} />
+                     <Target className="text-blue-500" size={24} />
                      <p className="text-xs font-black text-white/40 uppercase tracking-widest">AI Detection</p>
                      <p className="text-lg font-bold text-white tracking-tight">Precision Scoring</p>
                   </div>
@@ -111,31 +111,31 @@ const Register = () => {
             <Logo className="h-7" />
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue animate-pulse" />
-            <p className="text-[9px] font-black text-navy/40 uppercase tracking-[0.2em]">Live Waitlist</p>
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Live Waitlist</p>
           </div>
         </div>
 
         <div className="max-w-[400px] w-full mx-auto my-auto py-2">
           <div className="space-y-2 mb-10">
-            <h1 className="text-3xl font-black text-navy tracking-tight">Start for free.</h1>
-            <p className="text-text-2 text-sm font-medium">Join the waitlist of 200+ agencies and get first access.</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Start for free.</h1>
+            <p className="text-slate-500 text-sm font-medium">Join the waitlist of 200+ agencies and get first access.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-navy/40 uppercase tracking-[0.2em] ml-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
                 Full Name
               </label>
               <div className="relative group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue transition-all rounded-l-xl z-20" />
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue transition-colors z-10" size={17} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue-500 transition-all rounded-l-xl z-20" />
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors z-10" size={17} />
                 <input
                   name="name"
                   type="text"
                   required
                   placeholder="John Doe"
-                  className="w-full pl-14 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-navy"
+                  className="w-full pl-14 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue-500 focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-slate-900"
                   value={formData.name}
                   onChange={handleChange}
                 />
@@ -143,17 +143,17 @@ const Register = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-navy/40 uppercase tracking-[0.2em] ml-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
                 Agency Name
               </label>
               <div className="relative group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue transition-all rounded-l-xl z-20" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue-500 transition-all rounded-l-xl z-20" />
                 <input
                   name="agency"
                   type="text"
                   required
                   placeholder="e.g. Flux Labs"
-                  className="w-full px-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-navy"
+                  className="w-full px-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue-500 focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-slate-900"
                   value={formData.agency}
                   onChange={handleChange}
                 />
@@ -161,18 +161,18 @@ const Register = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-navy/40 uppercase tracking-[0.2em] ml-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
                 Work Email
               </label>
               <div className="relative group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue transition-all rounded-l-xl z-20" />
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue transition-colors z-10" size={17} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue-500 transition-all rounded-l-xl z-20" />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors z-10" size={17} />
                 <input
                   name="email"
                   type="email"
                   required
                   placeholder="name@agency.com"
-                  className="w-full pl-14 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-navy"
+                  className="w-full pl-14 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue-500 focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-slate-900"
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -180,18 +180,18 @@ const Register = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-navy/40 uppercase tracking-[0.2em] ml-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
                 Password
               </label>
               <div className="relative group">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue transition-all rounded-l-xl z-20" />
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue transition-colors z-10" size={17} />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-focus-within:bg-blue-500 transition-all rounded-l-xl z-20" />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors z-10" size={17} />
                 <input
                   name="password"
                   type="password"
                   required
                   placeholder="At least 12 characters"
-                  className="w-full pl-14 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-navy"
+                  className="w-full pl-14 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue-500 focus:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.12)] font-bold transition-all text-sm placeholder:text-slate-300 text-slate-900"
                   value={formData.password}
                   onChange={handleChange}
                 />
@@ -199,9 +199,9 @@ const Register = () => {
             </div>
 
             <div className="flex items-center gap-2 py-1">
-               <input type="checkbox" required className="accent-blue cursor-pointer h-4 w-4" />
-               <p className="text-[10px] text-text-2 font-medium leading-tight">
-                  I agree to the <a href="#" className="text-blue font-black">Terms</a> and acknowledge the <a href="#" className="text-blue font-black">Privacy Policy</a>.
+               <input type="checkbox" required className="accent-blue-500 cursor-pointer h-4 w-4" />
+               <p className="text-[10px] text-slate-500 font-medium leading-tight">
+                 I agree to the <a href="#" className="text-blue-500 font-black">Terms</a> and acknowledge the <a href="#" className="text-blue-500 font-black">Privacy Policy</a>.
                </p>
             </div>
 
@@ -214,7 +214,7 @@ const Register = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="bg-blue/80 hover:bg-blue/90 text-white font-black w-full py-4 rounded-xl text-lg mt-2 shadow-xl shadow-blue/10 flex items-center justify-center gap-2 group/btn transition-all disabled:opacity-50"
+              className="w-full h-14 bg-slate-900 hover:bg-black text-white font-black rounded-2xl shadow-xl shadow-slate-200 flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -225,7 +225,7 @@ const Register = () => {
                    Creating Account...
                 </div>
               ) : (
-                <>Create Agency Space <ArrowRight size={20} className="transition-transform group-hover/btn:translate-x-1" /></>
+                <>Create Agency Space <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" /></>
               )}
             </button>
           </form>
@@ -242,7 +242,7 @@ const Register = () => {
           <button 
             type="button"
             onClick={handleGoogleSignup}
-            className="w-full py-3.5 px-6 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-sm text-navy hover:bg-slate-50 hover:border-slate-200 transition-all group"
+            className="w-full py-3.5 px-6 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-sm text-slate-900 hover:bg-slate-50 hover:border-slate-200 transition-all group"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -253,19 +253,19 @@ const Register = () => {
             Google
           </button>
 
-          <p className="mt-8 text-center text-xs font-medium text-text-2">
+          <p className="mt-8 text-center text-xs font-medium text-slate-500">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue font-bold hover:underline">
+            <Link to="/login" className="text-blue-600 font-bold hover:underline">
               Sign in
             </Link>
           </p>
         </div>
 
-        <div className="mt-4 pt-6 border-t border-slate-100 flex justify-between items-center text-[9px] font-black text-text-3 uppercase tracking-widest">
+        <div className="mt-4 pt-6 border-t border-slate-100 flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
           <span>&copy; 2026 relavo inc.</span>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-navy">Contact</a>
-            <a href="#" className="hover:text-navy">API</a>
+            <a href="#" className="hover:text-slate-900">Contact</a>
+            <a href="#" className="hover:text-slate-900">API</a>
           </div>
         </div>
       </div>
