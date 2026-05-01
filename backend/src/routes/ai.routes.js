@@ -161,8 +161,9 @@ router.post('/briefing/:clientId', async (req, res) => {
     console.error('DIAGNOSTIC: AI Briefing Error:', error.message);
     if (error.response) {
       console.error('DIAGNOSTIC: AI Service Response Body:', JSON.stringify(error.response.data, null, 2));
+      return fail(res, error.response.status, `AI Service Error: ${error.response.data?.detail || error.message}`);
     }
-    return fail(res, 500, error.message);
+    return fail(res, 500, `Internal Server Error: ${error.message}`);
   }
 });
 
@@ -211,8 +212,12 @@ router.post('/chat/:clientId', async (req, res) => {
 
     return ok(res, result, 'Chat response generated');
   } catch (error) {
-    console.error('Error in /chat/:clientId:', error.message);
-    return fail(res, 500, error.message);
+    console.error('DIAGNOSTIC: Chat Error:', error.message);
+    if (error.response) {
+      console.error('DIAGNOSTIC: AI Service Response Body:', JSON.stringify(error.response.data, null, 2));
+      return fail(res, error.response.status, `AI Chat Error: ${error.response.data?.detail || error.message}`);
+    }
+    return fail(res, 500, `Internal Server Error: ${error.message}`);
   }
 });
 
